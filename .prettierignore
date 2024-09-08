@@ -1,0 +1,15 @@
+tsconfig.tsbuildinfo
+tsconfig.build.tsbuildinfo
+.tsbuildinfo
+
+build/
+dist/
+lib/
+node_modules/
+.DS_STORE
+
+.build
+.remix
+
+pnpm-lock.yaml
+assets/
