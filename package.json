@@ -42,5 +42,21 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,mts,js,mjs,json,md}": [
+      "pnpm prettier --check"
+    ],
+    "*.{ts,mts,js}": [
+      "pnpm eslint --no-warn-ignored --max-warnings 0"
+    ]
+  },
+  "volta": {
+    "node": "20.15.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "eslint": "9.6.0"
+    }
   }
 }
