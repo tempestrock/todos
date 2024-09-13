@@ -4,8 +4,8 @@ import { Amplify } from 'aws-amplify'
 import awsconfig from '../aws-exports'
 import { useLoaderData } from '@remix-run/react'
 
-// Configure Amplify with aws-exports
-Amplify.configure(awsconfig)
+// // Configure Amplify with aws-exports
+// Amplify.configure(awsconfig)
 
 // Enum to represent task statuses
 enum TaskStatus {
@@ -87,19 +87,21 @@ const mockTodoLists: TodoList[] = [
 // Loader function to pass data to the component
 export const loader: LoaderFunction = async () => {
   try {
-    // Check if a user is authenticated using getCurrentUser
+    // Short delay for session persistence (debugging purposes)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    console.log("Hey 1")
+    console.log('[loader] Checking authenticated user')
     const user = await getCurrentUser()
+    console.log('[loader] Directly behind getCurrentUser().')    
+
     if (!user) {
       throw new Error('Not authenticated')
     }
 
-    console.log("Hey 2")
-
+    console.log('[loader] User authenticated, loading data.')
     return { todoLists: mockTodoLists, labels: availableLabels }
-  } catch {
-    // Redirect to login if not authenticated
+  } catch (err) {
+    console.log('[loader] An error occurred:', err)
     return redirect('/login')
   }
 }
