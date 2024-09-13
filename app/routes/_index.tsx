@@ -8,6 +8,9 @@ enum TaskStatus {
   FINISHED = 'finished',
 }
 
+// Function to get all TaskStatus values
+const getTaskStatusValues = () => Object.values(TaskStatus)
+
 type Task = {
   id: string
   task: string
@@ -52,34 +55,37 @@ export const loader: LoaderFunction = async () => {
 export default function Index() {
   const todoLists = useLoaderData<TodoList[]>()
 
+  // Get all TaskStatus values
+  const statuses = getTaskStatusValues()
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">My To-Do Lists</h1>
 
       {todoLists.map((list) => (
-        <div key={list.id} className={`mb-6 p-4 border-l-8`} style={{ borderColor: list.color }}>
+        <div key={list.id} className={`mb-6`}>
           <h2 className="text-xl font-semibold" style={{ color: list.color }}>
             {list.name}
           </h2>
-          <ul className="mt-2">
-            {list.tasks.map((task) => (
-              <li key={task.id} className={`p-2 mb-2 border`}>
-                <span>{task.task}</span>
-                <span className="ml-4 text-sm text-gray-500">({task.createdAt})</span>
-                <span
-                  className={`ml-4 px-2 py-1 rounded text-xs ${
-                    task.status === TaskStatus.FINISHED
-                      ? 'bg-green-200 text-green-700'
-                      : task.status === TaskStatus.AT_WORK
-                      ? 'bg-yellow-200 text-yellow-700'
-                      : 'bg-gray-200 text-gray-700'
-                  }`}
-                >
-                  {task.status}
-                </span>
-              </li>
+
+          {/* Dynamic grid layout based on TaskStatus count */}
+          <div className={`grid grid-cols-${statuses.length} gap-4`}>
+            {statuses.map((status) => (
+              <div key={status}>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2 capitalize">{status}</h3>
+                <ul className="border border-gray-300 p-2 rounded">
+                  {list.tasks
+                    .filter((task) => task.status === status)
+                    .map((task) => (
+                      <li key={task.id} className="p-2 mb-2 border-b">
+                        <span>{task.task}</span>
+                        <span className="ml-4 text-sm text-gray-500">({task.createdAt})</span>
+                      </li>
+                    ))}
+                </ul>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       ))}
     </div>
