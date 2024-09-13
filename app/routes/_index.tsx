@@ -1,5 +1,11 @@
-import { LoaderFunction } from '@remix-run/node'
+import { LoaderFunction, redirect } from '@remix-run/node'
+import { getCurrentUser } from '@aws-amplify/auth'
+import { Amplify } from 'aws-amplify'
+import awsconfig from '../aws-exports'
 import { useLoaderData } from '@remix-run/react'
+
+// Configure Amplify with aws-exports
+Amplify.configure(awsconfig)
 
 // Enum to represent task statuses
 enum TaskStatus {
@@ -46,7 +52,13 @@ const mockTodoLists: TodoList[] = [
     color: 'blue',
     tasks: [
       { id: '1', task: 'Buy milk', status: TaskStatus.BACKLOG, createdAt: '2024-09-13_09:00:00', labels: ['Home'] },
-      { id: '2', task: 'Buy eggs', status: TaskStatus.FINISHED, createdAt: '2024-09-13_09:05:00', labels: ['Urgent', 'Home'] },
+      {
+        id: '2',
+        task: 'Buy eggs',
+        status: TaskStatus.FINISHED,
+        createdAt: '2024-09-13_09:05:00',
+        labels: ['Urgent', 'Home'],
+      },
     ],
   },
   {
@@ -54,15 +66,42 @@ const mockTodoLists: TodoList[] = [
     name: 'Work',
     color: 'green',
     tasks: [
-      { id: '1', task: 'Finish report', status: TaskStatus.AT_WORK, createdAt: '2024-09-13_10:00:00', labels: ['Work'] },
-      { id: '2', task: 'Email client', status: TaskStatus.BACKLOG, createdAt: '2024-09-13_10:15:00', labels: ['Urgent'] },
+      {
+        id: '1',
+        task: 'Finish report',
+        status: TaskStatus.AT_WORK,
+        createdAt: '2024-09-13_10:00:00',
+        labels: ['Work'],
+      },
+      {
+        id: '2',
+        task: 'Email client',
+        status: TaskStatus.BACKLOG,
+        createdAt: '2024-09-13_10:15:00',
+        labels: ['Urgent'],
+      },
     ],
   },
 ]
 
 // Loader function to pass data to the component
 export const loader: LoaderFunction = async () => {
-  return { todoLists: mockTodoLists, labels: availableLabels }
+  try {
+    // Check if a user is authenticated using getCurrentUser
+
+    console.log("Hey 1")
+    const user = await getCurrentUser()
+    if (!user) {
+      throw new Error('Not authenticated')
+    }
+
+    console.log("Hey 2")
+
+    return { todoLists: mockTodoLists, labels: availableLabels }
+  } catch {
+    // Redirect to login if not authenticated
+    return redirect('/login')
+  }
 }
 
 // Utility function to find a label's color or return gray if the label doesn't exist
