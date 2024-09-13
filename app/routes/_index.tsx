@@ -6,6 +6,7 @@ enum TaskStatus {
   BACKLOG = 'backlog',
   AT_WORK = 'at work',
   FINISHED = 'finished',
+  ON_HOLD = 'on hold', // Example of a fourth status
 }
 
 // Function to get all TaskStatus values
@@ -68,12 +69,12 @@ export default function Index() {
             {list.name}
           </h2>
 
-          {/* Dynamic grid layout based on TaskStatus count */}
-          <div className={`grid grid-cols-${statuses.length} gap-4`}>
+          {/* Flex container for equal height columns */}
+          <div className="flex gap-4">
             {statuses.map((status) => (
-              <div key={status}>
+              <div key={status} className="flex-1 flex flex-col border border-gray-300 p-2 rounded">
                 <h3 className="text-lg font-semibold text-gray-700 mb-2 capitalize">{status}</h3>
-                <ul className="border border-gray-300 p-2 rounded">
+                <ul className="flex-1">
                   {list.tasks
                     .filter((task) => task.status === status)
                     .map((task) => (
