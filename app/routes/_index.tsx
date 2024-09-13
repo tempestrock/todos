@@ -6,17 +6,22 @@ enum TaskStatus {
   BACKLOG = 'backlog',
   AT_WORK = 'at work',
   FINISHED = 'finished',
-  ON_HOLD = 'on hold', // Example of a fourth status
+  ON_HOLD = 'on hold',
 }
 
-// Function to get all TaskStatus values
-const getTaskStatusValues = () => Object.values(TaskStatus)
+// Label structure with name and color
+type Label = {
+  name: string
+  color: string
+}
 
+// Task structure with labels
 type Task = {
   id: string
   task: string
   status: TaskStatus
-  createdAt: string // Creation time in the format `YYYY-MM-DD_hh:mm:ss`
+  createdAt: string
+  labels: string[] // Array of label names
 }
 
 type TodoList = {
@@ -26,15 +31,22 @@ type TodoList = {
   tasks: Task[]
 }
 
-// Mock to-do list data with multiple lists and updated status field
+// List of available labels (with the restriction that label names must be unique)
+const availableLabels: Label[] = [
+  { name: 'Urgent', color: 'red' },
+  { name: 'Home', color: 'blue' },
+  { name: 'Work', color: 'green' },
+]
+
+// Mock to-do list data with tasks that have labels
 const mockTodoLists: TodoList[] = [
   {
     id: 'list-1',
     name: 'Groceries',
     color: 'blue',
     tasks: [
-      { id: '1', task: 'Buy milk', status: TaskStatus.BACKLOG, createdAt: '2024-09-13_09:00:00' },
-      { id: '2', task: 'Buy eggs', status: TaskStatus.FINISHED, createdAt: '2024-09-13_09:05:00' },
+      { id: '1', task: 'Buy milk', status: TaskStatus.BACKLOG, createdAt: '2024-09-13_09:00:00', labels: ['Home'] },
+      { id: '2', task: 'Buy eggs', status: TaskStatus.FINISHED, createdAt: '2024-09-13_09:05:00', labels: ['Urgent', 'Home'] },
     ],
   },
   {
@@ -42,22 +54,27 @@ const mockTodoLists: TodoList[] = [
     name: 'Work',
     color: 'green',
     tasks: [
-      { id: '1', task: 'Finish report', status: TaskStatus.AT_WORK, createdAt: '2024-09-13_10:00:00' },
-      { id: '2', task: 'Email client', status: TaskStatus.BACKLOG, createdAt: '2024-09-13_10:15:00' },
+      { id: '1', task: 'Finish report', status: TaskStatus.AT_WORK, createdAt: '2024-09-13_10:00:00', labels: ['Work'] },
+      { id: '2', task: 'Email client', status: TaskStatus.BACKLOG, createdAt: '2024-09-13_10:15:00', labels: ['Urgent'] },
     ],
   },
 ]
 
 // Loader function to pass data to the component
 export const loader: LoaderFunction = async () => {
-  return mockTodoLists
+  return { todoLists: mockTodoLists, labels: availableLabels }
+}
+
+// Utility function to find a label's color or return gray if the label doesn't exist
+const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
+  const label = availableLabels.find((label) => label.name === labelName)
+  return label ? label.color : 'gray' // Default to gray if label is not found
 }
 
 export default function Index() {
-  const todoLists = useLoaderData<TodoList[]>()
+  const { todoLists, labels } = useLoaderData<{ todoLists: TodoList[]; labels: Label[] }>()
 
-  // Get all TaskStatus values
-  const statuses = getTaskStatusValues()
+  const statuses = Object.values(TaskStatus)
 
   return (
     <div className="container mx-auto p-4">
@@ -69,7 +86,6 @@ export default function Index() {
             {list.name}
           </h2>
 
-          {/* Flex container for equal height columns */}
           <div className="flex gap-4">
             {statuses.map((status) => (
               <div key={status} className="flex-1 flex flex-col border border-gray-300 p-2 rounded">
@@ -81,6 +97,19 @@ export default function Index() {
                       <li key={task.id} className="p-2 mb-2 border-b">
                         <span>{task.task}</span>
                         <span className="ml-4 text-sm text-gray-500">({task.createdAt})</span>
+
+                        {/* Display labels next to the task */}
+                        <div className="mt-1">
+                          {task.labels.map((labelName) => (
+                            <span
+                              key={labelName}
+                              className="inline-block px-2 py-1 text-xs font-medium rounded mr-2"
+                              style={{ backgroundColor: getLabelColor(labelName, labels), color: 'white' }}
+                            >
+                              {labelName}
+                            </span>
+                          ))}
+                        </div>
                       </li>
                     ))}
                 </ul>
