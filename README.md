@@ -1,4 +1,4 @@
-# Welcome to Remix!
+# Peter's ToDo Lists
 
 - 📖 [Remix docs](https://remix.run/docs)
 
@@ -6,7 +6,7 @@
 
 Run the dev server:
 
-```shellscript
+```bash
 pnpm dev
 ```
 
@@ -14,13 +14,13 @@ pnpm dev
 
 First, build your app for production:
 
-```sh
+```bash
 pnpm build
 ```
 
 Then run the app in production mode:
 
-```sh
+```bash
 pnpm start
 ```
 
