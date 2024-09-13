@@ -1,10 +1,6 @@
-import { Amplify } from 'aws-amplify'
-import awsconfig from './aws-exports'
-
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
-import './tailwind.css'
 
-Amplify.configure(awsconfig)
+import './tailwind.css'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

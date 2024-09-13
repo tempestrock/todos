@@ -1,11 +1,8 @@
-import { LoaderFunction, redirect } from '@remix-run/node'
-import { getCurrentUser } from '@aws-amplify/auth'
-import { Amplify } from 'aws-amplify'
-import awsconfig from '../aws-exports'
-import { useLoaderData } from '@remix-run/react'
+import { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { Form, json, useLoaderData } from '@remix-run/react'
 
-// // Configure Amplify with aws-exports
-// Amplify.configure(awsconfig)
+import { signOut } from '~/utils/auth'
+import { requireAuth } from '~/utils/session.server'
 
 // Enum to represent task statuses
 enum TaskStatus {
@@ -84,27 +81,38 @@ const mockTodoLists: TodoList[] = [
   },
 ]
 
-// Loader function to pass data to the component
-export const loader: LoaderFunction = async () => {
+type LoaderData = {
+  user: any // Replace 'any' with your actual user type
+  todoLists: TodoList[]
+  labels: Label[]
+}
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await requireAuth(request)
+  return json<LoaderData>({
+    user,
+    todoLists: mockTodoLists,
+    labels: availableLabels,
+  })
+}
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData()
+  const action = formData.get('action')
+
   try {
-    // Short delay for session persistence (debugging purposes)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    console.log('[loader] Checking authenticated user')
-    const user = await getCurrentUser()
-    console.log('[loader] Directly behind getCurrentUser().')    
-
-    if (!user) {
-      throw new Error('Not authenticated')
+    switch (action) {
+      case 'signout':
+        signOut()
+        return json({ success: true, action: 'signout' })
+      default:
+        return json({ success: false, error: 'Invalid action' })
     }
-
-    console.log('[loader] User authenticated, loading data.')
-    return { todoLists: mockTodoLists, labels: availableLabels }
-  } catch (err) {
-    console.log('[loader] An error occurred:', err)
-    return redirect('/login')
+  } catch (error: any) {
+    return json({ success: false, error: error.message })
   }
 }
+
 
 // Utility function to find a label's color or return gray if the label doesn't exist
 const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
@@ -113,13 +121,14 @@ const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
 }
 
 export default function Index() {
-  const { todoLists, labels } = useLoaderData<{ todoLists: TodoList[]; labels: Label[] }>()
+  const { user, todoLists, labels } = useLoaderData<LoaderData>()
 
   const statuses = Object.values(TaskStatus)
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">My To-Do Lists</h1>
+      <p>Welcome, {user.attributes.email}</p>
 
       {todoLists.map((list) => (
         <div key={list.id} className={`mb-6`}>
@@ -159,6 +168,11 @@ export default function Index() {
           </div>
         </div>
       ))}
+
+      <Form method="post">
+        <input type="hidden" name="action" value="signout" />
+        <button type="submit">Sign Out</button>
+      </Form>
     </div>
   )
 }
