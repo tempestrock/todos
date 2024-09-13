@@ -1,85 +1,9 @@
-import { ActionFunction, LoaderFunction } from '@remix-run/node'
+import { LoaderFunction } from '@remix-run/node'
 import { Form, json, useLoaderData } from '@remix-run/react'
 
-import { signOut } from '~/utils/auth'
+import { availableLabels, Label, mockTodoLists, TaskStatus, TodoList } from '~/data/mockdata'
+import { authAction } from '~/utils/authActions'
 import { requireAuth } from '~/utils/session.server'
-
-// Enum to represent task statuses
-enum TaskStatus {
-  BACKLOG = 'backlog',
-  AT_WORK = 'at work',
-  FINISHED = 'finished',
-  ON_HOLD = 'on hold',
-}
-
-// Label structure with name and color
-type Label = {
-  name: string
-  color: string
-}
-
-// Task structure with labels
-type Task = {
-  id: string
-  task: string
-  status: TaskStatus
-  createdAt: string
-  labels: string[] // Array of label names
-}
-
-type TodoList = {
-  id: string
-  name: string
-  color: string
-  tasks: Task[]
-}
-
-// List of available labels (with the restriction that label names must be unique)
-const availableLabels: Label[] = [
-  { name: 'Urgent', color: 'red' },
-  { name: 'Home', color: 'blue' },
-  { name: 'Work', color: 'green' },
-]
-
-// Mock to-do list data with tasks that have labels
-const mockTodoLists: TodoList[] = [
-  {
-    id: 'list-1',
-    name: 'Groceries',
-    color: 'blue',
-    tasks: [
-      { id: '1', task: 'Buy milk', status: TaskStatus.BACKLOG, createdAt: '2024-09-13_09:00:00', labels: ['Home'] },
-      {
-        id: '2',
-        task: 'Buy eggs',
-        status: TaskStatus.FINISHED,
-        createdAt: '2024-09-13_09:05:00',
-        labels: ['Urgent', 'Home'],
-      },
-    ],
-  },
-  {
-    id: 'list-2',
-    name: 'Work',
-    color: 'green',
-    tasks: [
-      {
-        id: '1',
-        task: 'Finish report',
-        status: TaskStatus.AT_WORK,
-        createdAt: '2024-09-13_10:00:00',
-        labels: ['Work'],
-      },
-      {
-        id: '2',
-        task: 'Email client',
-        status: TaskStatus.BACKLOG,
-        createdAt: '2024-09-13_10:15:00',
-        labels: ['Urgent'],
-      },
-    ],
-  },
-]
 
 type LoaderData = {
   user: any // Replace 'any' with your actual user type
@@ -96,39 +20,23 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const action = formData.get('action')
-
-  try {
-    switch (action) {
-      case 'signout':
-        signOut()
-        return json({ success: true, action: 'signout' })
-      default:
-        return json({ success: false, error: 'Invalid action' })
-    }
-  } catch (error: any) {
-    return json({ success: false, error: error.message })
-  }
-}
-
-
 // Utility function to find a label's color or return gray if the label doesn't exist
 const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
   const label = availableLabels.find((label) => label.name === labelName)
   return label ? label.color : 'gray' // Default to gray if label is not found
 }
 
+export const action = authAction
+
 export default function Index() {
-  const { user, todoLists, labels } = useLoaderData<LoaderData>()
+  const { todoLists, labels } = useLoaderData<LoaderData>()
 
   const statuses = Object.values(TaskStatus)
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">My To-Do Lists</h1>
-      <p>Welcome, {user.attributes.email}</p>
+      {/* <p>Welcome, {user.attributes.email}</p> */}
 
       {todoLists.map((list) => (
         <div key={list.id} className={`mb-6`}>
@@ -171,7 +79,9 @@ export default function Index() {
 
       <Form method="post">
         <input type="hidden" name="action" value="signout" />
-        <button type="submit">Sign Out</button>
+        <button className="text-lg border border-gray-700 bg-gray-100 px-2 pb-1" type="submit">
+          Sign Out
+        </button>
       </Form>
     </div>
   )

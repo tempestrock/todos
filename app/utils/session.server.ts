@@ -7,6 +7,7 @@ export async function requireAuth(_request: Request) {
     const user = await getCurrentUser()
     return user
   } catch (_error: any) {
+    // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw redirect('/auth')
   }
 }

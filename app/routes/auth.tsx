@@ -1,16 +1,9 @@
-import { json, LoaderFunction, ActionFunction } from '@remix-run/node'
+import { json, LoaderFunction } from '@remix-run/node'
 import { useActionData, useLoaderData, Form, redirect } from '@remix-run/react'
 
-import { signIn, signOut, getCurrentUser } from '~/utils/auth'
-
-// Define the type for our loader data
-type LoaderData = {
-  user: {
-    attributes: {
-      email: string
-    }
-  } | null
-}
+import { LoaderData } from '~/types/loaderData'
+import { getCurrentUser } from '~/utils/auth'
+import { authAction, ActionData } from '~/utils/authActions'
 
 export const loader: LoaderFunction = async () => {
   try {
@@ -25,35 +18,11 @@ export const loader: LoaderFunction = async () => {
   }
 }
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const action = formData.get('action')
-  const username = formData.get('username') as string
-  const password = formData.get('password') as string
-
-  try {
-    switch (action) {
-      // case 'signup':
-      //   await signUp(username, password)
-      //   return json({ success: true, action: 'signup' })
-      case 'signin':
-        await signIn(username, password)
-        return redirect('/')
-      // return json({ success: true, action: 'signin' })
-      case 'signout':
-        signOut()
-        return json({ success: true, action: 'signout' })
-      default:
-        return json({ success: false, error: 'Invalid action' })
-    }
-  } catch (error: any) {
-    return json({ success: false, error: error.message })
-  }
-}
+export const action = authAction;
 
 export default function Auth() {
   const loaderData = useLoaderData<LoaderData>()
-  const actionData = useActionData()
+  const actionData = useActionData<ActionData>()
 
   return (
     <div>
@@ -68,14 +37,6 @@ export default function Auth() {
         </div>
       ) : (
         <div>
-          {/* <h2>Sign Up</h2>
-          <Form method="post">
-            <input type="hidden" name="action" value="signup" />
-            <input type="text" name="username" placeholder="Username" required />
-            <input type="password" name="password" placeholder="Password" required />
-            <button type="submit">Sign Up</button>
-          </Form> */}
-
           <h2>Sign In</h2>
           <Form method="post">
             <input type="hidden" name="action" value="signin" />
