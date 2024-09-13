@@ -1,15 +1,10 @@
 import { LoaderFunction } from '@remix-run/node'
 import { Form, json, useLoaderData } from '@remix-run/react'
 
-import { availableLabels, Label, mockTodoLists, TaskStatus, TodoList } from '~/data/mockdata'
+import { availableLabels, Label, mockTodoLists, TaskStatus } from '~/data/mockdata'
+import { LoaderData } from '~/types/loaderData'
 import { authAction } from '~/utils/authActions'
 import { requireAuth } from '~/utils/session.server'
-
-type LoaderData = {
-  user: any // Replace 'any' with your actual user type
-  todoLists: TodoList[]
-  labels: Label[]
-}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await requireAuth(request)
@@ -36,7 +31,7 @@ export default function Index() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">My To-Do Lists</h1>
-      {/* <p>Welcome, {user.attributes.email}</p> */}
+      {/* <p>Welcome, {user?.attributes.username}</p> */}
 
       {todoLists.map((list) => (
         <div key={list.id} className={`mb-6`}>

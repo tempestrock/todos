@@ -18,18 +18,18 @@ export const loader: LoaderFunction = async () => {
   }
 }
 
-export const action = authAction;
+export const action = authAction
 
 export default function Auth() {
-  const loaderData = useLoaderData<LoaderData>()
+  const { user } = useLoaderData<LoaderData>()
   const actionData = useActionData<ActionData>()
 
   return (
     <div>
       <h1>Authentication</h1>
-      {loaderData.user ? (
+      {user ? (
         <div>
-          <p>Welcome, {loaderData.user.attributes.email}</p>
+          <p>Huhu, {user.attributes.email}</p>
           <Form method="post">
             <input type="hidden" name="action" value="signout" />
             <button type="submit">Sign Out</button>
