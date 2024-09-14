@@ -1,6 +1,6 @@
-import { ActionFunction, ActionFunctionArgs, LoaderFunction, redirect } from '@remix-run/node'
-import { Form, json, useLoaderData } from '@remix-run/react'
-import { useState } from 'react'
+import { ActionFunction, LoaderFunction, redirect } from '@remix-run/node'
+import { Form, json, useActionData, useLoaderData, useParams, Link, useSubmit, useNavigation, useSearchParams } from '@remix-run/react'
+import { useState, useEffect, useTransition } from 'react'
 
 import { addTask } from '~/data/addData'
 import { availableLabels, Label, mockTodoLists, TaskStatus } from '~/data/mockdata'
@@ -8,7 +8,7 @@ import { LoaderData } from '~/types/loaderData'
 import { authAction } from '~/utils/authActions'
 import { requireAuth } from '~/utils/session.server'
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireAuth(request)
   return json<LoaderData>({
     user,
@@ -17,10 +17,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
-
-export const action: ActionFunction = async ({ request, params, context }: ActionFunctionArgs) => {
-  const clonedRequest = request.clone()
-  const formData = await clonedRequest.formData()
+export const action: ActionFunction = async ({ request, params }) => {
+  const formData = await request.formData()
   const actionType = formData.get('action')
 
   console.log('[action]: Starting. Action type:', actionType)
@@ -28,12 +26,11 @@ export const action: ActionFunction = async ({ request, params, context }: Actio
   // Handle authentication actions
   if (actionType === 'signin' || actionType === 'signout') {
     console.log('[action]: Handling authentication action')
-    return authAction({ request, params, context })
+    return authAction({ request, params, context: {} })
   }
 
-  // Handle task-related actions
-  if (actionType === 'addTask') {
-    console.log('[action]: Handling addTask action')
+  if (actionType === 'addTask' || actionType === 'editTask') {
+    console.log(`[action]: Handling ${actionType} action`)
     const listId = formData.get('listId') as string
     const taskText = formData.get('taskText') as string
     const taskId = formData.get('taskId') as string
@@ -42,12 +39,15 @@ export const action: ActionFunction = async ({ request, params, context }: Actio
       id: taskId,
       task: taskText,
       createdAt: new Date().toISOString(),
-      status: 'backlog' as TaskStatus,
+      status: actionType === 'addTask' ? TaskStatus.BACKLOG : (formData.get('status') as TaskStatus),
     }
 
-    // await addTask(listId, task)
+    // TODO: Implement actual task addition/editing logic here
+    // await addOrEditTask(listId, task);
 
-    return redirect('/')
+    console.log(`[action]: ${actionType} completed, redirecting`)
+    return redirect(`/`)
+    // return redirect(`/${listId}?t=${Date.now()}`)
   }
 
   // Handle other actions here...
@@ -63,24 +63,33 @@ const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
 
 export default function Index() {
   const { todoLists, labels } = useLoaderData<LoaderData>()
+
+  const params = useParams()
+  const [searchParams] = useSearchParams()
+  const listId = params.listId || searchParams.get('listId')
+
   const statuses = Object.values(TaskStatus)
 
-  const [selectedListId, setSelectedListId] = useState<string | null>(null)
+  const submit = useSubmit()
+  // const transition = useTransition()
+  // const actionData = useActionData()
+  const navigation = useNavigation()
+
+  const [selectedListId, setSelectedListId] = useState<string | null>(params.listId || null)
   const [currentStatusIndex, setCurrentStatusIndex] = useState(0)
   const [editTaskId, setEditTaskId] = useState<string | null>(null)
   const [newTaskText, setNewTaskText] = useState('')
   const [isAddingTask, setIsAddingTask] = useState(false)
 
-  const handleListSelect = (listId: string) => {
-    setSelectedListId(listId)
-    setCurrentStatusIndex(0)
-    setEditTaskId(null)
-    setIsAddingTask(false)
-  }
+  useEffect(() => {
+    if (params.listId) {
+      setSelectedListId(params.listId)
+    }
+  }, [params.listId])
 
-  const handleBackToListTitles = () => {
-    setSelectedListId(null)
-  }
+  // const handleBackToListTitles = () => {
+  //   setSelectedListId(null)
+  // }
 
   const handlePrevStatus = () => {
     if (currentStatusIndex > 0) setCurrentStatusIndex(currentStatusIndex - 1)
@@ -105,11 +114,10 @@ export default function Index() {
     setIsAddingTask(false)
   }
 
-  const handleSaveTask = () => {
-    // Logic for saving the task (either edit or add new)
-    setEditTaskId(null)
-    setIsAddingTask(false)
-    // Note: You would typically update the state here, but since the data is mocked, it won't persist
+  const handleSaveTask = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const form = event.currentTarget
+    submit(form, { method: 'post', replace: true })
   }
 
   if (!selectedListId) {
@@ -127,14 +135,14 @@ export default function Index() {
 
         <div className="grid grid-cols-1 gap-4">
           {todoLists.map((list) => (
-            <button
+            <Link
               key={list.id}
-              onClick={() => handleListSelect(list.id)}
-              className="w-full text-white text-lg py-4 rounded"
+              to={`/${list.id}`}
+              className="w-full text-white text-lg py-4 rounded block text-center"
               style={{ backgroundColor: list.color }}
             >
               {list.name}
-            </button>
+            </Link>
           ))}
         </div>
       </div>
@@ -149,10 +157,11 @@ export default function Index() {
       <div className="container mx-auto p-4">
         <h2 className="text-xl font-semibold mb-4">{isAddingTask ? 'Add New Task' : 'Edit Task'}</h2>
 
-        <Form method="post">
+        <Form method="post" onSubmit={handleSaveTask}>
           <input type="hidden" name="action" value={isAddingTask ? 'addTask' : 'editTask'} />
           <input type="hidden" name="listId" value={selectedListId} />
           <input type="hidden" name="taskId" value={editTaskId || new Date().getTime().toString()} />
+          {!isAddingTask && <input type="hidden" name="status" value={currentStatus} />}
 
           <input
             type="text"
@@ -163,24 +172,31 @@ export default function Index() {
           />
 
           <div className="flex justify-end space-x-2">
-            <button onClick={handleCancelEdit} className="text-gray-500 border border-gray-500 px-4 py-2 rounded">
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className="text-gray-500 border border-gray-500 px-4 py-2 rounded"
+            >
               Cancel
             </button>
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-              Save
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+              disabled={navigation.state === 'submitting'}
+            >
+              {navigation.state === 'submitting' ? 'Saving...' : 'Save'}
             </button>
           </div>
         </Form>
       </div>
     )
   }
-
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
-        <button onClick={handleBackToListTitles} className="text-blue-500 underline">
+        <Link to="/" className="text-blue-500 underline">
           Back
-        </button>
+        </Link>
         <div className="flex gap-4">
           <button
             onClick={handlePrevStatus}

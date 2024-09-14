@@ -1,25 +1,28 @@
+import type { LinksFunction } from '@remix-run/node'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
 
+// Import the CSS file as a side effect
 import './tailwind.css'
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export const links: LinksFunction = () => [
+  // If you have any other stylesheets, you can add them here
+  // { rel: 'stylesheet', href: '/path/to/other/stylesheet.css' },
+]
+
+export default function App() {
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
       </head>
       <body>
-        {children}
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   )
-}
-
-export default function App() {
-  return <Outlet />
 }

@@ -1,3 +1,4 @@
+/* @tailwind is a custom PostCSS directive */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
