@@ -1,4 +1,4 @@
-import { ActionFunction, LoaderFunction, redirect } from '@remix-run/node'
+import { ActionFunction, ActionFunctionArgs, LoaderFunction, redirect } from '@remix-run/node'
 import { Form, json, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 
@@ -17,24 +17,23 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
-// Combined action
-export const action: ActionFunction = async (args) => {
-  // Check if this is an authentication-related action
-  console.log('[action]: Starting')
 
-  const authResponse = await authAction(args)
-  if (authResponse) {
-    console.log('[action]: We are authenticating.')
-    return authResponse // Handle authentication
-  }
-
-  console.log('[action]: Checking form data.')
-
-  // Otherwise, handle task-related actions
-  const formData = await args.request.formData()
+export const action: ActionFunction = async ({ request, params, context }: ActionFunctionArgs) => {
+  const clonedRequest = request.clone()
+  const formData = await clonedRequest.formData()
   const actionType = formData.get('action')
 
+  console.log('[action]: Starting. Action type:', actionType)
+
+  // Handle authentication actions
+  if (actionType === 'signin' || actionType === 'signout') {
+    console.log('[action]: Handling authentication action')
+    return authAction({ request, params, context })
+  }
+
+  // Handle task-related actions
   if (actionType === 'addTask') {
+    console.log('[action]: Handling addTask action')
     const listId = formData.get('listId') as string
     const taskText = formData.get('taskText') as string
     const taskId = formData.get('taskId') as string
@@ -43,14 +42,17 @@ export const action: ActionFunction = async (args) => {
       id: taskId,
       task: taskText,
       createdAt: new Date().toISOString(),
-      status: 'backlog',
+      status: 'backlog' as TaskStatus,
     }
 
-    await addTask(listId, task)
+    // await addTask(listId, task)
 
     return redirect('/')
   }
 
+  // Handle other actions here...
+
+  console.log('[action]: No matching action type')
   return null
 }
 
@@ -146,20 +148,29 @@ export default function Index() {
     return (
       <div className="container mx-auto p-4">
         <h2 className="text-xl font-semibold mb-4">{isAddingTask ? 'Add New Task' : 'Edit Task'}</h2>
-        <input
-          type="text"
-          className="w-full p-2 border rounded mb-4"
-          value={newTaskText}
-          onChange={(e) => setNewTaskText(e.target.value)}
-        />
-        <div className="flex justify-end space-x-2">
-          <button onClick={handleCancelEdit} className="text-gray-500 border border-gray-500 px-4 py-2 rounded">
-            Cancel
-          </button>
-          <button onClick={handleSaveTask} className="bg-blue-500 text-white px-4 py-2 rounded">
-            Save
-          </button>
-        </div>
+
+        <Form method="post">
+          <input type="hidden" name="action" value={isAddingTask ? 'addTask' : 'editTask'} />
+          <input type="hidden" name="listId" value={selectedListId} />
+          <input type="hidden" name="taskId" value={editTaskId || new Date().getTime().toString()} />
+
+          <input
+            type="text"
+            name="taskText"
+            className="w-full p-2 border rounded mb-4"
+            value={newTaskText}
+            onChange={(e) => setNewTaskText(e.target.value)}
+          />
+
+          <div className="flex justify-end space-x-2">
+            <button onClick={handleCancelEdit} className="text-gray-500 border border-gray-500 px-4 py-2 rounded">
+              Cancel
+            </button>
+            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+              Save
+            </button>
+          </div>
+        </Form>
       </div>
     )
   }
