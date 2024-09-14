@@ -1,7 +1,8 @@
-import { LoaderFunction } from '@remix-run/node'
-import { json, useLoaderData } from '@remix-run/react'
+import { ActionFunction, LoaderFunction, redirect } from '@remix-run/node'
+import { Form, json, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 
+import { addTask } from '~/data/addData'
 import { availableLabels, Label, mockTodoLists, TaskStatus } from '~/data/mockdata'
 import { LoaderData } from '~/types/loaderData'
 import { authAction } from '~/utils/authActions'
@@ -16,12 +17,47 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
+// Combined action
+export const action: ActionFunction = async (args) => {
+  // Check if this is an authentication-related action
+  console.log('[action]: Starting')
+
+  const authResponse = await authAction(args)
+  if (authResponse) {
+    console.log('[action]: We are authenticating.')
+    return authResponse // Handle authentication
+  }
+
+  console.log('[action]: Checking form data.')
+
+  // Otherwise, handle task-related actions
+  const formData = await args.request.formData()
+  const actionType = formData.get('action')
+
+  if (actionType === 'addTask') {
+    const listId = formData.get('listId') as string
+    const taskText = formData.get('taskText') as string
+    const taskId = formData.get('taskId') as string
+
+    const task = {
+      id: taskId,
+      task: taskText,
+      createdAt: new Date().toISOString(),
+      status: 'backlog',
+    }
+
+    await addTask(listId, task)
+
+    return redirect('/')
+  }
+
+  return null
+}
+
 const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
   const label = availableLabels.find((label) => label.name === labelName)
   return label ? label.color : 'gray'
 }
-
-export const action = authAction
 
 export default function Index() {
   const { todoLists, labels } = useLoaderData<LoaderData>()
@@ -77,7 +113,16 @@ export default function Index() {
   if (!selectedListId) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">My To-Do Lists</h1>
+        <div className="grid grid-cols-2 gap-4">
+          <h1 className="text-2xl font-bold mb-4">My To-Do Lists</h1>
+          <Form method="post">
+            <input type="hidden" name="action" value="signout" />
+            <button className="text-xs border border-gray-700 mt-1 bg-gray-100 pt-1 px-2 pb-1" type="submit">
+              Sign out
+            </button>
+          </Form>
+        </div>
+
         <div className="grid grid-cols-1 gap-4">
           {todoLists.map((list) => (
             <button
