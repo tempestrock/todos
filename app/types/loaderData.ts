@@ -1,4 +1,4 @@
-import { Label, TodoList } from '~/data/mockdata'
+import { Label, TodoList } from "./tasks"
 
 // Define the type for our loader data
 export type LoaderData = {

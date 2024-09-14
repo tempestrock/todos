@@ -1,20 +1,27 @@
 import { ActionFunction, LoaderFunction, redirect } from '@remix-run/node'
-import { Form, json, useActionData, useLoaderData, useParams, Link, useSubmit, useNavigation, useSearchParams } from '@remix-run/react'
-import { useState, useEffect, useTransition } from 'react'
+import { Form, json, useLoaderData, useParams, Link, useSubmit, useNavigation } from '@remix-run/react'
+import { useState, useEffect } from 'react'
 
-import { addTask } from '~/data/addData'
-import { availableLabels, Label, mockTodoLists, TaskStatus } from '~/data/mockdata'
+import { addOrEditTask } from '~/data/addData'
+import { loadAllTasks } from '~/data/loadAllTasks'
+// import { mockTodoLists } from '~/data/mockdata'
 import { LoaderData } from '~/types/loaderData'
+import { availableLabels, Label, TaskStatus } from '~/types/tasks'
 import { authAction } from '~/utils/authActions'
+import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireAuth(request)
-  return json<LoaderData>({
-    user,
-    todoLists: mockTodoLists,
-    labels: availableLabels,
-  })
+
+  try {
+    const todoLists = await loadAllTasks()
+    return json<LoaderData>({ todoLists, user, labels: availableLabels })
+  } catch (error) {
+    console.error('Error loading tasks:', error)
+    return json({ error: 'Failed to load tasks' }, { status: 500 })
+  }
 }
 
 export const action: ActionFunction = async ({ request, params }) => {
@@ -39,11 +46,12 @@ export const action: ActionFunction = async ({ request, params }) => {
       id: taskId,
       task: taskText,
       createdAt: new Date().toISOString(),
+      listId: listId,
       status: actionType === 'addTask' ? TaskStatus.BACKLOG : (formData.get('status') as TaskStatus),
     }
 
     // TODO: Implement actual task addition/editing logic here
-    // await addOrEditTask(listId, task);
+    await addOrEditTask(listId, task)
 
     console.log(`[action]: ${actionType} completed, redirecting`)
     return redirect(`/`)
@@ -64,9 +72,10 @@ const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
 export default function Index() {
   const { todoLists, labels } = useLoaderData<LoaderData>()
 
+  printObject(todoLists, '[Index]: todoLists')
   const params = useParams()
-  const [searchParams] = useSearchParams()
-  const listId = params.listId || searchParams.get('listId')
+  // const [searchParams] = useSearchParams()
+  // const listId = params.listId || searchParams.get('listId')
 
   const statuses = Object.values(TaskStatus)
 
@@ -121,6 +130,7 @@ export default function Index() {
   }
 
   if (!selectedListId) {
+    // Overall todo list view
     return (
       <div className="container mx-auto p-4">
         <div className="grid grid-cols-2 gap-4">
@@ -153,6 +163,7 @@ export default function Index() {
   const currentStatus = statuses[currentStatusIndex]
 
   if (editTaskId || isAddingTask) {
+    // Edit and add task view
     return (
       <div className="container mx-auto p-4">
         <h2 className="text-xl font-semibold mb-4">{isAddingTask ? 'Add New Task' : 'Edit Task'}</h2>
@@ -191,8 +202,11 @@ export default function Index() {
       </div>
     )
   }
+
   return (
+    //  Task list view
     <div className="container mx-auto p-4">
+      {/* Title bar */}
       <div className="flex justify-between items-center mb-4">
         <Link to="/" className="text-blue-500 underline">
           Back
@@ -218,18 +232,24 @@ export default function Index() {
         </div>
       </div>
 
+      {/* Task list title */}
       <h2 className="text-xl font-semibold mb-4" style={{ color: selectedList?.color }}>
         {selectedList?.name} - {currentStatus}
       </h2>
 
+      {/* Task list */}
       <ul className="space-y-4">
         {selectedList?.tasks
-          .filter((task) => task.status === currentStatus)
+          .filter((task) => {
+            console.log(`[filter] currentStatus: ${currentStatus}`)
+            printObject(task, '[filter] task in list')
+            return task.status === currentStatus
+          })
           .map((task) => (
             <li key={task.id} className="border p-4 rounded" onClick={() => handleEditTask(task.id, task.task)}>
               <div className="font-bold">{task.task}</div>
               <div className="text-sm text-gray-500">{task.createdAt}</div>
-              <div className="mt-2">
+              {/* <div className="mt-2">
                 {task.labels.map((labelName) => (
                   <span
                     key={labelName}
@@ -239,7 +259,7 @@ export default function Index() {
                     {labelName}
                   </span>
                 ))}
-              </div>
+              </div> */}
             </li>
           ))}
       </ul>
