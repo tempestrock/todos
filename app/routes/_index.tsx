@@ -1,5 +1,6 @@
 import { LoaderFunction } from '@remix-run/node'
-import { Form, json, useLoaderData } from '@remix-run/react'
+import { json, useLoaderData } from '@remix-run/react'
+import { useState } from 'react'
 
 import { availableLabels, Label, mockTodoLists, TaskStatus } from '~/data/mockdata'
 import { LoaderData } from '~/types/loaderData'
@@ -15,69 +16,110 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
-// Utility function to find a label's color or return gray if the label doesn't exist
 const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
   const label = availableLabels.find((label) => label.name === labelName)
-  return label ? label.color : 'gray' // Default to gray if label is not found
+  return label ? label.color : 'gray'
 }
 
 export const action = authAction
 
 export default function Index() {
   const { todoLists, labels } = useLoaderData<LoaderData>()
-
   const statuses = Object.values(TaskStatus)
+
+  // State to manage which list is selected
+  const [selectedListId, setSelectedListId] = useState<string | null>(null)
+  const [currentStatusIndex, setCurrentStatusIndex] = useState(0)
+
+  const handleListSelect = (listId: string) => {
+    setSelectedListId(listId)
+    setCurrentStatusIndex(0)
+  }
+
+  const handleBackToListTitles = () => {
+    setSelectedListId(null)
+  }
+
+  const handlePrevStatus = () => {
+    if (currentStatusIndex > 0) setCurrentStatusIndex(currentStatusIndex - 1)
+  }
+
+  const handleNextStatus = () => {
+    if (currentStatusIndex < statuses.length - 1) setCurrentStatusIndex(currentStatusIndex + 1)
+  }
+
+  if (!selectedListId) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">My To-Do Lists</h1>
+        <div className="grid grid-cols-1 gap-4">
+          {todoLists.map((list) => (
+            <button
+              key={list.id}
+              onClick={() => handleListSelect(list.id)}
+              className="w-full text-white text-lg py-4 rounded"
+              style={{ backgroundColor: list.color }}
+            >
+              {list.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const selectedList = todoLists.find((list) => list.id === selectedListId)
+  const currentStatus = statuses[currentStatusIndex]
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">My To-Do Lists</h1>
-      {/* <p>Welcome, {user?.attributes.username}</p> */}
-
-      {todoLists.map((list) => (
-        <div key={list.id} className={`mb-6`}>
-          <h2 className="text-xl font-semibold" style={{ color: list.color }}>
-            {list.name}
-          </h2>
-
-          <div className="flex gap-4">
-            {statuses.map((status) => (
-              <div key={status} className="flex-1 flex flex-col border border-gray-300 p-2 rounded">
-                <h3 className="text-lg font-semibold text-gray-700 mb-2 capitalize">{status}</h3>
-                <ul className="flex-1">
-                  {list.tasks
-                    .filter((task) => task.status === status)
-                    .map((task) => (
-                      <li key={task.id} className="p-2 mb-2 border-b">
-                        <span>{task.task}</span>
-                        <span className="ml-4 text-sm text-gray-500">({task.createdAt})</span>
-
-                        {/* Display labels next to the task */}
-                        <div className="mt-1">
-                          {task.labels.map((labelName) => (
-                            <span
-                              key={labelName}
-                              className="inline-block px-2 py-1 text-xs font-medium rounded mr-2"
-                              style={{ backgroundColor: getLabelColor(labelName, labels), color: 'white' }}
-                            >
-                              {labelName}
-                            </span>
-                          ))}
-                        </div>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-
-      <Form method="post">
-        <input type="hidden" name="action" value="signout" />
-        <button className="text-lg border border-gray-700 bg-gray-100 px-2 pb-1" type="submit">
-          Sign Out
+      <div className="flex justify-between items-center mb-4">
+        <button onClick={handleBackToListTitles} className="text-blue-500 underline">
+          Back
         </button>
-      </Form>
+        <div className="flex gap-4">
+          <button
+            onClick={handlePrevStatus}
+            className={`text-gray-500 ${currentStatusIndex === 0 ? 'opacity-50' : ''}`}
+            disabled={currentStatusIndex === 0}
+          >
+            Left
+          </button>
+          <button
+            onClick={handleNextStatus}
+            className={`text-gray-500 ${currentStatusIndex === statuses.length - 1 ? 'opacity-50' : ''}`}
+            disabled={currentStatusIndex === statuses.length - 1}
+          >
+            Right
+          </button>
+        </div>
+      </div>
+
+      <h2 className="text-xl font-semibold mb-4" style={{ color: selectedList?.color }}>
+        {selectedList?.name} - {currentStatus}
+      </h2>
+
+      <ul className="space-y-4">
+        {selectedList?.tasks
+          .filter((task) => task.status === currentStatus)
+          .map((task) => (
+            <li key={task.id} className="border p-4 rounded">
+              <div className="font-bold">{task.task}</div>
+              <div className="text-sm text-gray-500">{task.createdAt}</div>
+              <div className="mt-2">
+                {task.labels.map((labelName) => (
+                  <span
+                    key={labelName}
+                    className="inline-block px-2 py-1 text-xs font-medium rounded mr-2"
+                    style={{ backgroundColor: getLabelColor(labelName, labels), color: 'white' }}
+                  >
+                    {labelName}
+                  </span>
+                ))}
+              </div>
+            </li>
+          ))}
+      </ul>
     </div>
   )
 }
