@@ -27,13 +27,17 @@ export default function Index() {
   const { todoLists, labels } = useLoaderData<LoaderData>()
   const statuses = Object.values(TaskStatus)
 
-  // State to manage which list is selected
   const [selectedListId, setSelectedListId] = useState<string | null>(null)
   const [currentStatusIndex, setCurrentStatusIndex] = useState(0)
+  const [editTaskId, setEditTaskId] = useState<string | null>(null)
+  const [newTaskText, setNewTaskText] = useState('')
+  const [isAddingTask, setIsAddingTask] = useState(false)
 
   const handleListSelect = (listId: string) => {
     setSelectedListId(listId)
     setCurrentStatusIndex(0)
+    setEditTaskId(null)
+    setIsAddingTask(false)
   }
 
   const handleBackToListTitles = () => {
@@ -46,6 +50,28 @@ export default function Index() {
 
   const handleNextStatus = () => {
     if (currentStatusIndex < statuses.length - 1) setCurrentStatusIndex(currentStatusIndex + 1)
+  }
+
+  const handleEditTask = (taskId: string, taskText: string) => {
+    setEditTaskId(taskId)
+    setNewTaskText(taskText)
+  }
+
+  const handleAddTask = () => {
+    setIsAddingTask(true)
+    setNewTaskText('')
+  }
+
+  const handleCancelEdit = () => {
+    setEditTaskId(null)
+    setIsAddingTask(false)
+  }
+
+  const handleSaveTask = () => {
+    // Logic for saving the task (either edit or add new)
+    setEditTaskId(null)
+    setIsAddingTask(false)
+    // Note: You would typically update the state here, but since the data is mocked, it won't persist
   }
 
   if (!selectedListId) {
@@ -71,6 +97,28 @@ export default function Index() {
   const selectedList = todoLists.find((list) => list.id === selectedListId)
   const currentStatus = statuses[currentStatusIndex]
 
+  if (editTaskId || isAddingTask) {
+    return (
+      <div className="container mx-auto p-4">
+        <h2 className="text-xl font-semibold mb-4">{isAddingTask ? 'Add New Task' : 'Edit Task'}</h2>
+        <input
+          type="text"
+          className="w-full p-2 border rounded mb-4"
+          value={newTaskText}
+          onChange={(e) => setNewTaskText(e.target.value)}
+        />
+        <div className="flex justify-end space-x-2">
+          <button onClick={handleCancelEdit} className="text-gray-500 border border-gray-500 px-4 py-2 rounded">
+            Cancel
+          </button>
+          <button onClick={handleSaveTask} className="bg-blue-500 text-white px-4 py-2 rounded">
+            Save
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
@@ -92,6 +140,9 @@ export default function Index() {
           >
             Right
           </button>
+          <button onClick={handleAddTask} className="bg-green-500 text-white px-4 py-2 rounded">
+            Add
+          </button>
         </div>
       </div>
 
@@ -103,7 +154,7 @@ export default function Index() {
         {selectedList?.tasks
           .filter((task) => task.status === currentStatus)
           .map((task) => (
-            <li key={task.id} className="border p-4 rounded">
+            <li key={task.id} className="border p-4 rounded" onClick={() => handleEditTask(task.id, task.task)}>
               <div className="font-bold">{task.task}</div>
               <div className="text-sm text-gray-500">{task.createdAt}</div>
               <div className="mt-2">
