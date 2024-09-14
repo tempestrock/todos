@@ -1,28 +1,8 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import { PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 
-// Configure the DynamoDB client using environment variables
-const client = new DynamoDBClient({
-  region: process.env.REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    sessionToken: process.env.AWS_SESSION_TOKEN,
-  },
-})
-
-const docClient = DynamoDBDocumentClient.from(client)
-
-// Define your table name
-const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'Tasks'
-
-interface Task {
-  id: string
-  task: string
-  createdAt: string
-  status: string
-  listId: string
-}
+import { dbClient } from './dbClient'
+import { TABLE_NAME_TASKS } from './dbConsts'
+import { Task } from '~/types/tasks'
 
 export async function addOrEditTask(listId: string, task: Task): Promise<void> {
   try {
@@ -32,22 +12,20 @@ export async function addOrEditTask(listId: string, task: Task): Promise<void> {
 
     // Check if the task already exists
     const getParams = {
-      TableName: TABLE_NAME,
+      TableName: TABLE_NAME_TASKS,
       Key: {
         listId,
         id: task.id,
       },
     }
 
-    console.log(`[addOrEditTask] Region: ${process.env.AWS_REGION}`)
-    console.log('[addOrEditTask] Checking if task exists.')
-    const { Item } = await docClient.send(new GetCommand(getParams))
+    const { Item } = await dbClient().send(new GetCommand(getParams))
 
     if (Item) {
       console.log('[addOrEditTask] Task exists.')
       // Task exists, update it
       const updateParams = {
-        TableName: TABLE_NAME,
+        TableName: TABLE_NAME_TASKS,
         Key: {
           listId: listId,
           id: task.id,
@@ -64,18 +42,18 @@ export async function addOrEditTask(listId: string, task: Task): Promise<void> {
         },
       }
 
-      await docClient.send(new UpdateCommand(updateParams))
-      console.log('Task updated successfully')
+      await dbClient().send(new UpdateCommand(updateParams))
+      console.log('[addOrEditTask] Task updated successfully')
     } else {
       console.log('[addOrEditTask] Task is new.')
-      // Task doesn't exist, add it
+      // Task doesn't exist => add it.
       const putParams = {
-        TableName: TABLE_NAME,
-        Item: task, // The task object already includes listId
+        TableName: TABLE_NAME_TASKS,
+        Item: task,
       }
 
-      await docClient.send(new PutCommand(putParams))
-      console.log('Task added successfully')
+      await dbClient().send(new PutCommand(putParams))
+      console.log('[addOrEditTask] Task added successfully')
     }
   } catch (error) {
     console.error('Error in addOrEditTask:', error)

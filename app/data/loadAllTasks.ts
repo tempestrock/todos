@@ -1,21 +1,8 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocumentClient, ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 
+import { dbClient } from './dbClient'
+import { TABLE_NAME_TASKS } from './dbConsts'
 import { Task, TodoList } from '~/types/tasks'
-
-// Reuse the DynamoDB client setup from the previous function
-const client = new DynamoDBClient({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    sessionToken: process.env.AWS_SESSION_TOKEN,
-  },
-})
-
-const docClient = DynamoDBDocumentClient.from(client)
-
-const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || 'Tasks'
 
 export async function loadAllTasks(): Promise<TodoList[]> {
   const allTasks: Task[] = []
@@ -24,12 +11,12 @@ export async function loadAllTasks(): Promise<TodoList[]> {
   try {
     do {
       const scanParams = {
-        TableName: TABLE_NAME,
+        TableName: TABLE_NAME_TASKS,
         ExclusiveStartKey: lastEvaluatedKey,
       }
 
       const command = new ScanCommand(scanParams)
-      const response = await docClient.send(command)
+      const response = await dbClient().send(command)
 
       if (response.Items) {
         allTasks.push(...(response.Items as Task[]))

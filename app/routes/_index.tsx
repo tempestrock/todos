@@ -3,6 +3,7 @@ import { Form, json, useLoaderData, useParams, Link, useSubmit, useNavigation } 
 import { useState, useEffect } from 'react'
 
 import { addOrEditTask } from '~/data/addData'
+import { loadAllTaskLists } from '~/data/loadAllTaskLists'
 import { loadAllTasks } from '~/data/loadAllTasks'
 // import { mockTodoLists } from '~/data/mockdata'
 import { LoaderData } from '~/types/loaderData'
@@ -11,11 +12,12 @@ import { authAction } from '~/utils/authActions'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const loader: LoaderFunction = async ({ request, params }) => {
+ 
+export const loader: LoaderFunction = async ({ request, params: _params }) => {
   const user = await requireAuth(request)
 
   try {
+    await loadAllTaskLists()
     const todoLists = await loadAllTasks()
     return json<LoaderData>({ todoLists, user, labels: availableLabels })
   } catch (error) {
@@ -47,6 +49,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       task: taskText,
       createdAt: new Date().toISOString(),
       listId: listId,
+      labels: [],
       status: actionType === 'addTask' ? TaskStatus.BACKLOG : (formData.get('status') as TaskStatus),
     }
 
@@ -70,7 +73,7 @@ const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
 }
 
 export default function Index() {
-  const { todoLists, labels } = useLoaderData<LoaderData>()
+  const { todoLists, labels: _labels, user: _user } = useLoaderData<LoaderData>()
 
   printObject(todoLists, '[Index]: todoLists')
   const params = useParams()
