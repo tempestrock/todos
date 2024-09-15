@@ -1,7 +1,7 @@
-import { TaskStatus, TodoList } from '~/types/tasks'
+import { TaskStatus, TaskList } from '~/types/dataTypes'
 
 // Mock to-do list data with tasks that have labels
-export const mockTodoLists: TodoList[] = [
+export const mockTodoLists: TaskList[] = [
   {
     id: 'list-1',
     name: 'Groceries',

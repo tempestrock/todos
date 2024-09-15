@@ -38,3 +38,9 @@ Make sure to deploy the output of `pnpm build`
 ## Styling
 
 This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+
+## AWS Access
+
+In order for the service to access the DynamoDB, two users have been created in
+`AWS-04-services`: `todos-service-uat` and `todos-service-prod`. Their credentials
+reside in the `.env` file in the respective directories on `vpn-client-1`.

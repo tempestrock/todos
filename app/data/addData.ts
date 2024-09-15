@@ -1,8 +1,8 @@
 import { PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 
 import { dbClient } from './dbClient'
-import { TABLE_NAME_TASKS } from './dbConsts'
-import { Task } from '~/types/tasks'
+import { getTableName, TABLE_NAME_TASKS } from './dbConsts'
+import { Task } from '~/types/dataTypes'
 
 export async function addOrEditTask(listId: string, task: Task): Promise<void> {
   try {
@@ -12,7 +12,7 @@ export async function addOrEditTask(listId: string, task: Task): Promise<void> {
 
     // Check if the task already exists
     const getParams = {
-      TableName: TABLE_NAME_TASKS,
+      TableName: getTableName(TABLE_NAME_TASKS),
       Key: {
         listId,
         id: task.id,
@@ -25,7 +25,7 @@ export async function addOrEditTask(listId: string, task: Task): Promise<void> {
       console.log('[addOrEditTask] Task exists.')
       // Task exists, update it
       const updateParams = {
-        TableName: TABLE_NAME_TASKS,
+        TableName: getTableName(TABLE_NAME_TASKS),
         Key: {
           listId: listId,
           id: task.id,
@@ -48,7 +48,7 @@ export async function addOrEditTask(listId: string, task: Task): Promise<void> {
       console.log('[addOrEditTask] Task is new.')
       // Task doesn't exist => add it.
       const putParams = {
-        TableName: TABLE_NAME_TASKS,
+        TableName: getTableName(TABLE_NAME_TASKS),
         Item: task,
       }
 

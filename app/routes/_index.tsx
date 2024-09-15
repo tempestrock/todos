@@ -3,21 +3,25 @@ import { Form, json, useLoaderData, useParams, Link, useSubmit, useNavigation } 
 import { useState, useEffect } from 'react'
 
 import { addOrEditTask } from '~/data/addData'
-import { loadAllTaskLists } from '~/data/loadAllTaskLists'
 import { loadAllTasks } from '~/data/loadAllTasks'
-// import { mockTodoLists } from '~/data/mockdata'
+import { availableLabels, TaskStatus } from '~/types/dataTypes'
 import { LoaderData } from '~/types/loaderData'
-import { availableLabels, Label, TaskStatus } from '~/types/tasks'
 import { authAction } from '~/utils/authActions'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
- 
+/**
+ * Is called with every page load.
+ * Loads all tasks from the database.
+ * @param request - The request object
+ */
 export const loader: LoaderFunction = async ({ request, params: _params }) => {
+  printObject(request, '[loader] request')
+  printObject(_params, '[loader] _params')
+
   const user = await requireAuth(request)
 
   try {
-    await loadAllTaskLists()
     const todoLists = await loadAllTasks()
     return json<LoaderData>({ todoLists, user, labels: availableLabels })
   } catch (error) {
@@ -53,7 +57,6 @@ export const action: ActionFunction = async ({ request, params }) => {
       status: actionType === 'addTask' ? TaskStatus.BACKLOG : (formData.get('status') as TaskStatus),
     }
 
-    // TODO: Implement actual task addition/editing logic here
     await addOrEditTask(listId, task)
 
     console.log(`[action]: ${actionType} completed, redirecting`)
@@ -67,15 +70,14 @@ export const action: ActionFunction = async ({ request, params }) => {
   return null
 }
 
-const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
-  const label = availableLabels.find((label) => label.name === labelName)
-  return label ? label.color : 'gray'
-}
+// const getLabelColor = (labelName: string, availableLabels: Label[]): string => {
+//   const label = availableLabels.find((label) => label.name === labelName)
+//   return label ? label.color : 'gray'
+// }
 
 export default function Index() {
   const { todoLists, labels: _labels, user: _user } = useLoaderData<LoaderData>()
 
-  printObject(todoLists, '[Index]: todoLists')
   const params = useParams()
   // const [searchParams] = useSearchParams()
   // const listId = params.listId || searchParams.get('listId')
@@ -243,11 +245,7 @@ export default function Index() {
       {/* Task list */}
       <ul className="space-y-4">
         {selectedList?.tasks
-          .filter((task) => {
-            console.log(`[filter] currentStatus: ${currentStatus}`)
-            printObject(task, '[filter] task in list')
-            return task.status === currentStatus
-          })
+          .filter((task) => task.status === currentStatus)
           .map((task) => (
             <li key={task.id} className="border p-4 rounded" onClick={() => handleEditTask(task.id, task.task)}>
               <div className="font-bold">{task.task}</div>

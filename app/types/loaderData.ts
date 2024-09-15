@@ -1,4 +1,4 @@
-import { Label, TodoList } from "./tasks"
+import { Label, TaskList } from "./dataTypes"
 
 // Define the type for our loader data
 export type LoaderData = {
@@ -8,6 +8,6 @@ export type LoaderData = {
       username: string // doesn't work/exist..?
     }
   } | null
-  todoLists: TodoList[]
+  todoLists: TaskList[]
   labels: Label[]
 }

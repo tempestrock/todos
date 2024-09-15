@@ -3,7 +3,6 @@ export enum TaskStatus {
   BACKLOG = 'backlog',
   AT_WORK = 'at work',
   FINISHED = 'finished',
-  ON_HOLD = 'on hold',
 }
 
 // Label structure with name and color
@@ -22,12 +21,19 @@ export type Task = {
   labels: string[] // Array of label names
 }
 
-export type TodoList = {
+export type TaskList = {
   id: string
   name: string
   color: string
   tasks: Task[]
 }
+
+export type TaskListMetadata = {
+  id: string
+  name: string
+  color: string
+}
+
 
 // List of available labels (with the restriction that label names must be unique)
 export const availableLabels: Label[] = [
