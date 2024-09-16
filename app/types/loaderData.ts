@@ -1,13 +1,8 @@
-import { Label, TaskList } from "./dataTypes"
+import { Label, TaskList, User } from './dataTypes'
 
 // Define the type for our loader data
 export type LoaderData = {
-  user: {
-    attributes: {
-      email: string // doesn't work/exist..?
-      username: string // doesn't work/exist..?
-    }
-  } | null
+  user: User | null
   todoLists: TaskList[]
   labels: Label[]
 }

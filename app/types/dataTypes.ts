@@ -41,3 +41,9 @@ export const availableLabels: Label[] = [
   { name: 'Home', color: 'blue' },
   { name: 'Work', color: 'green' },
 ]
+
+export type User = {
+  cognitoUser: {
+    username: string
+  }
+}
