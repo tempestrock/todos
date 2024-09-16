@@ -4,7 +4,7 @@
 // export default Index
 
 import { ActionFunction, json, redirect, type LoaderFunctionArgs } from '@remix-run/node'
-import { Link, useLoaderData, useParams } from '@remix-run/react'
+import { Link, Outlet, useLoaderData, useParams } from '@remix-run/react'
 import { useState } from 'react'
 
 import { loadAllTasks } from '~/data/loadAllTasks'
@@ -116,7 +116,7 @@ export default function ListView() {
           >
             Right
           </button>
-          <Link to={`/${params.listId}/add-edit`} className="bg-green-500 text-white px-4 py-2 rounded">
+          <Link to="add-edit" className="bg-green-500 text-white px-4 py-2 rounded">
             Add
           </Link>
         </div>
@@ -135,12 +135,14 @@ export default function ListView() {
             <li key={task.id} className="border p-4 rounded">
               <div className="font-bold">{task.task}</div>
               <div className="text-sm text-gray-500">{task.createdAt}</div>
-              <Link to={`/${params.listId}/add-edit/${task.id}`} className="text-blue-500 underline mt-2 inline-block">
+              <Link to={`add-edit/${task.id}`} className="text-blue-500 underline mt-2 inline-block">
                 Edit
               </Link>
             </li>
           ))}
       </ul>
+
+      <Outlet />
     </div>
   )
 }

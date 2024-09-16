@@ -4,14 +4,19 @@ import { useState, useEffect } from 'react'
 
 import { addOrEditTask } from '~/data/addData'
 import { TaskStatus, User } from '~/types/dataTypes'
+import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
 export const loader: LoaderFunction = async ({ request, params }) => {
+  printObject(request, '[$listId.add-edit.loader] request')
+  printObject(params, '[$listId.add-edit.loader] params')
+
   const user = await requireAuth(request)
   const { taskId } = params
 
   if (taskId) {
-    // const task = await getTaskById(taskId)
+    // Load existing task data if editing
+    // const task = await getTaskById(taskId) // Implement this function
     const task = {
       id: '6',
       task: 'Buy eggs 6',
@@ -27,32 +32,15 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   return json({ user })
 }
 
-export const action: ActionFunction = async ({ request, params }) => {
-  const formData = await request.formData()
-  const { listId, taskId } = params
-  const taskText = formData.get('taskText') as string
-  const status = formData.get('status') as TaskStatus
-
-  const task = {
-    id: taskId!,
-    task: taskText,
-    createdAt: '2024-09-13_09:05:00',
-    listId: listId!,
-    labels: ['Urgent', 'Home'],
-    status,
-  }
-
-  await addOrEditTask(listId!, task)
-
-  return redirect(`/${listId}`)
-}
-
-export default function EditTaskView() {
+export default function AddEditTaskView() {
   const { task } = useLoaderData<{ task?: { id: string; task: string; status: TaskStatus }, user: User }>()
-  const navigation = useNavigation()
-  const navigate = useNavigate()
+
+  printObject(task, '[$listId.add-edit.component] task')
+
   const params = useParams()
   const [taskText, setTaskText] = useState(task?.task || '')
+  const navigation = useNavigation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (task) {
@@ -60,9 +48,11 @@ export default function EditTaskView() {
     }
   }, [task])
 
+  const isEditing = !!params.taskId
+
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl font-semibold mb-4">Edit Task</h2>
+      <h2 className="text-xl font-semibold mb-4">{isEditing ? 'Edit Task' : 'Add New Task'}</h2>
 
       <Form method="post">
         <input type="hidden" name="status" value={task?.status || TaskStatus.BACKLOG} />
@@ -94,4 +84,31 @@ export default function EditTaskView() {
       </Form>
     </div>
   )
+}
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const formData = await request.formData()
+  const actionType = formData.get('action')
+  console.log(`[$listId.add-edit.action] Action type ${actionType?.toString()}'.`)
+  printObject(params, `[$listId.add-edit.action] params`)
+
+  const { listId } = params
+  const taskId = formData.get('taskId') as string
+  const taskText = formData.get('taskText') as string
+  const status = (formData.get('status') as TaskStatus) || TaskStatus.BACKLOG
+
+  const task = {
+    id: taskId || new Date().getTime().toString(),
+    task: taskText,
+    createdAt: new Date().toISOString(),
+    listId: listId!,
+    labels: [],
+    status,
+  }
+
+  printObject(task, `[$listId.add-edit.action] task`)
+
+  await addOrEditTask(listId!, task)
+
+  return redirect(`/${listId}`)
 }
