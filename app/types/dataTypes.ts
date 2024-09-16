@@ -14,7 +14,7 @@ export type Label = {
 // Task structure with labels
 export type Task = {
   id: string
-  task: string
+  title: string
   status: TaskStatus
   listId: string
   createdAt: string

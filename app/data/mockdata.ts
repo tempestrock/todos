@@ -9,7 +9,7 @@ export const mockTodoLists: TaskList[] = [
     tasks: [
       {
         id: '1',
-        task: 'Buy milk',
+        title: 'Buy milk',
         status: TaskStatus.FINISHED,
         listId: 'list-1',
         createdAt: '2024-09-13_09:00:00',
@@ -17,7 +17,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '2',
-        task: 'Buy eggs 2',
+        title: 'Buy eggs 2',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -25,7 +25,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '3',
-        task: 'Buy eggs 3',
+        title: 'Buy eggs 3',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -33,7 +33,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '4',
-        task: 'Buy eggs 4',
+        title: 'Buy eggs 4',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -41,7 +41,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '5',
-        task: 'Buy eggs 5',
+        title: 'Buy eggs 5',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -49,7 +49,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '6',
-        task: 'Buy eggs 6',
+        title: 'Buy eggs 6',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -57,7 +57,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '7',
-        task: 'Buy eggs 7',
+        title: 'Buy eggs 7',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -65,7 +65,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '8',
-        task: 'Buy eggs 8',
+        title: 'Buy eggs 8',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -73,7 +73,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '9',
-        task: 'Buy eggs 9',
+        title: 'Buy eggs 9',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -81,7 +81,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '10',
-        task: 'Buy eggs 10',
+        title: 'Buy eggs 10',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -89,7 +89,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '11',
-        task: 'Buy eggs 11',
+        title: 'Buy eggs 11',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -97,7 +97,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '12',
-        task: 'Buy eggs 12',
+        title: 'Buy eggs 12',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -105,7 +105,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '13',
-        task: 'Buy eggs 13',
+        title: 'Buy eggs 13',
         status: TaskStatus.BACKLOG,
         listId: 'list-1',
         createdAt: '2024-09-13_09:05:00',
@@ -120,7 +120,7 @@ export const mockTodoLists: TaskList[] = [
     tasks: [
       {
         id: '1',
-        task: 'Finish report',
+        title: 'Finish report',
         status: TaskStatus.AT_WORK,
         listId: 'list-2',
         createdAt: '2024-09-13_10:00:00',
@@ -128,7 +128,7 @@ export const mockTodoLists: TaskList[] = [
       },
       {
         id: '2',
-        task: 'Email client',
+        title: 'Email client',
         status: TaskStatus.BACKLOG,
         listId: 'list-2',
         createdAt: '2024-09-13_10:15:00',

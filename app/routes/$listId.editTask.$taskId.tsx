@@ -10,45 +10,23 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const user = await requireAuth(request)
   const { taskId } = params
 
-  if (taskId) {
-    // const task = await getTaskById(taskId)
-    const task = {
-      id: '6',
-      task: 'Buy eggs 6',
-      status: TaskStatus.BACKLOG,
-      listId: 'list-1',
-      createdAt: '2024-09-13_09:05:00',
-      labels: ['Urgent', 'Home'],
-    }
+  if (!taskId) throw new Error('[$listId.editTask.action] No task ID provided')
 
-    return json({ task, user })
-  }
-
-  return json({ user })
-}
-
-export const action: ActionFunction = async ({ request, params }) => {
-  const formData = await request.formData()
-  const { listId, taskId } = params
-  const taskText = formData.get('taskText') as string
-  const status = formData.get('status') as TaskStatus
-
+  // const task = await getTaskById(taskId)
   const task = {
-    id: taskId!,
-    task: taskText,
+    id: '6',
+    title: 'Buy eggs 6',
+    status: TaskStatus.BACKLOG,
+    listId: 'list-1',
     createdAt: '2024-09-13_09:05:00',
-    listId: listId!,
     labels: ['Urgent', 'Home'],
-    status,
   }
 
-  await addOrEditTask(listId!, task)
-
-  return redirect(`/${listId}`)
+  return json({ task, user })
 }
 
 export default function EditTaskView() {
-  const { task } = useLoaderData<{ task?: { id: string; task: string; status: TaskStatus }, user: User }>()
+  const { task } = useLoaderData<{ task?: { id: string; task: string; status: TaskStatus }; user: User }>()
   const navigation = useNavigation()
   const navigate = useNavigate()
   const params = useParams()
@@ -94,4 +72,24 @@ export default function EditTaskView() {
       </Form>
     </div>
   )
+}
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const formData = await request.formData()
+  const { listId, taskId } = params
+  const taskText = formData.get('taskText') as string
+  const status = formData.get('status') as TaskStatus
+
+  const task = {
+    id: taskId!,
+    title: taskText,
+    createdAt: '2024-09-13_09:05:00',
+    listId: listId!,
+    labels: ['Urgent', 'Home'],
+    status,
+  }
+
+  await addOrEditTask(listId!, task)
+
+  return redirect(`/${listId}`)
 }

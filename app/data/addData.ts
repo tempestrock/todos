@@ -36,7 +36,7 @@ export async function addOrEditTask(listId: string, task: Task): Promise<void> {
           '#status': 'status',
         },
         ExpressionAttributeValues: {
-          ':t': task.task,
+          ':t': task.title,
           ':s': task.status,
           ':u': new Date().toISOString(),
         },
