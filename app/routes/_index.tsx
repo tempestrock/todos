@@ -1,4 +1,4 @@
-import { ActionFunction, LoaderFunction, redirect } from '@remix-run/node'
+import { ActionFunction, LoaderFunction, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { Form, json, useLoaderData, Link } from '@remix-run/react'
 
 import { loadListMetadata } from '~/data/loadListMetadata'
@@ -11,7 +11,8 @@ import { requireAuth } from '~/utils/session.server'
  * Loads all tasks from the database.
  * @param request - The request object
  */
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
+  console.log('[_index.loader] starting')
   printObject(request, '[_index.loader] request')
   printObject(params, '[_index.loader] params')
 

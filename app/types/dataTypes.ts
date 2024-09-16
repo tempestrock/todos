@@ -1,4 +1,33 @@
-// Enum to represent task statuses
+export const UNDEF = 'undefined'
+
+// A TaskList is something like "ToDos", "Groceries", etc.
+export type TaskList = {
+  id: string
+  name: string
+  color: string
+  tasks: Task[]
+}
+
+export const TaskListUndefined: TaskList = { id: UNDEF, name: UNDEF, color: UNDEF, tasks: [] }
+
+// A TaskList without the tasks is a TaskListMetadata object.
+export type TaskListMetadata = {
+  id: string
+  name: string
+  color: string
+}
+
+// One element in a task list. The central object of the whole app.
+export type Task = {
+  id: string
+  title: string
+  status: TaskStatus
+  listId: string
+  createdAt: string
+  labels: string[]
+}
+
+// Enum to represent task statuses. These make up the board columns.
 export enum TaskStatus {
   BACKLOG = 'backlog',
   AT_WORK = 'at work',
@@ -10,30 +39,6 @@ export type Label = {
   name: string
   color: string
 }
-
-// Task structure with labels
-export type Task = {
-  id: string
-  title: string
-  status: TaskStatus
-  listId: string
-  createdAt: string
-  labels: string[] // Array of label names
-}
-
-export type TaskList = {
-  id: string
-  name: string
-  color: string
-  tasks: Task[]
-}
-
-export type TaskListMetadata = {
-  id: string
-  name: string
-  color: string
-}
-
 
 // List of available labels (with the restriction that label names must be unique)
 export const availableLabels: Label[] = [

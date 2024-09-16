@@ -1,13 +1,14 @@
-import { ActionFunction, LoaderFunction, json, redirect } from '@remix-run/node'
-import { Form, useLoaderData, useNavigation, useParams, useNavigate } from '@remix-run/react'
+import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } from '@remix-run/node'
+import { Form, useLoaderData, useNavigation, useParams, useNavigate, useSearchParams } from '@remix-run/react'
 import { useState } from 'react'
 
-import { addOrEditTask } from '~/data/addData'
+import { saveTask } from '~/data/saveTask'
 import { TaskStatus } from '~/types/dataTypes'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
+  console.log('[$listId.addTask.loader] starting')
   printObject(request, '[$listId.addTask.loader] request')
   printObject(params, '[$listId.addTask.loader] params')
 
@@ -22,16 +23,20 @@ export default function AddEditTaskView() {
   console.log('[$listId.addTask.component] starting')
 
   const params = useParams()
+  const [searchParams] = useSearchParams()
   const [taskText, setTaskText] = useState('')
   const navigation = useNavigation()
   const navigate = useNavigate()
+
+  const currentBoardColumn = searchParams.get('boardColumn') as TaskStatus || TaskStatus.BACKLOG
+  printObject(params, '[$listId.addTask.component] params')
 
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-xl font-semibold mb-4">'Add New Task'</h2>
 
       <Form method="post">
-        <input type="hidden" name="status" value={TaskStatus.BACKLOG} />
+        <input type="hidden" name="boardColumn" value={currentBoardColumn} />
 
         <input
           type="text"
@@ -71,7 +76,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const { listId } = params
   const taskId = formData.get('taskId') as string
   const taskText = formData.get('taskText') as string
-  const status = (formData.get('status') as TaskStatus) || TaskStatus.BACKLOG
+  const boardColumn = (formData.get('boardColumn') as TaskStatus) || TaskStatus.BACKLOG
 
   const task = {
     id: taskId || new Date().getTime().toString(),
@@ -79,13 +84,13 @@ export const action: ActionFunction = async ({ request, params }) => {
     createdAt: new Date().toISOString(),
     listId: listId!,
     labels: [],
-    status,
+    status: boardColumn,
   }
 
   printObject(task, `[$listId.addTask.action] task`)
   console.log(`[$listId.addTask.action] listId: '${listId}'`)
 
-  await addOrEditTask(listId!, task)
+  await saveTask(listId!, task)
 
   return redirect(`/${listId}`)
 }

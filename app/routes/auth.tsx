@@ -1,15 +1,20 @@
-import { json, LoaderFunction } from '@remix-run/node'
+import { json, LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { useActionData, useLoaderData, Form, redirect } from '@remix-run/react'
 
 import { LoaderData } from '~/types/loaderData'
 import { getCurrentUser } from '~/utils/auth'
 import { authAction, ActionData } from '~/utils/authActions'
+import { printObject } from '~/utils/printObject'
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
+  console.log('[auth.loader] starting')
+  printObject(request, '[auth.loader] request')
+  printObject(params, '[auth.loader] params')
+
   try {
     const user = await getCurrentUser()
     if (user) {
-      // If the user is authenticated, redirect to the home page
+      // If the user is authenticated, redirect to the home page.
       return redirect('/')
     }
     return json({ user: null })
