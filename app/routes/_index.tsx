@@ -25,15 +25,15 @@ export const loader: LoaderFunction = async ({ request, params }) => {
 
     return json<LoaderData>({ todoLists, user, labels: [] })
   } catch (error) {
-    console.error('Error loading tasks:', error)
-    return json({ error: 'Failed to load list metadata' }, { status: 500 })
+    console.error('[_index.loader] Error loading tasks:', error)
+    return json({ error: '[_index.loader] Failed to load list metadata' }, { status: 500 })
   }
 }
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
   const actionType = formData.get('action')
-  console.log(`[_index.action]: Action type ${actionType?.toString()}' but nothing to do.`)
+  console.log(`[_index.action] Action type ${actionType?.toString()}' but nothing to do.`)
 
   return redirect(`/`)
 }
