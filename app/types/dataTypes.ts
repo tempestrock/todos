@@ -1,5 +1,7 @@
 export const UNDEF = 'undefined'
 
+export type DateTimeString = `${string}-${string}-${string}_${string}:${string}:${string}`
+
 // A TaskList is something like "ToDos", "Groceries", etc.
 export type TaskList = {
   id: string
@@ -21,14 +23,16 @@ export type TaskListMetadata = {
 export type Task = {
   id: string
   title: string
-  status: TaskStatus
+  details: string
+  boardColumn: BoardColumn
   listId: string
-  createdAt: string
+  createdAt: DateTimeString
+  updatedAt: DateTimeString
   labels: string[]
 }
 
-// Enum to represent task statuses. These make up the board columns.
-export enum TaskStatus {
+// Enum to represent board columns.
+export enum BoardColumn {
   BACKLOG = 'backlog',
   AT_WORK = 'at work',
   FINISHED = 'finished',

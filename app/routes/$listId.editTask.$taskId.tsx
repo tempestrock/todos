@@ -3,8 +3,9 @@ import { Form, useLoaderData, useNavigation, useParams, useNavigate, useSearchPa
 import { useState, useEffect } from 'react'
 
 import { loadTask } from '~/data/loadTask'
-import { saveTask } from '~/data/saveTask'
-import { Task, TaskStatus, User } from '~/types/dataTypes'
+import { saveTask } from '~/data/saveAndUpdateData'
+import { Task, BoardColumn, User, DateTimeString } from '~/types/dataTypes'
+import { getNow } from '~/utils/getNow'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
@@ -37,7 +38,7 @@ export default function EditTaskView() {
   const params = useParams()
   const [taskTitle, setTaskTitle] = useState(task?.title || '')
   const [searchParams] = useSearchParams()
-  const currentBoardColumn = (searchParams.get('boardColumn') as TaskStatus) || TaskStatus.BACKLOG
+  const currentBoardColumn = (searchParams.get('boardColumn') as BoardColumn) || BoardColumn.BACKLOG
 
   useEffect(() => {
     if (task) {
@@ -51,6 +52,7 @@ export default function EditTaskView() {
 
       <Form method="post">
         <input type="hidden" name="boardColumn" value={currentBoardColumn} />
+        <input type="hidden" name="createdAt" value={task.createdAt} />
 
         <input
           type="text"
@@ -85,18 +87,22 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData()
   const { listId, taskId } = params
   const taskTitle = formData.get('taskTitle') as string
-  const boardColumn = formData.get('boardColumn') as TaskStatus
+  const boardColumn = formData.get('boardColumn') as BoardColumn
+  const createdAt = formData.get('createdAt') as DateTimeString
 
-  const task = {
+  // Build up the updated task object.
+  const task: Task = {
     id: taskId!,
     title: taskTitle,
-    createdAt: '2024-09-13_09:05:00',
+    details: '',
+    boardColumn: boardColumn,
     listId: listId!,
-    labels: ['Urgent', 'Home'],
-    status: boardColumn,
+    createdAt,
+    updatedAt: getNow(),
+    labels: [],
   }
 
-  printObject(task, `[$listId.editTask.action] task`)
+  printObject(task, `[$listId.editTask.action] updated task`)
   console.log(`[$listId.editTask.action] listId: '${listId}'`)
 
   await saveTask(listId!, task)

@@ -2,8 +2,10 @@ import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } fr
 import { Form, useLoaderData, useNavigation, useParams, useNavigate, useSearchParams } from '@remix-run/react'
 import { useState } from 'react'
 
-import { saveTask } from '~/data/saveTask'
-import { TaskStatus } from '~/types/dataTypes'
+import { saveTask } from '~/data/saveAndUpdateData'
+import { BoardColumn, Task } from '~/types/dataTypes'
+import { getNow } from '~/utils/getNow'
+import { getUid } from '~/utils/getUid'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
@@ -30,7 +32,7 @@ export default function AddEditTaskView() {
   const navigation = useNavigation()
   const navigate = useNavigate()
 
-  const currentBoardColumn = (searchParams.get('boardColumn') as TaskStatus) || TaskStatus.BACKLOG
+  const currentBoardColumn = (searchParams.get('boardColumn') as BoardColumn) || BoardColumn.BACKLOG
   printObject(params, '[$listId.addTask.component] params')
 
   return (
@@ -76,20 +78,23 @@ export const action: ActionFunction = async ({ request, params }) => {
   printObject(params, `[$listId.addTask.action] params`)
 
   const { listId } = params
-  const taskId = formData.get('taskId') as string
-  const taskText = formData.get('taskText') as string
-  const boardColumn = (formData.get('boardColumn') as TaskStatus) || TaskStatus.BACKLOG
+  const taskTitle = formData.get('taskText') as string
+  const boardColumn = (formData.get('boardColumn') as BoardColumn) || BoardColumn.BACKLOG
+  const nowStr = getNow()
 
-  const task = {
-    id: taskId || new Date().getTime().toString(),
-    title: taskText,
-    createdAt: new Date().toISOString(),
+  // Build the updated task object.
+  const task: Task = {
+    id: getUid(),
+    title: taskTitle,
+    details: '',
+    boardColumn: boardColumn,
     listId: listId!,
+    createdAt: nowStr,
+    updatedAt: nowStr,
     labels: [],
-    status: boardColumn,
   }
 
-  printObject(task, `[$listId.addTask.action] task`)
+  printObject(task, `[$listId.addTask.action] new task`)
   console.log(`[$listId.addTask.action] listId: '${listId}'`)
 
   await saveTask(listId!, task)

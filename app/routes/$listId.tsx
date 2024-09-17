@@ -3,7 +3,7 @@ import { Link, Outlet, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 
 import { loadTaskList } from '~/data/loadTaskList'
-import { Label, TaskList, TaskStatus, User } from '~/types/dataTypes'
+import { Label, TaskList, BoardColumn, User } from '~/types/dataTypes'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
@@ -35,7 +35,7 @@ export default function ListView() {
   // Get the necessary data from the loader.
   const { taskList } = useLoaderData<LoaderData>()
 
-  const boardColumns = Object.values(TaskStatus)
+  const boardColumns = Object.values(BoardColumn)
 
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
 
@@ -85,7 +85,7 @@ export default function ListView() {
       {/* Task list */}
       <ul className="space-y-4">
         {taskList?.tasks
-          .filter((task) => task.status === currentBoardColumn)
+          .filter((task) => task.boardColumn === currentBoardColumn)
           .map((task) => (
             <li key={task.id} className="border p-4 rounded">
               <div className="font-bold">{task.title}</div>
