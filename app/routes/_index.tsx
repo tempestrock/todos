@@ -13,6 +13,8 @@ export type LoaderData = {
   success: boolean
 }
 
+let todoLists: TaskList[] | undefined = undefined
+
 /**
  * Is called with every page load.
  * Loads all tasks from the database.
@@ -28,8 +30,12 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
 
   try {
     // Only load the part of the lists that is necessary to show the list names and colors on the home page.
-    const todoLists = await loadListMetadata()
-    printObject(todoLists, '[_index.loader] todoLists')
+    if (!todoLists) {
+      todoLists = await loadListMetadata()
+      printObject(todoLists, '[_index.loader] todoLists')
+    } else {
+      console.log(`[_index.loader] todoLists already loaded`)
+    }
 
     return json<LoaderData>({ success: true, todoLists, user, labels: [] })
   } catch (error) {
