@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { loadTask } from '~/data/loadTask'
 import { saveTask } from '~/data/saveAndUpdateData'
 import { Task, BoardColumn, User, DateTimeString } from '~/types/dataTypes'
-import { getNow } from '~/utils/getNow'
+import { getNow } from '~/utils/dateAndTime'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 

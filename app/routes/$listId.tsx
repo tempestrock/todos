@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { loadTaskList } from '~/data/loadTaskList'
 import { Label, TaskList, BoardColumn, User } from '~/types/dataTypes'
+import { getNiceDateTime } from '~/utils/dateAndTime'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
@@ -89,7 +90,7 @@ export default function ListView() {
           .map((task) => (
             <li key={task.id} className="border p-4 rounded">
               <div className="font-bold">{task.title}</div>
-              <div className="text-sm text-gray-500">{task.createdAt}</div>
+              <div className="text-sm text-gray-500">{getNiceDateTime(task.createdAt)}</div>
               <Link
                 to={`editTask/${task.id}?boardColumn=${currentBoardColumn}`}
                 className="text-blue-500 underline mt-2 inline-block"

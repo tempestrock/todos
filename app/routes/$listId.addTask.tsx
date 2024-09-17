@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { saveTask } from '~/data/saveAndUpdateData'
 import { BoardColumn, Task } from '~/types/dataTypes'
-import { getNow } from '~/utils/getNow'
+import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
