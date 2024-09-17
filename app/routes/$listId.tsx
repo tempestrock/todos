@@ -1,8 +1,9 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { Link, Outlet, useLoaderData } from '@remix-run/react'
+import { Link, Outlet, useLoaderData, useSubmit } from '@remix-run/react'
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
+import { deleteTask } from '~/data/deleteTask'
 import { loadTaskList } from '~/data/loadTaskList'
 import { Label, TaskList, BoardColumn } from '~/types/dataTypes'
 import { getNiceDateTime } from '~/utils/dateAndTime'
@@ -35,6 +36,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export default function ListView() {
   // Get the necessary data from the loader.
   const { taskList } = useLoaderData<LoaderData>()
+  const submit = useSubmit()
 
   const boardColumns = Object.values(BoardColumn)
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
@@ -50,6 +52,12 @@ export default function ListView() {
 
   const toggleDetails = () => {
     setShowDetails((prev) => !prev)
+  }
+
+  const handleDelete = (taskId: string) => {
+    if (confirm('Are you sure you want to delete this task?')) {
+      submit({ taskId, listId: taskList.id }, { method: 'delete' })
+    }
   }
 
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
@@ -108,12 +116,17 @@ export default function ListView() {
                 </div>
               )}
 
-              <Link
-                to={`editTask/${task.id}?boardColumn=${currentBoardColumn}`}
-                className="text-blue-500 underline mt-2 inline-block"
-              >
-                Edit
-              </Link>
+              <div className="mt-2 space-x-4">
+                <Link
+                  to={`editTask/${task.id}?boardColumn=${currentBoardColumn}`}
+                  className="text-blue-500 underline inline-block"
+                >
+                  Edit
+                </Link>
+                <button onClick={() => handleDelete(task.id)} className="text-red-500 underline inline-block">
+                  Delete
+                </button>
+              </div>
             </li>
           ))}
       </ul>
@@ -121,4 +134,22 @@ export default function ListView() {
       <Outlet />
     </div>
   )
+}
+
+/**
+ * Handles the action for the task deletion.
+ *
+ * @param {{ request: Request }} params - An object containing the request.
+ * @return {Promise<json>} A JSON response indicating the success of the deletion.
+ */
+export const action = async ({ request }: { request: Request }) => {
+  const formData = await request.formData()
+  const listId = formData.get('listId') as string
+  const taskId = formData.get('taskId') as string
+
+  console.log(`Deleting task '${taskId}' from list '${listId}'.`)
+
+  await deleteTask(listId, taskId)
+
+  return json({ success: true })
 }

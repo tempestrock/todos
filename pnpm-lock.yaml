@@ -18,13 +18,10 @@ importers:
         specifier: 6.3.1
         version: 6.3.1(@types/react@18.3.5)(aws-amplify@6.6.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(xstate@4.38.3)
       '@aws-sdk/client-dynamodb':
-        specifier: ^3.651.1
+        specifier: 3.651.1
         version: 3.651.1
       '@aws-sdk/lib-dynamodb':
-        specifier: ^3.651.1
-        version: 3.651.1(@aws-sdk/client-dynamodb@3.651.1)
-      '@aws-sdk/util-dynamodb':
-        specifier: ^3.651.1
+        specifier: 3.651.1
         version: 3.651.1(@aws-sdk/client-dynamodb@3.651.1)
       '@remix-run/node':
         specifier: 2.12.0
@@ -54,14 +51,14 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-markdown:
-        specifier: ^9.0.1
+        specifier: 9.0.1
         version: 9.0.1(@types/react@18.3.5)(react@18.3.1)
     devDependencies:
       '@remix-run/dev':
         specifier: 2.12.0
         version: 2.12.0(@remix-run/react@2.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2))(@remix-run/serve@2.12.0(typescript@5.6.2))(@types/node@22.5.4)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.4))
       '@tailwindcss/typography':
-        specifier: ^0.5.15
+        specifier: 0.5.15
         version: 0.5.15(tailwindcss@3.4.11)
       '@types/react':
         specifier: 18.3.5
@@ -7109,7 +7106,7 @@ snapshots:
 
   '@types/hast@3.0.4':
     dependencies:
-      '@types/unist': 2.0.11
+      '@types/unist': 3.0.3
 
   '@types/json-schema@7.0.15': {}
 
@@ -7121,7 +7118,7 @@ snapshots:
 
   '@types/mdast@4.0.4':
     dependencies:
-      '@types/unist': 2.0.11
+      '@types/unist': 3.0.3
 
   '@types/mdx@2.0.13': {}
 
