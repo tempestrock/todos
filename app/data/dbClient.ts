@@ -16,16 +16,7 @@ export const dbClient = (): DynamoDBDocumentClient => {
     },
   })
 
-  docClient = DynamoDBDocumentClient.from(client, {
-    marshallOptions: {
-      convertEmptyValues: false, // false by default
-      removeUndefinedValues: true, // Removes undefined values while marshalling
-      convertClassInstanceToMap: true, // Automatically convert class instances to maps
-    },
-    unmarshallOptions: {
-      wrapNumbers: false, // If you have large numbers, set to true to handle as BigInt
-    },
-  })
+  docClient = DynamoDBDocumentClient.from(client)
 
   return docClient
 }

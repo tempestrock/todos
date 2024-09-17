@@ -84,7 +84,7 @@ export default function HomeView() {
               className="w-full text-white text-lg py-4 rounded block text-center"
               style={{ backgroundColor: list.color }}
             >
-              {list.name}
+              {list.displayName}
             </Link>
           ))}
         </div>

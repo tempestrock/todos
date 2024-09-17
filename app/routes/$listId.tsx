@@ -90,7 +90,7 @@ export default function ListView() {
 
       {/* Task list title */}
       <h2 className="text-xl font-semibold mb-4" style={{ color: taskList?.color }}>
-        {taskList?.name} - {currentBoardColumn}
+        {taskList?.displayName} - {currentBoardColumn}
       </h2>
 
       {/* Task list */}
