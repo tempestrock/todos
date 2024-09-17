@@ -35,12 +35,13 @@ export async function saveTask(listId: string, task: Task): Promise<void> {
           listId: listId,
           id: task.id,
         },
-        UpdateExpression: 'set #title = :t, boardColumn = :b, updatedAt = :u',
+        UpdateExpression: 'set #title = :t, details = :d, boardColumn = :b, updatedAt = :u',
         ExpressionAttributeNames: {
           '#title': 'title',
         },
         ExpressionAttributeValues: {
           ':t': task.title,
+          ':d': task.details,
           ':b': task.boardColumn,
           ':u': task.updatedAt,
         },
@@ -74,7 +75,7 @@ export async function saveTask(listId: string, task: Task): Promise<void> {
  * @return {Promise<void>} A promise that resolves when the update is successful.
  * @throws {Error} If the task does not exist in the database.
  */
-export async function updateColumn(listId: string, task: Task): Promise<void> {
+export async function updateBoardColumn(listId: string, task: Task): Promise<void> {
   try {
     // Check if the task already exists.
     const getParams = {

@@ -28,7 +28,8 @@ export default function AddEditTaskView() {
 
   const params = useParams()
   const [searchParams] = useSearchParams()
-  const [taskText, setTaskText] = useState('')
+  const [taskTitle, setTaskTitle] = useState('')
+  const [taskDetails, setTaskDetails] = useState('')
   const navigation = useNavigation()
   const navigate = useNavigate()
 
@@ -37,17 +38,26 @@ export default function AddEditTaskView() {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl font-semibold mb-4">'Add New Task'</h2>
+      <h2 className="text-xl font-semibold mb-4">Add New Task</h2>
 
       <Form method="post">
         <input type="hidden" name="boardColumn" value={currentBoardColumn} />
 
         <input
           type="text"
-          name="taskText"
+          name="taskTitle"
+          placeholder="Task Title"
           className="w-full p-2 border rounded mb-4"
-          value={taskText}
-          onChange={(e) => setTaskText(e.target.value)}
+          value={taskTitle}
+          onChange={(e) => setTaskTitle(e.target.value)}
+        />
+
+        <textarea
+          name="taskDetails"
+          placeholder="Task Details"
+          className="w-full p-2 border rounded mb-4 h-32"
+          value={taskDetails}
+          onChange={(e) => setTaskDetails(e.target.value)}
         />
 
         <div className="flex justify-end space-x-2">
@@ -78,7 +88,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   printObject(params, `[$listId.addTask.action] params`)
 
   const { listId } = params
-  const taskTitle = formData.get('taskText') as string
+  const taskTitle = formData.get('taskTitle') as string
+  const taskDetails = formData.get('taskDetails') as string
   const boardColumn = (formData.get('boardColumn') as BoardColumn) || BoardColumn.BACKLOG
   const nowStr = getNow()
 
@@ -86,7 +97,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const task: Task = {
     id: getUid(),
     title: taskTitle,
-    details: '',
+    details: taskDetails,
     boardColumn: boardColumn,
     listId: listId!,
     createdAt: nowStr,

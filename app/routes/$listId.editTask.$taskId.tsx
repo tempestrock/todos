@@ -25,7 +25,7 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
   if (!listId) throw new Error('[$listId.editTask.action] No list ID provided')
   if (!taskId) throw new Error('[$listId.editTask.action] No task ID provided')
 
-  const task = await loadTask(listId,taskId)
+  const task = await loadTask(listId, taskId)
   if (!task) throw new Error('[$listId.editTask.action] Failed to load task')
 
   return json<LoaderData>({ task, user })
@@ -37,12 +37,14 @@ export default function EditTaskView() {
   const navigate = useNavigate()
   const params = useParams()
   const [taskTitle, setTaskTitle] = useState(task?.title || '')
+  const [taskDetails, setTaskDetails] = useState(task?.details || '')
   const [searchParams] = useSearchParams()
   const currentBoardColumn = (searchParams.get('boardColumn') as BoardColumn) || BoardColumn.BACKLOG
 
   useEffect(() => {
     if (task) {
       setTaskTitle(task.title)
+      setTaskDetails(task.details)
     }
   }, [task])
 
@@ -57,9 +59,18 @@ export default function EditTaskView() {
         <input
           type="text"
           name="taskTitle"
+          placeholder="Task Title"
           className="w-full p-2 border rounded mb-4"
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
+        />
+
+        <textarea
+          name="taskDetails"
+          placeholder="Task Details"
+          className="w-full p-2 border rounded mb-4 h-32"
+          value={taskDetails}
+          onChange={(e) => setTaskDetails(e.target.value)}
         />
 
         <div className="flex justify-end space-x-2">
@@ -87,6 +98,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData()
   const { listId, taskId } = params
   const taskTitle = formData.get('taskTitle') as string
+  const taskDetails = formData.get('taskDetails') as string
   const boardColumn = formData.get('boardColumn') as BoardColumn
   const createdAt = formData.get('createdAt') as DateTimeString
 
@@ -94,7 +106,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   const task: Task = {
     id: taskId!,
     title: taskTitle,
-    details: '',
+    details: taskDetails,
     boardColumn: boardColumn,
     listId: listId!,
     createdAt,
