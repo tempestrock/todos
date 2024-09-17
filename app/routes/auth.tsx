@@ -38,7 +38,7 @@ export default function Auth() {
       <h1>Authentication</h1>
       {user ? (
         <div>
-          <p>Huhu, {user.cognitoUser.username}</p>
+          <p>Huhu, {user.displayName}</p>
           <Form method="post">
             <input type="hidden" name="action" value="signout" />
             <button type="submit">Sign Out</button>

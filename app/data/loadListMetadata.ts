@@ -9,7 +9,7 @@ import { TaskList, TaskListMetadata } from '~/types/dataTypes'
  *
  * @return {TaskList[]} An array of task lists with empty task arrays.
  */
-export async function loadListMetadata(): Promise<TaskList[]> {
+export async function loadListMetadata(allowedListIds: string[]): Promise<TaskList[]> {
   const taskLists: TaskList[] = []
   let lastEvaluatedKey: Record<string, any> | undefined
 
@@ -27,12 +27,14 @@ export async function loadListMetadata(): Promise<TaskList[]> {
         // Take the metadata and convert it to a task list by
         // adding an empty task array.
         const taskListMetadataReceived = response.Items as TaskListMetadata[]
-        const taskListsReceived = taskListMetadataReceived.map((taskList) => {
-          return {
-            tasks: [],
-            ...taskList,
-          }
-        })
+        const taskListsReceived = taskListMetadataReceived
+          .filter((taskList) => allowedListIds.find((id) => id == taskList.id)) // only take those that the user may see
+          .map((taskList) => {
+            return {
+              tasks: [],
+              ...taskList,
+            }
+          })
         taskLists.push(...taskListsReceived)
       }
 

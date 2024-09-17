@@ -4,13 +4,12 @@ import { useState, useEffect } from 'react'
 
 import { loadTask } from '~/data/loadTask'
 import { saveTask } from '~/data/saveAndUpdateData'
-import { Task, BoardColumn, User, DateTimeString } from '~/types/dataTypes'
+import { Task, BoardColumn, DateTimeString } from '~/types/dataTypes'
 import { getNow } from '~/utils/dateAndTime'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
 type LoaderData = {
-  user: User | null
   task: Task
 }
 
@@ -19,7 +18,7 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
   printObject(request, '[$listId.editTask.loader] request')
   printObject(params, '[$listId.editTask.loader] params')
 
-  const user = await requireAuth(request)
+  await requireAuth(request)
   const { listId, taskId } = params
 
   if (!listId) throw new Error('[$listId.editTask.action] No list ID provided')
@@ -28,7 +27,7 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
   const task = await loadTask(listId, taskId)
   if (!task) throw new Error('[$listId.editTask.action] Failed to load task')
 
-  return json<LoaderData>({ task, user })
+  return json<LoaderData>({ task })
 }
 
 export default function EditTaskView() {

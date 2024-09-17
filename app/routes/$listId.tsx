@@ -1,9 +1,10 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import { Link, Outlet, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 import { loadTaskList } from '~/data/loadTaskList'
-import { Label, TaskList, BoardColumn, User } from '~/types/dataTypes'
+import { Label, TaskList, BoardColumn } from '~/types/dataTypes'
 import { getNiceDateTime } from '~/utils/dateAndTime'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
@@ -11,7 +12,6 @@ import { requireAuth } from '~/utils/session.server'
 type LoaderData = {
   taskList: TaskList
   labels: Label[]
-  user: User | null
 }
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -19,13 +19,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   printObject(request, '[$listId.loader] request')
   printObject(params, '[$listId.loader] params')
 
-  const user = await requireAuth(request)
+  await requireAuth(request)
 
   try {
     if (!params.listId) throw new Error('[$listId.loader] No list ID provided')
 
     const taskList = await loadTaskList(params.listId)
-    return json<LoaderData>({ taskList, user, labels: [] })
+    return json<LoaderData>({ taskList, labels: [] })
   } catch (error) {
     console.error('[$listId.loader] Error loading tasks:', error)
     return json({ error: '[$listId.loader] Failed to load tasks' }, { status: 500 })
@@ -37,8 +37,8 @@ export default function ListView() {
   const { taskList } = useLoaderData<LoaderData>()
 
   const boardColumns = Object.values(BoardColumn)
-
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
+  const [showDetails, setShowDetails] = useState(false)
 
   const handlePrevBoardColumn = () => {
     if (currentBoardColumnIndex > 0) setCurrentBoardColumnIndex(currentBoardColumnIndex - 1)
@@ -46,6 +46,10 @@ export default function ListView() {
 
   const handleNextBoardColumn = () => {
     if (currentBoardColumnIndex < boardColumns.length - 1) setCurrentBoardColumnIndex(currentBoardColumnIndex + 1)
+  }
+
+  const toggleDetails = () => {
+    setShowDetails((prev) => !prev)
   }
 
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
@@ -58,6 +62,12 @@ export default function ListView() {
           Back
         </Link>
         <div className="flex gap-4">
+          {/* Toggle Details Button */}
+
+          <button onClick={toggleDetails} className="bg-blue-500 text-white px-4 py-2 rounded">
+            {showDetails ? 'Hide details' : 'Show details'}
+          </button>
+
           <button
             onClick={handlePrevBoardColumn}
             className={`text-gray-500 ${currentBoardColumnIndex === 0 ? 'opacity-50' : ''}`}
@@ -91,6 +101,13 @@ export default function ListView() {
             <li key={task.id} className="border p-4 rounded">
               <div className="font-bold">{task.title}</div>
               <div className="text-sm text-gray-500">{getNiceDateTime(task.createdAt)}</div>
+
+              {showDetails && (
+                <div className="mt-2 text-gray-700 prose">
+                  <ReactMarkdown>{task.details}</ReactMarkdown>
+                </div>
+              )}
+
               <Link
                 to={`editTask/${task.id}?boardColumn=${currentBoardColumn}`}
                 className="text-blue-500 underline mt-2 inline-block"

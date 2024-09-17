@@ -52,7 +52,9 @@ export const availableLabels: Label[] = [
 ]
 
 export type User = {
-  cognitoUser: {
-    username: string
-  }
+  id: string
+  displayName: string
+  taskListIds: string[] // the IDs of those task lists that the user is allowed to see
 }
+
+export const UserUndefined: User = { id: UNDEF, displayName: UNDEF, taskListIds: [] }
