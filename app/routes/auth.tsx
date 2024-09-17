@@ -1,14 +1,18 @@
 import { json, LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { useActionData, useLoaderData, Form, redirect } from '@remix-run/react'
 
-import { LoaderData } from '~/types/loaderData'
+import { User } from '~/types/dataTypes'
 import { getCurrentUser } from '~/utils/auth'
 import { authAction, ActionData } from '~/utils/authActions'
 import { printObject } from '~/utils/printObject'
 
-export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
+export type LoaderData = {
+  user: User
+  success: boolean
+}
+
+export const loader: LoaderFunction = async ({ params }: LoaderFunctionArgs) => {
   console.log('[auth.loader] starting')
-  printObject(request, '[auth.loader] request')
   printObject(params, '[auth.loader] params')
 
   try {
@@ -17,9 +21,9 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
       // If the user is authenticated, redirect to the home page.
       return redirect('/')
     }
-    return json({ user: null })
+    return json({ success: true, user: null })
   } catch {
-    return json({ user: null })
+    return json({ success: false, user: null })
   }
 }
 
@@ -42,12 +46,12 @@ export default function Auth() {
         </div>
       ) : (
         <div>
-          <h2>Sign In</h2>
+          <h2 className='text-xl mb-2'>Please login first.</h2>
           <Form method="post">
             <input type="hidden" name="action" value="signin" />
             <input type="text" name="username" placeholder="Username" required />
             <input type="password" name="password" placeholder="Password" required />
-            <button type="submit">Sign In</button>
+            <button className="text-xs border border-gray-700 mt-1 bg-gray-100 pt-1 px-2 pb-1" type="submit">Sign In</button>
           </Form>
         </div>
       )}

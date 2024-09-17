@@ -7,6 +7,8 @@ import { TaskStatus } from '~/types/dataTypes'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
+export type LoaderData = unknown
+
 export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
   console.log('[$listId.addTask.loader] starting')
   printObject(request, '[$listId.addTask.loader] request')
@@ -14,11 +16,11 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
 
   await requireAuth(request)
 
-  return json({})
+  return json<LoaderData>({})
 }
 
 export default function AddEditTaskView() {
-  useLoaderData()
+  useLoaderData<LoaderData>()
 
   console.log('[$listId.addTask.component] starting')
 
@@ -28,7 +30,7 @@ export default function AddEditTaskView() {
   const navigation = useNavigation()
   const navigate = useNavigate()
 
-  const currentBoardColumn = searchParams.get('boardColumn') as TaskStatus || TaskStatus.BACKLOG
+  const currentBoardColumn = (searchParams.get('boardColumn') as TaskStatus) || TaskStatus.BACKLOG
   printObject(params, '[$listId.addTask.component] params')
 
   return (
