@@ -21,11 +21,11 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
   await requireAuth(request)
   const { listId, taskId } = params
 
-  if (!listId) throw new Error('[$listId.editTask.action] No list ID provided')
-  if (!taskId) throw new Error('[$listId.editTask.action] No task ID provided')
+  if (!listId) throw new Error('[$listId.editTask.loader] No list ID provided')
+  if (!taskId) throw new Error('[$listId.editTask.loader] No task ID provided')
 
   const task = await loadTask(listId, taskId)
-  if (!task) throw new Error('[$listId.editTask.action] Failed to load task')
+  if (!task) throw new Error('[$listId.editTask.loader] Failed to load task')
 
   return json<LoaderData>({ task })
 }
@@ -53,6 +53,7 @@ export default function EditTaskView() {
 
       <Form method="post">
         <input type="hidden" name="boardColumn" value={currentBoardColumn} />
+        <input type="hidden" name="position" value={task.position} />
         <input type="hidden" name="createdAt" value={task.createdAt} />
 
         <input
@@ -101,13 +102,21 @@ export const action: ActionFunction = async ({ request, params }) => {
   const boardColumn = formData.get('boardColumn') as BoardColumn
   const createdAt = formData.get('createdAt') as DateTimeString
 
+  const positionAsString = formData.get('position') as string | null
+  if (!positionAsString) throw new Error('[$listId.editTask.action] No position provided')
+  const position = parseInt(positionAsString)
+
+  if (!listId) throw new Error('[$listId.editTask.action] No list ID provided')
+  if (!taskId) throw new Error('[$listId.editTask.action] No task ID provided')
+
   // Build up the updated task object.
   const task: Task = {
-    id: taskId!,
+    id: taskId,
     title: taskTitle,
     details: taskDetails,
-    boardColumn: boardColumn,
-    listId: listId!,
+    position,
+    boardColumn,
+    listId,
     createdAt,
     updatedAt: getNow(),
     labels: [],
@@ -116,7 +125,7 @@ export const action: ActionFunction = async ({ request, params }) => {
   printObject(task, `[$listId.editTask.action] updated task`)
   console.log(`[$listId.editTask.action] listId: '${listId}'`)
 
-  await saveTask(listId!, task)
+  await saveTask(listId, task)
 
   return redirect(`/${listId}`)
 }

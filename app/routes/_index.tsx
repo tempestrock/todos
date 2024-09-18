@@ -37,10 +37,10 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
   try {
     if (!user) {
       user = await loadUser(userId)
-      printObject(user, '[_index.loader] user')
+      // printObject(user, '[_index.loader] user')
       if (!user) throw new Error('[_index.loader] Failed to load user')
-    } else {
-      console.log(`[_index.loader] user already loaded`)
+      // } else {
+      //   console.log(`[_index.loader] user already loaded`)
     }
 
     if (user.taskListIds.length === 0) throw new Error('[_index.loader] User has no lists')

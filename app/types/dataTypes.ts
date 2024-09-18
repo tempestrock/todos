@@ -23,9 +23,9 @@ export type TaskListMetadata = {
 export type Task = {
   id: string
   title: string
-  order: number
   details: string
   boardColumn: BoardColumn
+  position: number // the position of the task in the list and in the boardColumn; top is 0 for each column
   listId: string
   createdAt: DateTimeString
   updatedAt: DateTimeString

@@ -36,7 +36,7 @@ export async function loadTask(listId: string, taskId: string): Promise<Task | u
       lastEvaluatedKey = response.LastEvaluatedKey
     } while (lastEvaluatedKey)
 
-    printObject(taskList, '[loadTask] taskList')
+    // printObject(taskList, '[loadTask] taskList')
 
     const task = taskList.tasks.find((task) => task.id === taskId)
     printObject(task, '[loadTask] task')

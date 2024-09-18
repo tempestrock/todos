@@ -6,6 +6,10 @@ import { getCurrentUser } from '~/utils/auth'
 import { authAction, ActionData } from '~/utils/authActions'
 import { printObject } from '~/utils/printObject'
 
+/**
+ * Displays the authentication page.
+ */
+
 export type LoaderData = {
   user: User
   success: boolean
@@ -46,12 +50,14 @@ export default function Auth() {
         </div>
       ) : (
         <div>
-          <h2 className='text-xl mb-2'>Please login first.</h2>
+          <h2 className="text-xl mb-2">Please login first.</h2>
           <Form method="post">
             <input type="hidden" name="action" value="signin" />
             <input type="text" name="username" placeholder="Username" required />
             <input type="password" name="password" placeholder="Password" required />
-            <button className="text-xs border border-gray-700 mt-1 bg-gray-100 pt-1 px-2 pb-1" type="submit">Sign In</button>
+            <button className="text-xs border border-gray-700 mt-1 bg-gray-100 pt-1 px-2 pb-1" type="submit">
+              Sign In
+            </button>
           </Form>
         </div>
       )}

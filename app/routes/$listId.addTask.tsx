@@ -3,6 +3,7 @@ import { Form, useLoaderData, useNavigation, useParams, useNavigate, useSearchPa
 import { useState } from 'react'
 
 import { saveTask } from '~/data/saveAndUpdateData'
+import { pushTasksDown } from '~/listUtils/pushTasksDown'
 import { BoardColumn, Task } from '~/types/dataTypes'
 import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
@@ -33,7 +34,7 @@ export default function AddEditTaskView() {
   const navigation = useNavigation()
   const navigate = useNavigate()
 
-  const currentBoardColumn = (searchParams.get('boardColumn') as BoardColumn) || BoardColumn.BACKLOG
+  const currentBoardColumn = searchParams.get('boardColumn') as BoardColumn
   printObject(params, '[$listId.addTask.component] params')
 
   return (
@@ -83,32 +84,37 @@ export default function AddEditTaskView() {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const formData = await request.formData()
-  const actionType = formData.get('action')
-  console.log(`[$listId.addTask.action] Action type ${actionType?.toString()}'.`)
   printObject(params, `[$listId.addTask.action] params`)
 
   const { listId } = params
+  if (!listId) throw new Error(`[$listId.addTask.action] listId not found.`)
+
   const taskTitle = formData.get('taskTitle') as string
   const taskDetails = formData.get('taskDetails') as string
-  const boardColumn = (formData.get('boardColumn') as BoardColumn) || BoardColumn.BACKLOG
+  const boardColumn = formData.get('boardColumn') as BoardColumn
   const nowStr = getNow()
 
   // Build the updated task object.
-  const task: Task = {
+  const taskToAdd: Task = {
     id: getUid(),
     title: taskTitle,
     details: taskDetails,
-    boardColumn: boardColumn,
-    listId: listId!,
+    position: 0, // Put the new task at the top of the list.
+    boardColumn,
+    listId,
     createdAt: nowStr,
     updatedAt: nowStr,
     labels: [],
   }
 
-  printObject(task, `[$listId.addTask.action] new task`)
+  printObject(taskToAdd, `[$listId.addTask.action] new task`)
   console.log(`[$listId.addTask.action] listId: '${listId}'`)
 
-  await saveTask(listId!, task)
+  // Push all tasks in the list down one position by incrementing their `position` values.
+  await pushTasksDown(listId, boardColumn)
+
+  // Save the new task.
+  await saveTask(listId, taskToAdd)
 
   return redirect(`/${listId}`)
 }

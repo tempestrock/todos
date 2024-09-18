@@ -35,14 +35,16 @@ export async function saveTask(listId: string, task: Task): Promise<void> {
           listId: listId,
           id: task.id,
         },
-        UpdateExpression: 'set #title = :t, details = :d, boardColumn = :b, updatedAt = :u',
+        UpdateExpression: 'set #title = :t, details = :d, boardColumn = :b, #position = :p, updatedAt = :u',
         ExpressionAttributeNames: {
           '#title': 'title',
+          '#position': 'position',
         },
         ExpressionAttributeValues: {
           ':t': task.title,
           ':d': task.details,
           ':b': task.boardColumn,
+          ':p': task.position,
           ':u': task.updatedAt,
         },
       }
@@ -98,9 +100,13 @@ export async function updateBoardColumn(listId: string, task: Task): Promise<voi
         listId: listId,
         id: task.id,
       },
-      UpdateExpression: 'set boardColumn = :b, updatedAt = :u',
+      UpdateExpression: 'set #position = :p, boardColumn = :b, updatedAt = :u',
+      ExpressionAttributeNames: {
+        '#position': 'position',
+      },
       ExpressionAttributeValues: {
         ':b': task.boardColumn,
+        ':p': task.position,
         ':u': task.updatedAt,
       },
     }
