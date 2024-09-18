@@ -137,7 +137,10 @@ export default function ListView() {
           >
             Right
           </button>
-          <Link to={`addTask?boardColumn=${currentBoardColumn}`} className="bg-green-500 text-white px-4 py-2 rounded">
+          <Link
+            to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
+            className="bg-green-500 text-white px-4 py-2 rounded"
+          >
             Add
           </Link>
         </div>
@@ -164,25 +167,35 @@ export default function ListView() {
               )}
 
               <div className="mt-2 space-x-4">
-                <Link
+                {/* <Link
                   to={`editTask/${task.id}?boardColumn=${currentBoardColumn}`}
                   className="text-blue-500 underline inline-block"
+                >
+                  Edit
+                </Link> */}
+
+                <Link
+                  to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
+                  className="text-blue-500 hover:text-blue-700"
                 >
                   Edit
                 </Link>
                 <button onClick={() => handleDelete(task.id)} className="text-red-500 underline inline-block">
                   Delete
                 </button>
+
                 {currentBoardColumnIndex > 0 && (
                   <button onClick={() => handleMove(task.id, 'prev')} className="text-green-500 underline inline-block">
                     &larr; {boardColumns[currentBoardColumnIndex - 1]}
                   </button>
                 )}
+
                 {currentBoardColumnIndex < boardColumns.length - 1 && (
                   <button onClick={() => handleMove(task.id, 'next')} className="text-green-500 underline inline-block">
                     {boardColumns[currentBoardColumnIndex + 1]} &rarr;
                   </button>
                 )}
+
                 <button
                   onClick={() => handleReorder(task.id, 'up')}
                   className={`text-blue-500 underline inline-block ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -190,6 +203,7 @@ export default function ListView() {
                 >
                   Up
                 </button>
+
                 <button
                   onClick={() => handleReorder(task.id, 'down')}
                   className={`text-blue-500 underline inline-block ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}

@@ -1,5 +1,5 @@
 import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } from '@remix-run/node'
-import { Form, useLoaderData, useNavigation, useParams, useNavigate, useSearchParams } from '@remix-run/react'
+import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
 import { useState } from 'react'
 
 import { saveTask } from '~/data/saveAndUpdateData'
@@ -13,35 +13,37 @@ import { requireAuth } from '~/utils/session.server'
 export type LoaderData = unknown
 
 export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
-  console.log('[$listId.addTask.loader] starting')
-  printObject(request, '[$listId.addTask.loader] request')
-  printObject(params, '[$listId.addTask.loader] params')
+  console.log('[addTask.loader] starting')
+  printObject(request, '[addTask.loader] request')
+  printObject(params, '[addTask.loader] params')
 
   await requireAuth(request)
 
   return json<LoaderData>({})
 }
 
-export default function AddEditTaskView() {
+export default function AddTaskView() {
   useLoaderData<LoaderData>()
 
-  console.log('[$listId.addTask.component] starting')
+  console.log('[addTask.component] starting')
 
-  const params = useParams()
   const [searchParams] = useSearchParams()
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDetails, setTaskDetails] = useState('')
   const navigation = useNavigation()
   const navigate = useNavigate()
 
+  const listId = searchParams.get('listId')
+  if (!listId) throw new Error('[addTask.component] No list ID provided')
+
   const currentBoardColumn = searchParams.get('boardColumn') as BoardColumn
-  printObject(params, '[$listId.addTask.component] params')
 
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-xl font-semibold mb-4">Add New Task</h2>
 
       <Form method="post">
+        <input type="hidden" name="listId" value={listId} />
         <input type="hidden" name="boardColumn" value={currentBoardColumn} />
 
         <input
@@ -64,7 +66,7 @@ export default function AddEditTaskView() {
         <div className="flex justify-end space-x-2">
           <button
             type="button"
-            onClick={() => navigate(`/${params.listId}`)}
+            onClick={() => navigate(`/${listId}`)}
             className="text-gray-500 border border-gray-500 px-4 py-2 rounded"
           >
             Cancel
@@ -82,12 +84,11 @@ export default function AddEditTaskView() {
   )
 }
 
-export const action: ActionFunction = async ({ request, params }) => {
+export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
-  printObject(params, `[$listId.addTask.action] params`)
 
-  const { listId } = params
-  if (!listId) throw new Error(`[$listId.addTask.action] listId not found.`)
+  const listId = formData.get('listId') as string
+  if (!listId) throw new Error(`[addTask.action] listId not found.`)
 
   const taskTitle = formData.get('taskTitle') as string
   const taskDetails = formData.get('taskDetails') as string
@@ -107,8 +108,8 @@ export const action: ActionFunction = async ({ request, params }) => {
     labels: [],
   }
 
-  printObject(taskToAdd, `[$listId.addTask.action] new task`)
-  console.log(`[$listId.addTask.action] listId: '${listId}'`)
+  printObject(taskToAdd, `[addTask.action] new task`)
+  console.log(`[addTask.action] listId: '${listId}'`)
 
   // Push all tasks in the list down one position by incrementing their `position` values.
   await pushTasksDown(listId, boardColumn)
