@@ -50,6 +50,7 @@ export default function ListView() {
   const { taskList } = useLoaderData<LoaderData>()
   const submit = useSubmit()
 
+  const listId = taskList.id
   const boardColumns = Object.values(BoardColumn)
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
   const [showDetails, setShowDetails] = useState(false)
@@ -70,7 +71,7 @@ export default function ListView() {
   const handleDelete = (taskId: string) => {
     if (confirm('Are you sure you want to delete this task?')) {
       // Call the action to delete the task in the database.
-      submit({ intent: 'delete', listId: taskList.id, taskId }, { method: 'post' })
+      submit({ intent: 'delete', listId, taskId }, { method: 'post' })
     }
   }
 
@@ -79,7 +80,7 @@ export default function ListView() {
     const targetColumn = direction === 'prev' ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
 
     // Call the action to save the new board column.
-    submit({ intent: 'move', listId: taskList.id, taskId, targetColumn }, { method: 'post' })
+    submit({ intent: 'move', listId, taskId, targetColumn }, { method: 'post' })
   }
 
   const handleReorder = (taskId: string, direction: 'up' | 'down') => {
@@ -101,7 +102,7 @@ export default function ListView() {
     submit(
       {
         intent: 'reorder',
-        listId: taskList.id,
+        listId,
         taskId,
         targetTaskId: targetTask.id,
       },
