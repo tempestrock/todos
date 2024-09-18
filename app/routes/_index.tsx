@@ -7,6 +7,10 @@ import { Label, TaskList, User } from '~/types/dataTypes'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
+/**
+ * Displays the home page which shows all todo lists for the given user.
+ */
+
 export type LoaderData = {
   user?: User
   todoLists: TaskList[]

@@ -28,6 +28,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     if (!params.listId) throw new Error('[$listId.loader] No list ID provided')
 
     const taskList = await loadTaskList(params.listId)
+
+    // Sort tasks by order.
+    taskList.tasks.sort((a, b) => a.order - b.order)
+
     return json<LoaderData>({ taskList, labels: [] })
   } catch (error) {
     console.error('[$listId.loader] Error loading tasks:', error)
@@ -57,6 +61,7 @@ export default function ListView() {
 
   const handleDelete = (taskId: string) => {
     if (confirm('Are you sure you want to delete this task?')) {
+      // Call the action to delete the task in the database.
       submit({ intent: 'delete', taskId, listId: taskList.id }, { method: 'post' })
     }
   }
@@ -65,7 +70,21 @@ export default function ListView() {
     const currentIndex = boardColumns.indexOf(currentBoardColumn)
     const newColumn = direction === 'prev' ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
 
+    // Call the action to save the new board column.
     submit({ intent: 'move', taskId, listId: taskList.id, newColumn }, { method: 'post' })
+  }
+
+  const handleReorder = (taskId: string, direction: 'up' | 'down') => {
+    const tasks = taskList.tasks.filter((task) => task.boardColumn === currentBoardColumn)
+    const currentIndex = tasks.findIndex((task) => task.id === taskId)
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+
+    console.log(`currentIndex: ${currentIndex}, newIndex: ${newIndex}`)
+
+    if (newIndex >= 0 && newIndex < tasks.length) {
+      // Call the action to save the new order.
+      submit({ intent: 'reorder', taskId, listId: taskList.id, newOrder: tasks[newIndex].order }, { method: 'post' })
+    }
   }
 
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
@@ -112,7 +131,7 @@ export default function ListView() {
       <ul className="space-y-4">
         {taskList?.tasks
           .filter((task) => task.boardColumn === currentBoardColumn)
-          .map((task) => (
+          .map((task, index, filteredTasks) => (
             <li key={task.id} className="border p-4 rounded">
               <div className="font-bold">{task.title}</div>
               <div className="text-sm text-gray-500">{getNiceDateTime(task.createdAt)}</div>
@@ -143,6 +162,20 @@ export default function ListView() {
                     {boardColumns[currentBoardColumnIndex + 1]} &rarr;
                   </button>
                 )}
+                <button
+                  onClick={() => handleReorder(task.id, 'up')}
+                  className={`text-blue-500 underline inline-block ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={index === 0}
+                >
+                  Up
+                </button>
+                <button
+                  onClick={() => handleReorder(task.id, 'down')}
+                  className={`text-blue-500 underline inline-block ${index === filteredTasks.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={index === filteredTasks.length - 1}
+                >
+                  Down
+                </button>
               </div>
             </li>
           ))}
@@ -179,6 +212,30 @@ export const action = async ({ request }: { request: Request }) => {
 
         await updateBoardColumn(listId, updatedTask)
         return json({ success: true, message: 'Task moved successfully' })
+      }
+
+      case 'reorder': {
+        console.log(`[$listId.action] reorder start`)
+        const newOrder = Number(formData.get('newOrder'))
+        console.log(`[$listId.action] newOrder: ${newOrder}`)
+        const taskToUpdate = await loadTask(listId, taskId)
+        if (!taskToUpdate) throw new Error(`Could not find task '${taskId}' to update.`)
+
+        printObject(taskToUpdate, '[$listId.action] taskToUpdate')
+
+        // Update the task with the new order
+        const updatedTask: Task = {
+          ...taskToUpdate,
+          order: newOrder,
+          updatedAt: getNow(),
+        }
+
+        printObject(updatedTask, '[$listId.action] updatedTask')
+
+        console.log(`[$listId.action] Now I would reorder ${listId}, ${updatedTask.title}`)
+        // await updateTaskOrder(listId, updatedTask)
+
+        return json({ success: true, message: 'Task reordered successfully' })
       }
 
       default:

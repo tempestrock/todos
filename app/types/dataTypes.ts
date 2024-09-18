@@ -23,6 +23,7 @@ export type TaskListMetadata = {
 export type Task = {
   id: string
   title: string
+  order: number
   details: string
   boardColumn: BoardColumn
   listId: string
