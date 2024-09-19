@@ -12,8 +12,8 @@ import {
   CirclePlus,
   FilePenLine,
   Home,
-  SquareChevronDown,
-  SquareChevronUp,
+  PanelTopClose,
+  PanelTopOpen,
   Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -72,8 +72,6 @@ export default function ListView() {
   const [showTools, setShowTools] = useState(false)
   const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
-  const isLeftmostColumn = currentBoardColumnIndex === 0
-  const isRightmostColumn = currentBoardColumnIndex === boardColumns.length - 1
 
   const handlePrevBoardColumn = () => {
     if (currentBoardColumnIndex > 0) setCurrentBoardColumnIndex(currentBoardColumnIndex - 1)
@@ -82,6 +80,8 @@ export default function ListView() {
   const handleNextBoardColumn = () => {
     if (currentBoardColumnIndex < boardColumns.length - 1) setCurrentBoardColumnIndex(currentBoardColumnIndex + 1)
   }
+
+  const handleColumnChange = (index: number) => setCurrentBoardColumnIndex(index)
 
   const toggleTaskDetails = (taskId: string, event: React.MouseEvent) => {
     event.stopPropagation() // Prevent the click from triggering other elements
@@ -143,30 +143,25 @@ export default function ListView() {
           <Home size={24} />
         </Link>
         <button onClick={toggleTools} className={`text-xs text-blue-500 hover:text-blue-700`}>
-          {showTools ? <SquareChevronDown size={24} /> : <SquareChevronUp size={24} />}
+          {showTools ? <PanelTopOpen size={24} /> : <PanelTopClose size={24} />}
         </button>
 
-        <div className="flex space-x-3">
-          <button
-            onClick={handlePrevBoardColumn}
-            className={`text-xs text-blue-500 hover:text-blue-700 border border-blue-500 hover:border-blue-700 rounded flex items-center gap-2 ${isLeftmostColumn ? 'opacity-50 cursor-not-allowed' : 'px-2 py-2'}`}
-            disabled={isLeftmostColumn}
-          >
-            <ArrowBigLeft size={16} /> {`${!isLeftmostColumn ? boardColumns[currentBoardColumnIndex - 1] : ''}`}
-          </button>
-
-          <div className="text-base font-semibold mt-1" style={{ color: taskList?.color }}>
-            {currentBoardColumn}
-          </div>
-
-          <button
-            onClick={handleNextBoardColumn}
-            className={`text-xs text-blue-500 hover:text-blue-700 border border-blue-500 hover:border-blue-700 rounded flex items-center gap-2 ${isRightmostColumn ? 'opacity-50 cursor-not-allowed' : 'px-2 py-2'}`}
-            disabled={isRightmostColumn}
-          >
-            {`${!isRightmostColumn ? boardColumns[currentBoardColumnIndex + 1] : ''}`} <ArrowBigRight size={16} />
-          </button>
+        <div className="flex space-x-1">
+          {boardColumns.map((column, index) => (
+            <button
+              key={column}
+              onClick={() => handleColumnChange(index)}
+              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
+                index === currentBoardColumnIndex
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white text-blue-500 hover:bg-blue-100'
+              }`}
+            >
+              {column}
+            </button>
+          ))}
         </div>
+
         <Link
           to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
           className="text-green-500 hover:text-green-700"
@@ -174,6 +169,7 @@ export default function ListView() {
           <CirclePlus size={24} />
         </Link>
       </div>
+
       {/* Task list */}
       <ul className="space-y-4">
         {taskList?.tasks
@@ -217,8 +213,8 @@ export default function ListView() {
                   {showTools && (
                     <button
                       onClick={() => handleMove(task.id, 'prev')}
-                      className={`text-green-500 hover:text-green-700 ${isLeftmostColumn ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={isLeftmostColumn}
+                      className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={currentBoardColumnIndex === 0}
                     >
                       <ArrowLeftFromLine size={20} />
                     </button>
@@ -227,8 +223,8 @@ export default function ListView() {
                   {showTools && (
                     <button
                       onClick={() => handleMove(task.id, 'next')}
-                      className={`text-green-500 hover:text-green-700 ${isRightmostColumn ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={isRightmostColumn}
+                      className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={currentBoardColumnIndex === boardColumns.length - 1}
                     >
                       <ArrowRightFromLine size={20} />
                     </button>
@@ -237,7 +233,7 @@ export default function ListView() {
                   {showTools && (
                     <button
                       onClick={() => handleReorder(task.id, 'up')}
-                      className={`text-teal-500 hover:text-teal-700 text- ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                       disabled={index === 0}
                     >
                       <ArrowUpFromLine size={20} />
