@@ -69,14 +69,17 @@ export default function HomeView() {
 
   if (success)
     return (
-      <div className="container mx-auto p-4">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="container mx-auto p-4 mt-1">
+        <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold mb-4">{user?.displayName}'s Lists</h1>
 
           {/* Sign out button */}
           <Form method="post">
             <input type="hidden" name="action" value="signout" />
-            <button className="text-xs border border-gray-700 mt-1 bg-gray-100 pt-1 px-2 pb-1" type="submit">
+            <button
+              className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded pt-1 px-2 pb-1"
+              type="submit"
+            >
               Sign out
             </button>
           </Form>
@@ -87,10 +90,11 @@ export default function HomeView() {
             <Link
               key={list.id}
               to={`/${list.id}`}
-              className="w-full text-white text-2xl py-4 rounded block text-center"
+              className="w-full text-white text-2xl py-4 rounded block text-center transition-all duration-200 ease-in-out relative overflow-hidden group"
               style={{ backgroundColor: list.color }}
             >
-              {list.displayName}
+              <span className="relative z-10">{list.displayName}</span>
+              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-25 transition-opacity duration-200 ease-in-out"></div>
             </Link>
           ))}
         </div>

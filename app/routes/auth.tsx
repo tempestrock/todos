@@ -38,7 +38,7 @@ export default function Auth() {
   const actionData = useActionData<ActionData>()
   const loaderData = useLoaderData()
 
-  const usernameInputRef = useRef<HTMLInputElement>(null);
+  const usernameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (usernameInputRef.current) {
@@ -60,18 +60,21 @@ export default function Auth() {
                 ref={usernameInputRef}
                 type="text"
                 name="username"
-                className="my-2 text-gray-800 w-full p-2 border border-gray-300 rounded"
+                className="my-2 text-blue-800 w-full p-2 border border-blue-300 rounded"
                 placeholder="Username"
                 required
               />
               <input
                 type="password"
                 name="password"
-                className="my-2 text-gray-800 w-full p-2 border border-gray-300 rounded"
+                className="my-2 text-blue-800 w-full p-2 border border-blue-300 rounded"
                 placeholder="Password"
                 required
               />
-              <button className="text-xs border border-gray-700 mt-6 bg-gray-100 px-4 py-2 rounded" type="submit">
+              <button
+                className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded mt-6 pt-1 px-2 pb-1"
+                type="submit"
+              >
                 Sign In
               </button>
             </div>
