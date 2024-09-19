@@ -12,6 +12,8 @@ import {
   CirclePlus,
   FilePenLine,
   Home,
+  SquareChevronDown,
+  SquareChevronUp,
   Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -67,7 +69,7 @@ export default function ListView() {
   const listId = taskList.id
   const boardColumns = Object.values(BoardColumn)
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
-  const [showDetails, setShowDetails] = useState(false)
+  const [showTools, setShowTools] = useState(false)
   const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
   const isLeftmostColumn = currentBoardColumnIndex === 0
@@ -88,6 +90,8 @@ export default function ListView() {
       [taskId]: !prev[taskId],
     }))
   }
+
+  const toggleTools = () => setShowTools((prev) => !prev)
 
   const handleDelete = (taskId: string) => {
     if (confirm('Are you sure you want to delete this task?')) {
@@ -138,6 +142,10 @@ export default function ListView() {
         <Link to="/" className="text-xs text-blue-500 hover:text-blue-700">
           <Home size={24} />
         </Link>
+        <button onClick={toggleTools} className={`text-xs text-blue-500 hover:text-blue-700`}>
+          {showTools ? <SquareChevronDown size={24} /> : <SquareChevronUp size={24} />}
+        </button>
+
         <div className="flex space-x-3">
           <button
             onClick={handlePrevBoardColumn}
@@ -178,7 +186,7 @@ export default function ListView() {
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="font-bold">{task.title}</div>
-                <div className={`text-gray-500 ${task.details === '' ? 'opacity-50': ''}`}>
+                <div className={`text-gray-500 ${task.details === '' ? 'opacity-50' : ''}`}>
                   {visibleTaskDetails[task.id] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                 </div>
               </div>
@@ -197,49 +205,61 @@ export default function ListView() {
 
               <div className="mt-2 flex justify-between items-center" onClick={(e) => e.stopPropagation()}>
                 <div className="flex space-x-6">
-                  <Link
-                    to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <FilePenLine size={20} />
-                  </Link>
+                  {showTools && (
+                    <Link
+                      to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      <FilePenLine size={20} />
+                    </Link>
+                  )}
 
-                  <button
-                    onClick={() => handleMove(task.id, 'prev')}
-                    className={`text-green-500 hover:text-green-700 ${isLeftmostColumn ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={isLeftmostColumn}
-                  >
-                    <ArrowLeftFromLine size={20} />
-                  </button>
+                  {showTools && (
+                    <button
+                      onClick={() => handleMove(task.id, 'prev')}
+                      className={`text-green-500 hover:text-green-700 ${isLeftmostColumn ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={isLeftmostColumn}
+                    >
+                      <ArrowLeftFromLine size={20} />
+                    </button>
+                  )}
 
-                  <button
-                    onClick={() => handleMove(task.id, 'next')}
-                    className={`text-green-500 hover:text-green-700 ${isRightmostColumn ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={isRightmostColumn}
-                  >
-                    <ArrowRightFromLine size={20} />
-                  </button>
+                  {showTools && (
+                    <button
+                      onClick={() => handleMove(task.id, 'next')}
+                      className={`text-green-500 hover:text-green-700 ${isRightmostColumn ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={isRightmostColumn}
+                    >
+                      <ArrowRightFromLine size={20} />
+                    </button>
+                  )}
 
-                  <button
-                    onClick={() => handleReorder(task.id, 'up')}
-                    className={`text-teal-500 hover:text-teal-700 text- ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={index === 0}
-                  >
-                    <ArrowUpFromLine size={20} />
-                  </button>
+                  {showTools && (
+                    <button
+                      onClick={() => handleReorder(task.id, 'up')}
+                      className={`text-teal-500 hover:text-teal-700 text- ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={index === 0}
+                    >
+                      <ArrowUpFromLine size={20} />
+                    </button>
+                  )}
 
-                  <button
-                    onClick={() => handleReorder(task.id, 'down')}
-                    className={`text-teal-500 hover:text-teal-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={index === tasksInCurrentColumn.length - 1}
-                  >
-                    <ArrowDownFromLine size={20} />
-                  </button>
+                  {showTools && (
+                    <button
+                      onClick={() => handleReorder(task.id, 'down')}
+                      className={`text-teal-500 hover:text-teal-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={index === tasksInCurrentColumn.length - 1}
+                    >
+                      <ArrowDownFromLine size={20} />
+                    </button>
+                  )}
                 </div>
 
-                <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
-                  <Trash2 size={20} />
-                </button>
+                {showTools && (
+                  <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
+                    <Trash2 size={20} />
+                  </button>
+                )}
               </div>
             </li>
           ))}
