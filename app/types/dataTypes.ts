@@ -6,16 +6,18 @@ export type DateTimeString = `${string}-${string}-${string}_${string}:${string}:
 export type TaskList = {
   id: string
   displayName: string
+  position: number
   color: string
   tasks: Task[]
 }
 
-export const TaskListUndefined: TaskList = { id: UNDEF, displayName: UNDEF, color: UNDEF, tasks: [] }
+export const TaskListUndefined: TaskList = { id: UNDEF, displayName: UNDEF, position: -1, color: UNDEF, tasks: [] }
 
 // A TaskList without the tasks is a TaskListMetadata object.
 export type TaskListMetadata = {
   id: string
   displayName: string
+  position: number
   color: string
 }
 

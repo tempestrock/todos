@@ -1,5 +1,5 @@
-import { loadTask } from '../data/loadTask'
-import { saveTask } from '../data/saveAndUpdateData'
+import { loadTask } from '../database/loadTask'
+import { saveTask } from '../database/saveAndUpdateData'
 
 /**
  * Swaps the order of two tasks in a list.

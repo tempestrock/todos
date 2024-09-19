@@ -1,8 +1,8 @@
 import { ActionFunction, LoaderFunction, LoaderFunctionArgs, redirect } from '@remix-run/node'
 import { Form, json, useLoaderData, Link } from '@remix-run/react'
 
-import { loadListMetadata } from '~/data/loadListMetadata'
-import { loadUser } from '~/data/loadUser'
+import { loadListMetadata } from '~/database/loadListMetadata'
+import { loadUser } from '~/database/loadUser'
 import { Label, TaskList, User } from '~/types/dataTypes'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
@@ -48,6 +48,8 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
     // Only load the part of the lists that is necessary to show the list names and colors on the home page.
     if (!todoLists) {
       todoLists = await loadListMetadata(user.taskListIds)
+      todoLists.sort((a, b) => a.position - b.position)
+
       printObject(todoLists, '[_index.loader] todoLists')
     } else {
       console.log(`[_index.loader] todoLists already loaded`)

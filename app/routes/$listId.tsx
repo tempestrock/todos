@@ -17,10 +17,10 @@ import {
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
-import { deleteTask } from '~/data/deleteTask'
-import { loadTask } from '~/data/loadTask'
-import { loadTaskList } from '~/data/loadTaskList'
-import { updateBoardColumn } from '~/data/saveAndUpdateData'
+import { deleteTask } from '~/database/deleteTask'
+import { loadTask } from '~/database/loadTask'
+import { loadTaskList } from '~/database/loadTaskList'
+import { updateBoardColumn } from '~/database/saveAndUpdateData'
 import { moveUpTasksBelowPosition } from '~/listUtils/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/listUtils/pushTasksDown'
 import { swapTasks } from '~/listUtils/swapTasks'
@@ -176,7 +176,7 @@ export default function ListView() {
               <div className="flex justify-between items-start mb-2">
                 <div className="font-bold">{task.title}</div>
                 <div className={`text-gray-500 ${task.details === '' ? 'opacity-50' : ''}`}>
-                  {visibleTaskDetails[task.id] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                  {visibleTaskDetails[task.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                 </div>
               </div>
 

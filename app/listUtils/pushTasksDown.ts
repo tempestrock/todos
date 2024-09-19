@@ -1,5 +1,5 @@
-import { loadTaskList } from '../data/loadTaskList'
-import { saveTask } from '../data/saveAndUpdateData'
+import { loadTaskList } from '../database/loadTaskList'
+import { saveTask } from '../database/saveAndUpdateData'
 import { BoardColumn } from '~/types/dataTypes'
 
 /**

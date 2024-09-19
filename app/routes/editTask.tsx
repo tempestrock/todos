@@ -2,8 +2,8 @@ import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } fr
 import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
 import { useState, useEffect } from 'react'
 
-import { loadTask } from '~/data/loadTask'
-import { saveTask } from '~/data/saveAndUpdateData'
+import { loadTask } from '~/database/loadTask'
+import { saveTask } from '~/database/saveAndUpdateData'
 import { Task, BoardColumn, DateTimeString } from '~/types/dataTypes'
 import { getNow } from '~/utils/dateAndTime'
 import { printObject } from '~/utils/printObject'
