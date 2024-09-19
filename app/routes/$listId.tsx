@@ -1,5 +1,14 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import { Link, Outlet, useLoaderData, useSubmit } from '@remix-run/react'
+import {
+  ArrowLeftFromLine,
+  Home,
+  FilePenLine,
+  Trash2,
+  ArrowRightFromLine,
+  ArrowUpFromLine,
+  ArrowDownFromLine,
+} from 'lucide-react'
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
@@ -114,8 +123,11 @@ export default function ListView() {
     <div className="container mx-auto p-4">
       {/* Title bar */}
       <div className="flex justify-between items-center mb-4">
-        <Link to="/" className="text-blue-500 underline">
-          Back
+        <Link
+          to="/"
+          className="text-blue-500 hover:text-blue-700 border-2 border-blue-500 px-3 py-2 rounded flex items-center gap-2"
+        >
+          <Home size={20} /> Home
         </Link>
         <div className="flex gap-4">
           {/* Toggle Details Button */}
@@ -166,50 +178,50 @@ export default function ListView() {
                 </div>
               )}
 
-              <div className="mt-2 space-x-4">
-                {/* <Link
-                  to={`editTask/${task.id}?boardColumn=${currentBoardColumn}`}
-                  className="text-blue-500 underline inline-block"
-                >
-                  Edit
-                </Link> */}
+              <div className="mt-2 flex justify-between items-center">
+                <div className="flex space-x-6">
+                  <Link
+                    to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <FilePenLine size={20} />
+                  </Link>
 
-                <Link
-                  to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  Edit
-                </Link>
-                <button onClick={() => handleDelete(task.id)} className="text-red-500 underline inline-block">
-                  Delete
-                </button>
-
-                {currentBoardColumnIndex > 0 && (
-                  <button onClick={() => handleMove(task.id, 'prev')} className="text-green-500 underline inline-block">
-                    &larr; {boardColumns[currentBoardColumnIndex - 1]}
+                  <button
+                    onClick={() => handleMove(task.id, 'prev')}
+                    className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={currentBoardColumnIndex === 0}
+                  >
+                    <ArrowLeftFromLine size={20} />
                   </button>
-                )}
 
-                {currentBoardColumnIndex < boardColumns.length - 1 && (
-                  <button onClick={() => handleMove(task.id, 'next')} className="text-green-500 underline inline-block">
-                    {boardColumns[currentBoardColumnIndex + 1]} &rarr;
+                  <button
+                    onClick={() => handleMove(task.id, 'next')}
+                    className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex >= boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={currentBoardColumnIndex >= boardColumns.length - 1}
+                  >
+                    <ArrowRightFromLine size={20} />
                   </button>
-                )}
 
-                <button
-                  onClick={() => handleReorder(task.id, 'up')}
-                  className={`text-blue-500 underline inline-block ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={index === 0}
-                >
-                  Up
-                </button>
+                  <button
+                    onClick={() => handleReorder(task.id, 'up')}
+                    className={`text-blue-500 hover:text-blue-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={index === 0}
+                  >
+                    <ArrowUpFromLine size={20} />
+                  </button>
 
-                <button
-                  onClick={() => handleReorder(task.id, 'down')}
-                  className={`text-blue-500 underline inline-block ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={index === tasksInCurrentColumn.length - 1}
-                >
-                  Down
+                  <button
+                    onClick={() => handleReorder(task.id, 'down')}
+                    className={`text-blue-500 hover:text-blue-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={index === tasksInCurrentColumn.length - 1}
+                  >
+                    <ArrowDownFromLine size={20} />
+                  </button>
+                </div>
+
+                <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
+                  <Trash2 size={20} />
                 </button>
               </div>
             </li>
