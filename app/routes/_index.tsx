@@ -67,7 +67,6 @@ export default function HomeView() {
   if (success)
     return (
       <div className="container mx-auto p-4">
-        {success}
         <div className="grid grid-cols-2 gap-4">
           <h1 className="text-2xl font-bold mb-4">{user?.displayName}'s Lists</h1>
 

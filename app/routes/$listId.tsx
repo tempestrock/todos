@@ -1,8 +1,6 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import { Link, Outlet, useLoaderData, useSubmit } from '@remix-run/react'
 import {
-  ArrowBigLeft,
-  ArrowBigRight,
   ArrowDownFromLine,
   ArrowLeftFromLine,
   ArrowRightFromLine,
