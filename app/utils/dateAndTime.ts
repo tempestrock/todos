@@ -19,17 +19,23 @@ export const getNow = (): DateTimeString => {
 export const getNiceDateTime = (dateTime: DateTimeString): string => {
   const [datePart, timePart] = dateTime.split('_')
   const [year, month, day] = datePart.split('-')
-  const time = timePart.replace(/:/g, ':')
+  const [hours, minutes] = timePart.split(':')
+  const time = `${hours}:${minutes}`
 
   const inputDate = new Date(Number(year), Number(month) - 1, Number(day))
   const today = new Date()
 
-  if (
+  const isToday =
     inputDate.getDate() === today.getDate() &&
     inputDate.getMonth() === today.getMonth() &&
     inputDate.getFullYear() === today.getFullYear()
-  ) {
+
+  const isCurrentYear = inputDate.getFullYear() === today.getFullYear()
+
+  if (isToday) {
     return `today, ${time}`
+  } else if (isCurrentYear) {
+    return `${day}.${month}, ${time}`
   } else {
     return `${day}.${month}.${year}, ${time}`
   }
