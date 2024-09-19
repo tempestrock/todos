@@ -67,19 +67,12 @@ export default function ListView() {
   const submit = useSubmit()
 
   const listId = taskList.id
+  const listColor = taskList.color
   const boardColumns = Object.values(BoardColumn)
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
   const [showTools, setShowTools] = useState(false)
   const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
-
-  const handlePrevBoardColumn = () => {
-    if (currentBoardColumnIndex > 0) setCurrentBoardColumnIndex(currentBoardColumnIndex - 1)
-  }
-
-  const handleNextBoardColumn = () => {
-    if (currentBoardColumnIndex < boardColumns.length - 1) setCurrentBoardColumnIndex(currentBoardColumnIndex + 1)
-  }
 
   const handleColumnChange = (index: number) => setCurrentBoardColumnIndex(index)
 
@@ -151,11 +144,13 @@ export default function ListView() {
             <button
               key={column}
               onClick={() => handleColumnChange(index)}
-              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
-                index === currentBoardColumnIndex
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white text-blue-500 hover:bg-blue-100'
-              }`}
+              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150`}
+              style={{
+                backgroundColor: index === currentBoardColumnIndex ? listColor : 'white',
+                color: index === currentBoardColumnIndex ? 'white' : listColor,
+                borderColor: listColor,
+                borderWidth: '1px',
+              }}
             >
               {column}
             </button>
