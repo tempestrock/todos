@@ -85,7 +85,7 @@ export default function HomeView() {
             <Link
               key={list.id}
               to={`/${list.id}`}
-              className="w-full text-white text-lg py-4 rounded block text-center"
+              className="w-full text-white text-2xl py-4 rounded block text-center"
               style={{ backgroundColor: list.color }}
             >
               {list.displayName}

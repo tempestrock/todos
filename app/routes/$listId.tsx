@@ -7,9 +7,11 @@ import {
   ArrowLeftFromLine,
   ArrowRightFromLine,
   ArrowUpFromLine,
+  CirclePlus,
   FilePenLine,
   Home,
-  CirclePlus,
+  PanelTopClose,
+  PanelTopOpen,
   Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -65,7 +67,7 @@ export default function ListView() {
   const listId = taskList.id
   const boardColumns = Object.values(BoardColumn)
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
-  const [showDetails, setShowDetails] = useState(false)
+  const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
   const isLeftmostColumn = currentBoardColumnIndex === 0
   const isRightmostColumn = currentBoardColumnIndex === boardColumns.length - 1
@@ -78,8 +80,11 @@ export default function ListView() {
     if (currentBoardColumnIndex < boardColumns.length - 1) setCurrentBoardColumnIndex(currentBoardColumnIndex + 1)
   }
 
-  const toggleDetails = () => {
-    setShowDetails((prev) => !prev)
+  const toggleTaskDetails = (taskId: string) => {
+    setVisibleTaskDetails((prev) => ({
+      ...prev,
+      [taskId]: !prev[taskId],
+    }))
   }
 
   const handleDelete = (taskId: string) => {
@@ -132,10 +137,6 @@ export default function ListView() {
           <Home size={24} />
         </Link>
         <div className="flex space-x-3">
-          <button onClick={toggleDetails} className="bg-blue-500 text-white px-4 py-2 rounded">
-            {showDetails ? 'Hide details' : 'Show details'}
-          </button>
-
           <button
             onClick={handlePrevBoardColumn}
             className={`text-xs text-blue-500 hover:text-blue-700 border border-blue-500 hover:border-blue-700 rounded flex items-center gap-2 ${isLeftmostColumn ? 'opacity-50 cursor-not-allowed' : 'px-2 py-2'}`}
@@ -169,13 +170,26 @@ export default function ListView() {
         {taskList?.tasks
           .filter((task) => task.boardColumn === currentBoardColumn)
           .map((task, index, tasksInCurrentColumn) => (
-            <li key={task.id} className="border p-4 rounded">
-              <div className="font-bold">{task.title}</div>
-              <div className="text-sm text-gray-500">{getNiceDateTime(task.createdAt)}</div>
+            <li key={task.id} className="border p-4 rounded relative">
+              <div className="flex justify-between items-start mb-2">
+                <div className="font-bold">{task.title}</div>
+                <button
+                  onClick={() => toggleTaskDetails(task.id)}
+                  className={`text-gray-500 hover:text-gray-700 ${task.details === '' ? 'opacity-50' : ''}`}
+                >
+                  {visibleTaskDetails[task.id] ? <PanelTopClose size={20} /> : <PanelTopOpen size={20} />}
+                </button>
+              </div>
 
-              {showDetails && (
-                <div className="mt-2 text-gray-700 prose">
-                  <ReactMarkdown>{task.details}</ReactMarkdown>
+              {visibleTaskDetails[task.id] && (
+                <div>
+                  <div className="text-sm text-gray-600 flex gap-4">
+                    <div>Created: {getNiceDateTime(task.createdAt)}</div>
+                    <div>Updated: {getNiceDateTime(task.updatedAt)}</div>
+                  </div>
+                  <div className="mt-2 text-gray-700 prose">
+                    <ReactMarkdown>{task.details}</ReactMarkdown>
+                  </div>
                 </div>
               )}
 
@@ -206,7 +220,7 @@ export default function ListView() {
 
                   <button
                     onClick={() => handleReorder(task.id, 'up')}
-                    className={`text-blue-500 hover:text-blue-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`text-teal-500 hover:text-teal-700 text- ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={index === 0}
                   >
                     <ArrowUpFromLine size={20} />
@@ -214,7 +228,7 @@ export default function ListView() {
 
                   <button
                     onClick={() => handleReorder(task.id, 'down')}
-                    className={`text-blue-500 hover:text-blue-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`text-teal-500 hover:text-teal-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={index === tasksInCurrentColumn.length - 1}
                   >
                     <ArrowDownFromLine size={20} />
