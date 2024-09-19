@@ -127,132 +127,138 @@ export default function ListView() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      {/* Title bar */}
-      <div className="flex justify-between items-center mb-4">
-        <Link to="/" className="text-xs text-blue-500 hover:text-blue-700">
-          <Home size={24} />
-        </Link>
-        <button onClick={toggleTools} className={`text-xs text-blue-500 hover:text-blue-700`}>
-          {showTools ? <PanelTopOpen size={24} /> : <PanelTopClose size={24} />}
-        </button>
+    <div className="container mx-auto">
+      {/* Fixed Title bar */}
+      <div className="fixed top-0 left-0 right-0 bg-white z-10 shadow-md">
+        <div className="container mx-auto p-4 flex justify-between items-center">
+          <Link to="/" className="text-xs text-blue-500 hover:text-blue-700">
+            <Home size={24} />
+          </Link>
+          <button onClick={toggleTools} className={`text-xs text-blue-500 hover:text-blue-700`}>
+            {showTools ? <PanelTopOpen size={24} /> : <PanelTopClose size={24} />}
+          </button>
 
-        <div className="flex space-x-1">
-          {boardColumns.map((column, index) => (
-            <button
-              key={column}
-              onClick={() => handleColumnChange(index)}
-              className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150`}
-              style={{
-                backgroundColor: index === currentBoardColumnIndex ? listColor : 'white',
-                color: index === currentBoardColumnIndex ? 'white' : listColor,
-                borderColor: listColor,
-                borderWidth: '1px',
-              }}
-            >
-              {column}
-            </button>
-          ))}
+          <div className="flex space-x-1">
+            {boardColumns.map((column, index) => (
+              <button
+                key={column}
+                onClick={() => handleColumnChange(index)}
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150`}
+                style={{
+                  backgroundColor: index === currentBoardColumnIndex ? listColor : 'white',
+                  color: index === currentBoardColumnIndex ? 'white' : listColor,
+                  borderColor: listColor,
+                  borderWidth: '1px',
+                }}
+              >
+                {column}
+              </button>
+            ))}
+          </div>
+
+          <Link
+            to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
+            className="text-green-500 hover:text-green-700"
+          >
+            <CirclePlus size={24} />
+          </Link>
         </div>
-
-        <Link
-          to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
-          className="text-green-500 hover:text-green-700"
-        >
-          <CirclePlus size={24} />
-        </Link>
       </div>
 
       {/* Task list */}
-      <ul className="space-y-4">
-        {taskList?.tasks
-          .filter((task) => task.boardColumn === currentBoardColumn)
-          .map((task, index, tasksInCurrentColumn) => (
-            <li
-              key={task.id}
-              className="border p-4 rounded relative cursor-pointer hover:bg-gray-50 transition-colors duration-150"
-              onClick={(e) => toggleTaskDetails(task.id, e)}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="font-bold">{task.title}</div>
-                <div className={`text-gray-500 ${task.details === '' ? 'opacity-50' : ''}`}>
-                  {visibleTaskDetails[task.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
-                </div>
-              </div>
-
-              {visibleTaskDetails[task.id] && (
-                <div>
-                  <div className="text-sm text-gray-600 flex gap-4">
-                    <div>Created: {getNiceDateTime(task.createdAt)}</div>
-                    <div>Updated: {getNiceDateTime(task.updatedAt)}</div>
-                  </div>
-                  <div className="mt-2 text-gray-700 prose">
-                    <ReactMarkdown>{task.details}</ReactMarkdown>
+      <div className="pt-20 p-4">
+        {' '}
+        {/* Adjust pt-20 as needed based on your title bar height */}
+        <ul className="space-y-4">
+          {taskList?.tasks
+            .filter((task) => task.boardColumn === currentBoardColumn)
+            .map((task, index, tasksInCurrentColumn) => (
+              <li
+                key={task.id}
+                className="border p-4 rounded relative cursor-pointer hover:bg-gray-50 transition-colors duration-150"
+                onClick={(e) => toggleTaskDetails(task.id, e)}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div className="font-bold">{task.title}</div>
+                  <div className={`text-gray-500 ${task.details === '' ? 'opacity-50' : ''}`}>
+                    {visibleTaskDetails[task.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </div>
                 </div>
-              )}
 
-              <div className="mt-2 flex justify-between items-center" onClick={(e) => e.stopPropagation()}>
-                <div className="flex space-x-6">
-                  {showTools && (
-                    <Link
-                      to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <FilePenLine size={20} />
-                    </Link>
-                  )}
-
-                  {showTools && (
-                    <button
-                      onClick={() => handleMove(task.id, 'prev')}
-                      className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={currentBoardColumnIndex === 0}
-                    >
-                      <ArrowLeftFromLine size={20} />
-                    </button>
-                  )}
-
-                  {showTools && (
-                    <button
-                      onClick={() => handleMove(task.id, 'next')}
-                      className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={currentBoardColumnIndex === boardColumns.length - 1}
-                    >
-                      <ArrowRightFromLine size={20} />
-                    </button>
-                  )}
-
-                  {showTools && (
-                    <button
-                      onClick={() => handleReorder(task.id, 'up')}
-                      className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={index === 0}
-                    >
-                      <ArrowUpFromLine size={20} />
-                    </button>
-                  )}
-
-                  {showTools && (
-                    <button
-                      onClick={() => handleReorder(task.id, 'down')}
-                      className={`text-teal-500 hover:text-teal-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={index === tasksInCurrentColumn.length - 1}
-                    >
-                      <ArrowDownFromLine size={20} />
-                    </button>
-                  )}
-                </div>
-
-                {showTools && (
-                  <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
-                    <Trash2 size={20} />
-                  </button>
+                {visibleTaskDetails[task.id] && (
+                  <div>
+                    <div className="text-sm text-gray-600 flex gap-4">
+                      <div>Created: {getNiceDateTime(task.createdAt)}</div>
+                      <div>Updated: {getNiceDateTime(task.updatedAt)}</div>
+                    </div>
+                    <div className="mt-2 text-gray-700 prose">
+                      <ReactMarkdown>{task.details}</ReactMarkdown>
+                    </div>
+                  </div>
                 )}
-              </div>
-            </li>
-          ))}
-      </ul>
+
+                <div className="mt-2 flex justify-between items-center" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex space-x-6">
+                    {showTools && (
+                      <Link
+                        to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        <FilePenLine size={20} />
+                      </Link>
+                    )}
+
+                    {showTools && (
+                      <button
+                        onClick={() => handleMove(task.id, 'prev')}
+                        className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={currentBoardColumnIndex === 0}
+                      >
+                        <ArrowLeftFromLine size={20} />
+                      </button>
+                    )}
+
+                    {showTools && (
+                      <button
+                        onClick={() => handleMove(task.id, 'next')}
+                        className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={currentBoardColumnIndex === boardColumns.length - 1}
+                      >
+                        <ArrowRightFromLine size={20} />
+                      </button>
+                    )}
+
+                    {showTools && (
+                      <button
+                        onClick={() => handleReorder(task.id, 'up')}
+                        className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={index === 0}
+                      >
+                        <ArrowUpFromLine size={20} />
+                      </button>
+                    )}
+
+                    {showTools && (
+                      <button
+                        onClick={() => handleReorder(task.id, 'down')}
+                        className={`text-teal-500 hover:text-teal-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={index === tasksInCurrentColumn.length - 1}
+                      >
+                        <ArrowDownFromLine size={20} />
+                      </button>
+                    )}
+                  </div>
+
+                  {showTools && (
+                    <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={20} />
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+        </ul>
+      </div>
 
       <Outlet />
     </div>
