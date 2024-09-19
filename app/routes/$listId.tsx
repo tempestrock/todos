@@ -1,13 +1,16 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import { Link, Outlet, useLoaderData, useSubmit } from '@remix-run/react'
 import {
+  ArrowBigLeft,
+  ArrowBigRight,
+  ArrowDownFromLine,
   ArrowLeftFromLine,
-  Home,
-  FilePenLine,
-  Trash2,
   ArrowRightFromLine,
   ArrowUpFromLine,
-  ArrowDownFromLine,
+  FilePenLine,
+  Home,
+  CirclePlus,
+  Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
@@ -64,6 +67,8 @@ export default function ListView() {
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
   const [showDetails, setShowDetails] = useState(false)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
+  const isLeftmostColumn = currentBoardColumnIndex === 0
+  const isRightmostColumn = currentBoardColumnIndex === boardColumns.length - 1
 
   const handlePrevBoardColumn = () => {
     if (currentBoardColumnIndex > 0) setCurrentBoardColumnIndex(currentBoardColumnIndex - 1)
@@ -123,45 +128,41 @@ export default function ListView() {
     <div className="container mx-auto p-4">
       {/* Title bar */}
       <div className="flex justify-between items-center mb-4">
-        <Link
-          to="/"
-          className="text-blue-500 hover:text-blue-700 border-2 border-blue-500 px-3 py-2 rounded flex items-center gap-2"
-        >
-          <Home size={20} /> Home
+        <Link to="/" className="text-xs text-blue-500 hover:text-blue-700">
+          <Home size={24} />
         </Link>
-        <div className="flex gap-4">
-          {/* Toggle Details Button */}
+        <div className="flex space-x-3">
           <button onClick={toggleDetails} className="bg-blue-500 text-white px-4 py-2 rounded">
             {showDetails ? 'Hide details' : 'Show details'}
           </button>
 
           <button
             onClick={handlePrevBoardColumn}
-            className={`text-gray-500 ${currentBoardColumnIndex === 0 ? 'opacity-50' : ''}`}
-            disabled={currentBoardColumnIndex === 0}
+            className={`text-xs text-blue-500 hover:text-blue-700 border border-blue-500 hover:border-blue-700 rounded flex items-center gap-2 ${isLeftmostColumn ? 'opacity-50 cursor-not-allowed' : 'px-2 py-2'}`}
+            disabled={isLeftmostColumn}
           >
-            Left
+            <ArrowBigLeft size={16} /> {`${!isLeftmostColumn ? boardColumns[currentBoardColumnIndex - 1] : ''}`}
           </button>
+
+          <div className="text-base font-semibold mt-1" style={{ color: taskList?.color }}>
+            {currentBoardColumn}
+          </div>
+
           <button
             onClick={handleNextBoardColumn}
-            className={`text-gray-500 ${currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50' : ''}`}
-            disabled={currentBoardColumnIndex === boardColumns.length - 1}
+            className={`text-xs text-blue-500 hover:text-blue-700 border border-blue-500 hover:border-blue-700 rounded flex items-center gap-2 ${isRightmostColumn ? 'opacity-50 cursor-not-allowed' : 'px-2 py-2'}`}
+            disabled={isRightmostColumn}
           >
-            Right
+            {`${!isRightmostColumn ? boardColumns[currentBoardColumnIndex + 1] : ''}`} <ArrowBigRight size={16} />
           </button>
-          <Link
-            to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Add
-          </Link>
         </div>
+        <Link
+          to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
+          className="text-green-500 hover:text-green-700"
+        >
+          <CirclePlus size={24} />
+        </Link>
       </div>
-
-      {/* Task list title */}
-      <h2 className="text-xl font-semibold mb-4" style={{ color: taskList?.color }}>
-        {taskList?.displayName} - {currentBoardColumn}
-      </h2>
 
       {/* Task list */}
       <ul className="space-y-4">
@@ -189,16 +190,16 @@ export default function ListView() {
 
                   <button
                     onClick={() => handleMove(task.id, 'prev')}
-                    className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={currentBoardColumnIndex === 0}
+                    className={`text-green-500 hover:text-green-700 ${isLeftmostColumn ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={isLeftmostColumn}
                   >
                     <ArrowLeftFromLine size={20} />
                   </button>
 
                   <button
                     onClick={() => handleMove(task.id, 'next')}
-                    className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex >= boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={currentBoardColumnIndex >= boardColumns.length - 1}
+                    className={`text-green-500 hover:text-green-700 ${isRightmostColumn ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={isRightmostColumn}
                   >
                     <ArrowRightFromLine size={20} />
                   </button>
