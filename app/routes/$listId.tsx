@@ -7,11 +7,11 @@ import {
   ArrowLeftFromLine,
   ArrowRightFromLine,
   ArrowUpFromLine,
+  ChevronDown,
+  ChevronUp,
   CirclePlus,
   FilePenLine,
   Home,
-  PanelTopClose,
-  PanelTopOpen,
   Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
@@ -67,6 +67,7 @@ export default function ListView() {
   const listId = taskList.id
   const boardColumns = Object.values(BoardColumn)
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
+  const [showDetails, setShowDetails] = useState(false)
   const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
   const isLeftmostColumn = currentBoardColumnIndex === 0
@@ -80,7 +81,8 @@ export default function ListView() {
     if (currentBoardColumnIndex < boardColumns.length - 1) setCurrentBoardColumnIndex(currentBoardColumnIndex + 1)
   }
 
-  const toggleTaskDetails = (taskId: string) => {
+  const toggleTaskDetails = (taskId: string, event: React.MouseEvent) => {
+    event.stopPropagation() // Prevent the click from triggering other elements
     setVisibleTaskDetails((prev) => ({
       ...prev,
       [taskId]: !prev[taskId],
@@ -164,21 +166,21 @@ export default function ListView() {
           <CirclePlus size={24} />
         </Link>
       </div>
-
       {/* Task list */}
       <ul className="space-y-4">
         {taskList?.tasks
           .filter((task) => task.boardColumn === currentBoardColumn)
           .map((task, index, tasksInCurrentColumn) => (
-            <li key={task.id} className="border p-4 rounded relative">
+            <li
+              key={task.id}
+              className="border p-4 rounded relative cursor-pointer hover:bg-gray-50 transition-colors duration-150"
+              onClick={(e) => toggleTaskDetails(task.id, e)}
+            >
               <div className="flex justify-between items-start mb-2">
                 <div className="font-bold">{task.title}</div>
-                <button
-                  onClick={() => toggleTaskDetails(task.id)}
-                  className={`text-gray-500 hover:text-gray-700 ${task.details === '' ? 'opacity-50' : ''}`}
-                >
-                  {visibleTaskDetails[task.id] ? <PanelTopClose size={20} /> : <PanelTopOpen size={20} />}
-                </button>
+                <div className={`text-gray-500 ${task.details === '' ? 'opacity-50': ''}`}>
+                  {visibleTaskDetails[task.id] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </div>
               </div>
 
               {visibleTaskDetails[task.id] && (
@@ -193,7 +195,7 @@ export default function ListView() {
                 </div>
               )}
 
-              <div className="mt-2 flex justify-between items-center">
+              <div className="mt-2 flex justify-between items-center" onClick={(e) => e.stopPropagation()}>
                 <div className="flex space-x-6">
                   <Link
                     to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
