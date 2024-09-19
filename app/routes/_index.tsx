@@ -1,9 +1,10 @@
-import { ActionFunction, LoaderFunction, LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { Form, json, useLoaderData, Link } from '@remix-run/react'
 
 import { loadListMetadata } from '~/database/loadListMetadata'
 import { loadUser } from '~/database/loadUser'
 import { Label, TaskList, User } from '~/types/dataTypes'
+import { authAction } from '~/utils/authAction'
 import { printObject } from '~/utils/printObject'
 import { requireAuth } from '~/utils/session.server'
 
@@ -95,13 +96,7 @@ export default function HomeView() {
         </div>
       </div>
     )
-  else return <div>{!success && <p>Failed to load</p>}</div>
+  else return <div className="text-5xl text-red-600 flex justify-center items-center h-screen">Failed to load 😵</div>
 }
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData()
-  const actionType = formData.get('action')
-  console.log(`[_index.action] Action type ${actionType?.toString()}' but nothing to do.`)
-
-  return redirect(`/`)
-}
+export const action = authAction

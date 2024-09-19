@@ -11,7 +11,7 @@ let user: any | undefined
  * @param {Request} _request - The incoming request object.
  * @return {Promise<string>} The authenticated user's username.
  */
-export async function requireAuth(_request: Request): Promise<string> {
+export const requireAuth = async (_request: Request): Promise<string> => {
   try {
     if (!user) {
       console.log('[requireAuth] getting new user')
@@ -25,4 +25,13 @@ export async function requireAuth(_request: Request): Promise<string> {
     // eslint-disable-next-line @typescript-eslint/only-throw-error
     throw redirect('/auth')
   }
+}
+
+/**
+ * Disables the current user by removing them from the cache.
+ *
+ * @return {void} No return value.
+ */
+export const disableUser = (): void => {
+  user = undefined
 }

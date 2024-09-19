@@ -1,9 +1,10 @@
 import { json, LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
-import { useActionData, useLoaderData, Form, redirect } from '@remix-run/react'
+import { useActionData, Form, redirect, useLoaderData } from '@remix-run/react'
+import { useEffect, useRef } from 'react'
 
 import { User } from '~/types/dataTypes'
 import { getCurrentUser } from '~/utils/auth'
-import { authAction, ActionData } from '~/utils/authActions'
+import { authAction, ActionData } from '~/utils/authAction'
 import { printObject } from '~/utils/printObject'
 
 /**
@@ -34,33 +35,49 @@ export const loader: LoaderFunction = async ({ params }: LoaderFunctionArgs) => 
 export const action = authAction
 
 export default function Auth() {
-  const { user } = useLoaderData<LoaderData>()
   const actionData = useActionData<ActionData>()
+  const loaderData = useLoaderData()
+
+  const usernameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (usernameInputRef.current) {
+      usernameInputRef.current.focus()
+    }
+  }, [loaderData])
 
   return (
     <div>
-      <h1>Authentication</h1>
-      {user ? (
-        <div>
-          <p>Huhu, {user.displayName}</p>
-          <Form method="post">
-            <input type="hidden" name="action" value="signout" />
-            <button type="submit">Sign Out</button>
-          </Form>
-        </div>
-      ) : (
-        <div>
-          <h2 className="text-xl mb-2">Please login first.</h2>
-          <Form method="post">
+      <h1 className="text-3xl text-gray-800 flex justify-center mt-8 mb-4">Todos</h1>
+
+      <div>
+        <h2 className="flex justify-center text-xl my-4">Please login first.</h2>
+        <div className="mx-auto flex justify-center">
+          <Form method="post" className="w-64">
             <input type="hidden" name="action" value="signin" />
-            <input type="text" name="username" placeholder="Username" required />
-            <input type="password" name="password" placeholder="Password" required />
-            <button className="text-xs border border-gray-700 mt-1 bg-gray-100 pt-1 px-2 pb-1" type="submit">
-              Sign In
-            </button>
+            <div className="flex flex-col items-start">
+              <input
+                ref={usernameInputRef}
+                type="text"
+                name="username"
+                className="my-2 text-gray-800 w-full p-2 border border-gray-300 rounded"
+                placeholder="Username"
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                className="my-2 text-gray-800 w-full p-2 border border-gray-300 rounded"
+                placeholder="Password"
+                required
+              />
+              <button className="text-xs border border-gray-700 mt-6 bg-gray-100 px-4 py-2 rounded" type="submit">
+                Sign In
+              </button>
+            </div>
           </Form>
-        </div>
-      )}
+        </div>{' '}
+      </div>
       {actionData?.error && <p>Error: {actionData.error}</p>}
     </div>
   )

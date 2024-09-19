@@ -2,6 +2,7 @@
 
 import { json, ActionFunction, redirect, ActionFunctionArgs } from '@remix-run/node'
 
+import { disableUser } from './session.server'
 import { signIn, signOut } from '~/utils/auth'
 
 export type ActionData = {
@@ -10,9 +11,7 @@ export type ActionData = {
   action?: 'signin' | 'signout'
 }
 
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const authAction: ActionFunction = async ({ request, params, context }: ActionFunctionArgs) => {
+export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
   const action = formData.get('action')
   const username = formData.get('username') as string
@@ -26,11 +25,14 @@ export const authAction: ActionFunction = async ({ request, params, context }: A
       case 'signin':
         await signIn(username, password)
         return redirect('/')
+
       case 'signout':
         console.log('[authAction]: About to call signOut')
-        signOut() // Assuming signOut might be asynchronous
+        signOut()
+        disableUser()
         console.log('[authAction]: signOut completed')
         return redirect('/auth')
+
       default:
         return json<ActionData>({ success: false, error: 'Invalid action' })
     }
