@@ -143,11 +143,7 @@ export default function ListView() {
               <button
                 key={column}
                 onClick={() => handleColumnChange(index)}
-                className={`
-                  px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150
-                  border
-                  ${index === currentBoardColumnIndex ? 'dark:bg-opacity-90' : 'dark:bg-opacity-10 dark:text-white'}
-                `}
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 border`}
                 style={{
                   backgroundColor: index === currentBoardColumnIndex ? listColor : 'transparent',
                   color: index === currentBoardColumnIndex ? 'white' : listColor,

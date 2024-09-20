@@ -73,21 +73,24 @@ export default function HomeView() {
       <div className="container mx-auto p-4 mt-1 dark:bg-gray-900 dark:text-gray-100">
         <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold mb-4">{user?.displayName}'s Lists</h1>
+          <div className="flex gap-4">
+            {/* Dark toggle button */}
+            <DarkModeToggle />
 
-          <DarkModeToggle />
-
-          {/* Sign out button */}
-          <Form method="post">
-            <input type="hidden" name="action" value="signout" />
-            <button
-              className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded pt-1 px-2 pb-1"
-              type="submit"
-            >
-              Sign out
-            </button>
-          </Form>
+            {/* Sign out button */}
+            <Form method="post">
+              <input type="hidden" name="action" value="signout" />
+              <button
+                className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded pt-1 px-2 pb-1"
+                type="submit"
+              >
+                Sign out
+              </button>
+            </Form>
+          </div>
         </div>
 
+        {/* List of todo list buttons */}
         <div className="grid grid-cols-1 gap-4">
           {todoLists.map((list) => (
             <Link
