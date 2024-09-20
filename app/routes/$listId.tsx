@@ -191,7 +191,13 @@ export default function ListView() {
                       <div>Updated: {getNiceDateTime(task.updatedAt)}</div>
                     </div>
                     <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
-                      <ReactMarkdown>{task.details}</ReactMarkdown>
+                      <ReactMarkdown
+                        components={{
+                          a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />,
+                        }}
+                      >
+                        {task.details}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 )}
