@@ -51,7 +51,7 @@ export_tables() {
     local num_tables_found=$(aws dynamodb list-tables ${PROFILE_PARAM} | grep "${source_table_name}" | wc -l)
 
     if [[ ${num_tables_found} == 0 ]]; then
-      info "Table '${source_table_name}' not found --> Skipping."
+      fatal "Table '${source_table_name}' not found."
     else
       # Read from database.
       aws dynamodb scan ${PROFILE_PARAM} --table-name "${source_table_name}" --max-items ${max_items} --output json >${TABLE_DIR}/${target_table_name}/export-data/${index}.json
