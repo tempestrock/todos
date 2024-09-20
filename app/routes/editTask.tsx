@@ -1,6 +1,6 @@
 import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } from '@remix-run/node'
 import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import { loadTask } from '~/database/loadTask'
 import { saveTask } from '~/database/saveAndUpdateData'
@@ -42,7 +42,14 @@ export default function EditTaskView() {
   const listId = searchParams.get('listId')
   if (!listId) throw new Error('[editTask.component] No list ID provided')
 
+  const titleInputRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
+    // Directly put the cursor into the title field.
+    if (titleInputRef.current) {
+      titleInputRef.current.focus()
+    }
+
     if (task) {
       setTaskTitle(task.title)
       setTaskDetails(task.details)
@@ -51,7 +58,7 @@ export default function EditTaskView() {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl font-semibold mb-4">Edit Task</h2>
+      <h2 className="text-xl text-gray-900 dark:text-gray-100 font-semibold mb-4">Edit Task</h2>
 
       <Form method="post">
         <input type="hidden" name="listId" value={listId} />
@@ -61,10 +68,11 @@ export default function EditTaskView() {
         <input type="hidden" name="createdAt" value={task.createdAt} />
 
         <input
+          ref={titleInputRef}
           type="text"
           name="taskTitle"
           placeholder="Task Title"
-          className="w-full p-2 border rounded mb-4"
+          className="w-full p-2 border rounded mb-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
         />
@@ -72,7 +80,7 @@ export default function EditTaskView() {
         <textarea
           name="taskDetails"
           placeholder="Task Details"
-          className="w-full p-2 border rounded mb-4 h-32"
+          className="w-full p-2 border rounded mb-4 h-48 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
           value={taskDetails}
           onChange={(e) => setTaskDetails(e.target.value)}
         />
@@ -81,7 +89,7 @@ export default function EditTaskView() {
           <button
             type="button"
             onClick={() => navigate(`/${listId}`)}
-            className="text-gray-500 border border-gray-500 px-4 py-2 rounded"
+            className="text-gray-500 border dark:text-gray-100 border-gray-500 dark:border-gray-100 px-4 py-2 rounded"
           >
             Cancel
           </button>

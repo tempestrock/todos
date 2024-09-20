@@ -1,5 +1,6 @@
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
+import { useEffect } from 'react'
 
 import styles from './tailwind.css?url'
 
@@ -30,6 +31,14 @@ export const meta: MetaFunction = () => {
  * @return {JSX.Element} The JSX element representing the HTML document.
  */
 export default function App(): JSX.Element {
+  // Initially looks up the local storage for the setting of the dark mode and applies if set.
+  useEffect(() => {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true'
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    }
+  }, [])
+
   return (
     <html lang="en">
       <head>
@@ -39,7 +48,7 @@ export default function App(): JSX.Element {
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <Links />
       </head>
-      <body>
+      <body className="bg-white dark:bg-gray-900">
         <Outlet />
         <ScrollRestoration />
         <Scripts />

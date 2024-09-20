@@ -129,7 +129,7 @@ export default function ListView() {
   return (
     <div className="container mx-auto">
       {/* Fixed Title bar */}
-      <div className="fixed top-0 left-0 right-0 bg-white z-10 shadow-md">
+      <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-10 shadow-md">
         <div className="container mx-auto p-4 flex justify-between items-center">
           <Link to="/" className="text-xs text-blue-500 hover:text-blue-700">
             <Home size={24} />
@@ -143,12 +143,15 @@ export default function ListView() {
               <button
                 key={column}
                 onClick={() => handleColumnChange(index)}
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150`}
+                className={`
+                  px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150
+                  border
+                  ${index === currentBoardColumnIndex ? 'dark:bg-opacity-90' : 'dark:bg-opacity-10 dark:text-white'}
+                `}
                 style={{
-                  backgroundColor: index === currentBoardColumnIndex ? listColor : 'white',
+                  backgroundColor: index === currentBoardColumnIndex ? listColor : 'transparent',
                   color: index === currentBoardColumnIndex ? 'white' : listColor,
                   borderColor: listColor,
-                  borderWidth: '1px',
                 }}
               >
                 {column}
@@ -175,7 +178,7 @@ export default function ListView() {
             .map((task, index, tasksInCurrentColumn) => (
               <li
                 key={task.id}
-                className="border p-4 rounded relative cursor-pointer hover:bg-gray-50 transition-colors duration-150"
+                className="border p-4 rounded relative cursor-pointer text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 hover:dark:bg-gray-700 transition-colors duration-150"
                 onClick={(e) => toggleTaskDetails(task.id, e)}
               >
                 <div className="flex justify-between items-start mb-2">
@@ -187,11 +190,11 @@ export default function ListView() {
 
                 {visibleTaskDetails[task.id] && (
                   <div>
-                    <div className="text-sm text-gray-600 flex gap-4">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
                       <div>Created: {getNiceDateTime(task.createdAt)}</div>
                       <div>Updated: {getNiceDateTime(task.updatedAt)}</div>
                     </div>
-                    <div className="mt-2 text-gray-700 prose">
+                    <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
                       <ReactMarkdown>{task.details}</ReactMarkdown>
                     </div>
                   </div>

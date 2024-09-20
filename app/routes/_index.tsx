@@ -1,6 +1,7 @@
 import { LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { Form, json, useLoaderData, Link } from '@remix-run/react'
 
+import DarkModeToggle from '~/components/darkModeToggle'
 import { loadListMetadata } from '~/database/loadListMetadata'
 import { loadUser } from '~/database/loadUser'
 import { Label, TaskList, User } from '~/types/dataTypes'
@@ -69,9 +70,11 @@ export default function HomeView() {
 
   if (success)
     return (
-      <div className="container mx-auto p-4 mt-1">
+      <div className="container mx-auto p-4 mt-1 dark:bg-gray-900 dark:text-gray-100">
         <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold mb-4">{user?.displayName}'s Lists</h1>
+
+          <DarkModeToggle />
 
           {/* Sign out button */}
           <Form method="post">

@@ -35,7 +35,7 @@ export const getNiceDateTime = (dateTime: DateTimeString): string => {
   if (isToday) {
     return `today, ${time}`
   } else if (isCurrentYear) {
-    return `${day}.${month}, ${time}`
+    return `${day}.${month}., ${time}`
   } else {
     return `${day}.${month}.${year}, ${time}`
   }

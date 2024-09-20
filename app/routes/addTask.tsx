@@ -1,6 +1,6 @@
 import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } from '@remix-run/node'
-import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
-import { useState } from 'react'
+import { Form, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
+import { useEffect, useRef, useState } from 'react'
 
 import { saveTask } from '~/database/saveAndUpdateData'
 import { pushTasksDown } from '~/listUtils/pushTasksDown'
@@ -23,8 +23,6 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
 }
 
 export default function AddTaskView() {
-  useLoaderData<LoaderData>()
-
   console.log('[addTask.component] starting')
 
   const [searchParams] = useSearchParams()
@@ -38,19 +36,29 @@ export default function AddTaskView() {
 
   const currentBoardColumn = searchParams.get('boardColumn') as BoardColumn
 
+  const titleInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    // Directly put the cursor into the title field.
+    if (titleInputRef.current) {
+      titleInputRef.current.focus()
+    }
+  }, [])
+
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl font-semibold mb-4">Add New Task</h2>
+      <h2 className="text-xl text-gray-900 dark:text-gray-100 font-semibold mb-4">Add New Task</h2>
 
       <Form method="post">
         <input type="hidden" name="listId" value={listId} />
         <input type="hidden" name="boardColumn" value={currentBoardColumn} />
 
         <input
+          ref={titleInputRef}
           type="text"
           name="taskTitle"
           placeholder="Task Title"
-          className="w-full p-2 border rounded mb-4"
+          className="w-full p-2 border rounded mb-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
           value={taskTitle}
           onChange={(e) => setTaskTitle(e.target.value)}
         />
@@ -58,7 +66,7 @@ export default function AddTaskView() {
         <textarea
           name="taskDetails"
           placeholder="Task Details"
-          className="w-full p-2 border rounded mb-4 h-32"
+          className="w-full p-2 border rounded mb-4 h-48 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
           value={taskDetails}
           onChange={(e) => setTaskDetails(e.target.value)}
         />
@@ -67,7 +75,7 @@ export default function AddTaskView() {
           <button
             type="button"
             onClick={() => navigate(`/${listId}`)}
-            className="text-gray-500 border border-gray-500 px-4 py-2 rounded"
+            className="text-gray-500 border dark:text-gray-100 border-gray-500 dark:border-gray-100 px-4 py-2 rounded"
           >
             Cancel
           </button>

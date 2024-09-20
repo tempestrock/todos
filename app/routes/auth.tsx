@@ -1,5 +1,5 @@
 import { json, LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
-import { useActionData, Form, redirect, useLoaderData } from '@remix-run/react'
+import { useActionData, Form, redirect } from '@remix-run/react'
 import { useEffect, useRef } from 'react'
 
 import { User } from '~/types/dataTypes'
@@ -36,22 +36,21 @@ export const action = authAction
 
 export default function Auth() {
   const actionData = useActionData<ActionData>()
-  const loaderData = useLoaderData()
-
   const usernameInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    // Directly put the cursor into the username field.
     if (usernameInputRef.current) {
       usernameInputRef.current.focus()
     }
-  }, [loaderData])
+  }, [])
 
   return (
     <div>
-      <h1 className="text-3xl text-gray-800 flex justify-center mt-8 mb-4">Todos</h1>
+      <h1 className="text-3xl text-gray-900 dark:text-gray-100 flex justify-center mt-8 mb-4">Todos</h1>
 
       <div>
-        <h2 className="flex justify-center text-xl my-4">Please login first.</h2>
+        <h2 className="flex justify-center text-xl text-gray-900 dark:text-gray-100 my-4">Please login first.</h2>
         <div className="mx-auto flex justify-center">
           <Form method="post" className="w-64">
             <input type="hidden" name="action" value="signin" />
@@ -60,14 +59,14 @@ export default function Auth() {
                 ref={usernameInputRef}
                 type="text"
                 name="username"
-                className="my-2 text-blue-800 w-full p-2 border border-blue-300 rounded"
+                className="my-2 w-full p-2 border rounded text-blue-800 dark:text-gray-100 border-blue-300 dark:border-gray-700 bg-white dark:bg-gray-900"
                 placeholder="Username"
                 required
               />
               <input
                 type="password"
                 name="password"
-                className="my-2 text-blue-800 w-full p-2 border border-blue-300 rounded"
+                className="my-2 w-full p-2 border rounded text-blue-800 dark:text-gray-100 border-blue-300 dark:border-gray-700 bg-white dark:bg-gray-900"
                 placeholder="Password"
                 required
               />
@@ -81,7 +80,7 @@ export default function Auth() {
           </Form>
         </div>{' '}
       </div>
-      {actionData?.error && <p>Error: {actionData.error}</p>}
+      {actionData?.error && <div className='flex justify-center mt-4 text-lg text-gray-900 dark:text-gray-100'>Error: {actionData.error}</div>}
     </div>
   )
 }
