@@ -1,9 +1,11 @@
 import { LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { Form, json, useLoaderData, Link } from '@remix-run/react'
 
-import DarkModeToggle from '~/components/darkModeToggle'
+import { useTranslation } from '../src/context/TranslationContext'
 import { loadListMetadata } from '~/database/loadListMetadata'
 import { loadUser } from '~/database/loadUser'
+import DarkModeToggle from '~/src/components/darkModeToggle'
+import { LanguageSwitcher } from '~/src/components/languageSwitcher'
 import { Label, TaskList, User } from '~/types/dataTypes'
 import { authAction } from '~/utils/authAction'
 import { printObject } from '~/utils/printObject'
@@ -68,12 +70,19 @@ export default function HomeView() {
   // Get the necessary data from the loader.
   const { todoLists, user, success } = useLoaderData<LoaderData>()
 
+  const { translations } = useTranslation()
+
   if (success)
     return (
       <div className="container mx-auto p-4 mt-1 dark:bg-gray-900 dark:text-gray-100">
         <div className="flex justify-between mb-4">
-          <h1 className="text-2xl font-bold mb-4">{user?.displayName}'s Lists</h1>
-          <div className="flex gap-4">
+          <h1 className="text-2xl font-bold mb-4">
+            {user?.displayName}
+            {translations['users-lists']}
+          </h1>
+          <div className="flex gap-4 mt-2">
+            <LanguageSwitcher />
+
             {/* Dark toggle button */}
             <DarkModeToggle />
 

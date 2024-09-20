@@ -1,7 +1,8 @@
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
+import { TranslationProvider } from './src/context/TranslationContext'
 import styles from './tailwind.css?url'
 
 /**
@@ -31,28 +32,43 @@ export const meta: MetaFunction = () => {
  * @return {JSX.Element} The JSX element representing the HTML document.
  */
 export default function App(): JSX.Element {
-  // Initially looks up the local storage for the setting of the dark mode and applies if set.
+  const [language, setLanguage] = useState('en') // Default language
+
   useEffect(() => {
+    console.log(`[App.useEffect] started`)
+    // Initially looks up the local storage for the setting of the dark mode and applies if set.
     const isDarkMode = localStorage.getItem('darkMode') === 'true'
     if (isDarkMode) {
       document.documentElement.classList.add('dark')
     }
+
+    // Initially look up the local storage for the display language and apply if set.
+    if (typeof window !== 'undefined') {
+      const lang = localStorage.getItem('lang')
+      if (lang) {
+        console.log(`[changeLanguage] changing language to ${lang}.`)
+        // Update the language state
+        setLanguage(lang)
+      }
+    }
   }, [])
 
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <Meta />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <Links />
-      </head>
-      <body className="bg-white dark:bg-gray-900">
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+    <TranslationProvider language={language} setLanguage={setLanguage}>
+      <html lang="en">
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width,initial-scale=1" />
+          <Meta />
+          <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+          <Links />
+        </head>
+        <body className="bg-white dark:bg-gray-900">
+          <Outlet />
+          <ScrollRestoration />
+          <Scripts />
+        </body>
+      </html>
+    </TranslationProvider>
   )
 }

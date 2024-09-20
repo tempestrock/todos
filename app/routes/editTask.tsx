@@ -82,7 +82,7 @@ export default function EditTaskView() {
           placeholder="Task Details"
           className="w-full p-2 border rounded mb-4 h-48 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
           value={taskDetails}
-          onChange={(e) => setTaskDetails(e.target.value)}
+          onChange={(e) => wsetTaskDetails(e.target.value)}
         />
 
         <div className="flex justify-end space-x-2">
