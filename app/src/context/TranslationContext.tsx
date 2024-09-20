@@ -11,7 +11,7 @@ interface Translations {
 
 interface TranslationContextProps {
   language: string
-  translations: Translations
+  t: Translations
   setLanguage: (lang: string) => void
 }
 
@@ -47,7 +47,7 @@ export const TranslationProvider = ({
 
   const value: TranslationContextProps = {
     language,
-    translations,
+    t: translations,
     setLanguage,
   }
 
@@ -59,7 +59,7 @@ export const TranslationProvider = ({
   )
 }
 
-export const useTranslation = () => {
+export const useTranslation = (): TranslationContextProps => {
   const context = useContext(TranslationContext)
   if (!context) {
     throw new Error('useTranslation must be used within a TranslationProvider')

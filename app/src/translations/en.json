@@ -1,4 +1,15 @@
 {
+  "add-new-task": "Add new task",
+  "cancel": "Cancel",
+  "created": "Created",
+  "edit-task": "Edit task",
+  "password": "Password",
+  "save": "Save",
+  "saving": "Saving",
+  "sign-in": "Sign in",
+  "sign-in-first": "Please sign in first",
   "sign-out": "Sign out",
+  "updated": "Updated",
+  "username": "Username",
   "users-lists": "'s Lists"
 }

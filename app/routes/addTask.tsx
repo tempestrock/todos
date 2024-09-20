@@ -2,6 +2,7 @@ import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } fr
 import { Form, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 
+import { useTranslation } from '../src/context/TranslationContext'
 import { saveTask } from '~/database/saveAndUpdateData'
 import { pushTasksDown } from '~/listUtils/pushTasksDown'
 import { BoardColumn, Task } from '~/types/dataTypes'
@@ -30,6 +31,7 @@ export default function AddTaskView() {
   const [taskDetails, setTaskDetails] = useState('')
   const navigation = useNavigation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const listId = searchParams.get('listId')
   if (!listId) throw new Error('[addTask.component] No list ID provided')
@@ -47,7 +49,7 @@ export default function AddTaskView() {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl text-gray-900 dark:text-gray-100 font-semibold mb-4">Add New Task</h2>
+      <h2 className="text-xl text-gray-900 dark:text-gray-100 font-semibold mb-4">{t['add-new-task']}</h2>
 
       <Form method="post">
         <input type="hidden" name="listId" value={listId} />
@@ -73,18 +75,19 @@ export default function AddTaskView() {
 
         <div className="flex justify-end space-x-2">
           <button
-            type="button"
-            onClick={() => navigate(`/${listId}`)}
-            className="text-gray-500 border dark:text-gray-100 border-gray-500 dark:border-gray-100 px-4 py-2 rounded"
-          >
-            Cancel
-          </button>
-          <button
             type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded"
             disabled={navigation.state === 'submitting'}
           >
-            {navigation.state === 'submitting' ? 'Saving...' : 'Save'}
+            {navigation.state === 'submitting' ? `${t['saving']}...` : t['save']}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate(`/${listId}`)}
+            className="text-gray-500 border dark:text-gray-100 border-gray-500 dark:border-gray-100 px-4 py-2 rounded"
+          >
+            {t['cancel']}
           </button>
         </div>
       </Form>

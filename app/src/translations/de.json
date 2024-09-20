@@ -1,4 +1,15 @@
 {
+  "add-new-task": "Neue Aufgabe hinzufügen",
+  "cancel": "Abbrechen",
+  "created": "Erstellt",
+  "edit-task": "Aufgabe bearbeiten",
+  "password": "Passwort",
+  "save": "Speichern",
+  "sign-in": "Anmelden",
+  "saving": "Speichere",
+  "sign-in-first": "Bitte melde dich an",
   "sign-out": "Abmelden",
+  "updated": "Aktualisiert",
+  "username": "Benutzer:innenname",
   "users-lists": "s Listen"
 }

@@ -2,6 +2,7 @@ import { json, LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { useActionData, Form, redirect } from '@remix-run/react'
 import { useEffect, useRef } from 'react'
 
+import { useTranslation } from '~/src/context/TranslationContext'
 import { User } from '~/types/dataTypes'
 import { getCurrentUser } from '~/utils/auth'
 import { authAction, ActionData } from '~/utils/authAction'
@@ -37,6 +38,7 @@ export const action = authAction
 export default function Auth() {
   const actionData = useActionData<ActionData>()
   const usernameInputRef = useRef<HTMLInputElement>(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     // Directly put the cursor into the username field.
@@ -50,7 +52,7 @@ export default function Auth() {
       <h1 className="text-3xl text-gray-900 dark:text-gray-100 flex justify-center mt-8 mb-4">Todos</h1>
 
       <div>
-        <h2 className="flex justify-center text-xl text-gray-900 dark:text-gray-100 my-4">Please login first.</h2>
+        <h2 className="flex justify-center text-xl text-gray-900 dark:text-gray-100 my-4">{`${t['sign-in-first']}.`}</h2>
         <div className="mx-auto flex justify-center">
           <Form method="post" className="w-64">
             <input type="hidden" name="action" value="signin" />
@@ -60,21 +62,21 @@ export default function Auth() {
                 type="text"
                 name="username"
                 className="my-2 w-full p-2 border rounded text-blue-800 dark:text-gray-100 border-blue-300 dark:border-gray-700 bg-white dark:bg-gray-900"
-                placeholder="Username"
+                placeholder={t['username']}
                 required
               />
               <input
                 type="password"
                 name="password"
                 className="my-2 w-full p-2 border rounded text-blue-800 dark:text-gray-100 border-blue-300 dark:border-gray-700 bg-white dark:bg-gray-900"
-                placeholder="Password"
+                placeholder={t['password']}
                 required
               />
               <button
                 className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded mt-6 pt-1 px-2 pb-1"
                 type="submit"
               >
-                Sign In
+                {t['sign-in']}
               </button>
             </div>
           </Form>

@@ -24,6 +24,7 @@ import { updateBoardColumn } from '~/database/saveAndUpdateData'
 import { moveUpTasksBelowPosition } from '~/listUtils/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/listUtils/pushTasksDown'
 import { swapTasks } from '~/listUtils/swapTasks'
+import { useTranslation } from '~/src/context/TranslationContext'
 import { Label, TaskList, BoardColumn, Task } from '~/types/dataTypes'
 import { getNiceDateTime, getNow } from '~/utils/dateAndTime'
 import { printObject } from '~/utils/printObject'
@@ -71,6 +72,7 @@ export default function ListView() {
   const [showTools, setShowTools] = useState(false)
   const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
+  const { t } = useTranslation()
 
   const handleColumnChange = (index: number) => setCurrentBoardColumnIndex(index)
 
@@ -187,8 +189,10 @@ export default function ListView() {
                 {visibleTaskDetails[task.id] && (
                   <div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
-                      <div>Created: {getNiceDateTime(task.createdAt)}</div>
-                      <div>Updated: {getNiceDateTime(task.updatedAt)}</div>
+                      <div>
+                        {t['created']}: {getNiceDateTime(task.createdAt)}
+                      </div>
+                      <div>{t['updated']}: {getNiceDateTime(task.updatedAt)}</div>
                     </div>
                     <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
                       <ReactMarkdown

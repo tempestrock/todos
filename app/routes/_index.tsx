@@ -69,8 +69,7 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
 export default function HomeView() {
   // Get the necessary data from the loader.
   const { todoLists, user, success } = useLoaderData<LoaderData>()
-
-  const { translations } = useTranslation()
+  const { t } = useTranslation()
 
   if (success)
     return (
@@ -78,7 +77,7 @@ export default function HomeView() {
         <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold mb-4">
             {user?.displayName}
-            {translations['users-lists']}
+            {t['users-lists']}
           </h1>
           <div className="flex gap-4 mt-2">
             <LanguageSwitcher />
@@ -93,7 +92,7 @@ export default function HomeView() {
                 className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded pt-1 px-2 pb-1"
                 type="submit"
               >
-                Sign out
+                {t['sign-out']}
               </button>
             </Form>
           </div>
