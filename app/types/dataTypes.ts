@@ -37,8 +37,8 @@ export type Task = {
 // Enum to represent board columns.
 export enum BoardColumn {
   BACKLOG = 'backlog',
-  AT_WORK = 'at work',
-  FINISHED = 'finished',
+  IN_PROGRESS = 'in progress',
+  DONE = 'done',
 }
 
 // Label structure with name and color
