@@ -1,5 +1,7 @@
 import { LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { Form, json, useLoaderData, Link } from '@remix-run/react'
+import { SquareMenu } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useTranslation } from '../src/context/TranslationContext'
 import { loadListMetadata } from '~/database/loadListMetadata'
@@ -71,30 +73,65 @@ export default function HomeView() {
   const { todoLists, user, success } = useLoaderData<LoaderData>()
   const { t } = useTranslation()
 
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Close the menu if the user clicks outside of it.
+    const handleClickOutside = (event: any) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   if (success)
     return (
       <div className="container mx-auto p-4 mt-1 dark:bg-gray-900 dark:text-gray-100">
         <div className="flex justify-between mb-4">
+          {/* Title */}
           <h1 className="text-2xl font-bold mb-4">
             {user?.displayName}
             {t['users-lists']}
           </h1>
+
+          {/* 'More' Menu */}
           <div className="flex gap-4 mt-2">
-            <LanguageSwitcher />
-
-            {/* Dark toggle button */}
-            <DarkModeToggle />
-
-            {/* Sign out button */}
-            <Form method="post">
-              <input type="hidden" name="action" value="signout" />
-              <button
-                className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded pt-1 px-2 pb-1"
-                type="submit"
-              >
-                {t['sign-out']}
+            <div className="relative" ref={menuRef}>
+              <button onClick={() => setMenuOpen(!menuOpen)}>
+                <SquareMenu size={24} className='text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400' />
               </button>
-            </Form>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
+                  <div className="py-1">
+                    {/* Language switcher */}
+                    <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900">
+                      <LanguageSwitcher />
+                    </div>
+
+                    {/* Dark mode toggle */}
+                    <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900">
+                      <DarkModeToggle />
+                    </div>
+
+                    {/* Sign out button */}
+                    <Form method="post">
+                      <input type="hidden" name="action" value="signout" />
+                      <button
+                        className="block w-full text-left px-4 py-2 text-base text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900"
+                        type="submit"
+                      >
+                        {t['sign-out']}
+                      </button>
+                    </Form>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

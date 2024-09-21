@@ -11,12 +11,29 @@ export const LanguageSwitcher = () => {
   }
 
   return (
-    <div className="flex gap-4 mb-4">
-      <button onClick={() => changeLanguage('en')} disabled={language === 'en'}>
-        en
+    <div className="flex items-center">
+      <button
+        onClick={() => changeLanguage('en')}
+        disabled={language === 'en'}
+        className={`px-2 ${
+          language === 'en'
+            ? 'text-gray-900 dark:text-gray-100'
+            : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:font-bold'
+        }`}
+      >
+        English
       </button>
-      <button onClick={() => changeLanguage('de')} disabled={language === 'de'}>
-        de
+      <span className="text-gray-400 dark:text-gray-600">|</span>
+      <button
+        onClick={() => changeLanguage('de')}
+        disabled={language === 'de'}
+        className={`px-2 ${
+          language === 'de'
+            ? 'text-gray-900 dark:text-gray-100'
+            : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 hover:font-bold'
+        }`}
+      >
+        Deutsch
       </button>
     </div>
   )
