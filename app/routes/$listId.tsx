@@ -29,6 +29,7 @@ import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
 import { printObject } from '~/utils/printObject'
+import { capitalizeFirstLetter } from '~/utils/stringHandling'
 
 /**
  * Displays the currently selected board column of the currently selected list.
@@ -156,7 +157,7 @@ export default function ListView() {
                   borderColor: listColor,
                 }}
               >
-                {t[column]}
+                {capitalizeFirstLetter(t[column])}
               </button>
             ))}
           </div>
