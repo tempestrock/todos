@@ -20,9 +20,6 @@ export type LoaderData = {
   success: boolean
 }
 
-let todoLists: TaskList[] | undefined = undefined
-let user: User | undefined = undefined
-
 /**
  * Is called with every page load.
  * Loads all tasks from the database.
@@ -32,18 +29,12 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
   const userId = await requireAuth(request)
 
   try {
-    if (!user) {
-      user = await loadUser(userId)
-      if (!user) throw new Error('[_index.loader] Failed to load user')
-    }
-
-    if (user.taskListIds.length === 0) throw new Error('[_index.loader] User has no lists')
+    const user = await loadUser(userId)
+    if (!user) throw new Error('[_index.loader] Failed to load user')
 
     // Only load the part of the lists that is necessary to show the list names and colors on the home page.
-    if (!todoLists) {
-      todoLists = await loadListMetadata(user.taskListIds)
-      todoLists.sort((a, b) => a.position - b.position)
-    }
+    const todoLists = await loadListMetadata(user.taskListIds)
+    todoLists.sort((a, b) => a.position - b.position)
 
     return json<LoaderData>({ success: true, todoLists, user, labels: [] })
   } catch (error) {
