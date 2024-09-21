@@ -29,12 +29,7 @@ let user: User | undefined = undefined
  * @param request - The request object
  */
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  // console.log('[_index.loader] starting')
-  // printObject(request, '[_index.loader] request')
-  // printObject(params, '[_index.loader] params')
-
   const userId = await requireAuth(request)
-  // printObject(user, '[_index.loader] user')
 
   try {
     if (!user) {
@@ -48,10 +43,6 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
     if (!todoLists) {
       todoLists = await loadListMetadata(user.taskListIds)
       todoLists.sort((a, b) => a.position - b.position)
-
-      // printObject(todoLists, '[_index.loader] todoLists')
-    // } else {
-    //   console.log(`[_index.loader] todoLists already loaded`)
     }
 
     return json<LoaderData>({ success: true, todoLists, user, labels: [] })
@@ -62,7 +53,6 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
 }
 
 export default function HomeView() {
-  // Get the necessary data from the loader.
   const { todoLists, user, success } = useLoaderData<LoaderData>()
   const { t } = useTranslation()
 

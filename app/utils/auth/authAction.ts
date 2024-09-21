@@ -1,5 +1,3 @@
-// app/utils/authActions.ts
-
 import { json, ActionFunction, redirect, ActionFunctionArgs } from '@remix-run/node'
 
 import { disableUser } from './session.server'
