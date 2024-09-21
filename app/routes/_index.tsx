@@ -1,17 +1,13 @@
 import { LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
-import { Form, json, useLoaderData, Link } from '@remix-run/react'
-import { SquareMenu } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { json, useLoaderData, Link } from '@remix-run/react'
 
-import DarkModeToggle from '~/components/DarkModeToggle'
-import { LanguageSwitcher } from '~/components/LanguageSwitcher'
+import MoreMenu from '~/components/MoreMenu'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, TaskList, User } from '~/types/dataTypes'
 import { authAction } from '~/utils/auth/authAction'
 import { requireAuth } from '~/utils/auth/session.server'
 import { loadListMetadata } from '~/utils/database/loadListMetadata'
 import { loadUser } from '~/utils/database/loadUser'
-import { printObject } from '~/utils/printObject'
 
 /**
  * Displays the home page which shows all todo lists for the given user.
@@ -32,10 +28,10 @@ let user: User | undefined = undefined
  * Loads all tasks from the database.
  * @param request - The request object
  */
-export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
-  console.log('[_index.loader] starting')
-  printObject(request, '[_index.loader] request')
-  printObject(params, '[_index.loader] params')
+export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
+  // console.log('[_index.loader] starting')
+  // printObject(request, '[_index.loader] request')
+  // printObject(params, '[_index.loader] params')
 
   const userId = await requireAuth(request)
   // printObject(user, '[_index.loader] user')
@@ -43,10 +39,7 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
   try {
     if (!user) {
       user = await loadUser(userId)
-      // printObject(user, '[_index.loader] user')
       if (!user) throw new Error('[_index.loader] Failed to load user')
-      // } else {
-      //   console.log(`[_index.loader] user already loaded`)
     }
 
     if (user.taskListIds.length === 0) throw new Error('[_index.loader] User has no lists')
@@ -56,9 +49,9 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
       todoLists = await loadListMetadata(user.taskListIds)
       todoLists.sort((a, b) => a.position - b.position)
 
-      printObject(todoLists, '[_index.loader] todoLists')
-    } else {
-      console.log(`[_index.loader] todoLists already loaded`)
+      // printObject(todoLists, '[_index.loader] todoLists')
+    // } else {
+    //   console.log(`[_index.loader] todoLists already loaded`)
     }
 
     return json<LoaderData>({ success: true, todoLists, user, labels: [] })
@@ -73,22 +66,6 @@ export default function HomeView() {
   const { todoLists, user, success } = useLoaderData<LoaderData>()
   const { t } = useTranslation()
 
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    // Close the menu if the user clicks outside of it.
-    const handleClickOutside = (event: any) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
   if (success)
     return (
       <div className="container mx-auto p-4 mt-1 dark:bg-gray-900 dark:text-gray-100">
@@ -100,39 +77,7 @@ export default function HomeView() {
           </h1>
 
           {/* 'More' Menu */}
-          <div className="flex gap-4 mt-2">
-            <div className="relative" ref={menuRef}>
-              <button onClick={() => setMenuOpen(!menuOpen)}>
-                <SquareMenu size={24} className='text-gray-900 dark:text-gray-100 hover:text-gray-600 dark:hover:text-gray-400' />
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
-                  <div className="py-1">
-                    {/* Language switcher */}
-                    <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900">
-                      <LanguageSwitcher />
-                    </div>
-
-                    {/* Dark mode toggle */}
-                    <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900">
-                      <DarkModeToggle />
-                    </div>
-
-                    {/* Sign out button */}
-                    <Form method="post">
-                      <input type="hidden" name="action" value="signout" />
-                      <button
-                        className="block w-full text-left px-4 py-2 text-base text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900"
-                        type="submit"
-                      >
-                        {t['sign-out']}
-                      </button>
-                    </Form>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <MoreMenu />
         </div>
 
         {/* List of todo list buttons */}
