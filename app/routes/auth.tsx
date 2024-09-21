@@ -58,19 +58,28 @@ export default function Auth() {
   }, [])
 
   if (challengeName === 'NEW_PASSWORD_REQUIRED') {
-    // Show the new password form
+    // Show the new password form.
     return (
       <div>
         <h1 className="text-3xl text-gray-900 dark:text-gray-100 flex justify-center mt-8 mb-4">Todos</h1>
         <div>
           <h2 className="flex justify-center text-xl text-gray-900 dark:text-gray-100 my-4">{`${t['set-new-password']}`}</h2>
           <div className="mx-auto flex justify-center">
-            <Form method="post" className="w-64">
+            <Form method="post" className="w-64" autoComplete="off">
               <input type="hidden" name="action" value="completeNewPassword" />
+              {/* This hidden field is just to prefent browsers from crazy autofilling the password field. */}
+              <input
+                type="text"
+                name="username"
+                autoComplete="username"
+                value=""
+                style={{ display: 'none' }}
+              />
               <div className="flex flex-col items-start">
                 <input
                   type="password"
                   name="newPassword"
+                  autoComplete="off"
                   className="my-2 w-full p-2 border rounded text-blue-800 dark:text-gray-100 border-blue-300 dark:border-gray-700 bg-white dark:bg-gray-900"
                   placeholder={t['new-password']}
                   required
@@ -93,7 +102,7 @@ export default function Auth() {
       </div>
     )
   } else {
-    // Show the sign-in form
+    // Show the sign-in form.
     return (
       <div>
         <h1 className="text-3xl text-gray-900 dark:text-gray-100 flex justify-center mt-8 mb-4">Todos</h1>
@@ -107,6 +116,7 @@ export default function Auth() {
                   ref={usernameInputRef}
                   type="text"
                   name="username"
+                  autoComplete="username"
                   className="my-2 w-full p-2 border rounded text-blue-800 dark:text-gray-100 border-blue-300 dark:border-gray-700 bg-white dark:bg-gray-900"
                   placeholder={t['username']}
                   required
