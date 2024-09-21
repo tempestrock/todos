@@ -133,30 +133,35 @@ export default function ListView() {
       {/* Fixed Title bar */}
       <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-10 shadow-md">
         <div className="container mx-auto p-4 flex justify-between items-center">
+          {/* Home Button */}
           <Link to="/" className="text-xs text-blue-500 hover:text-blue-700">
             <Home size={24} />
           </Link>
+
+          {/* Tools Button */}
           <button onClick={toggleTools} className={`text-xs text-blue-500 hover:text-blue-700`}>
             {showTools ? <PanelTopOpen size={24} /> : <PanelTopClose size={24} />}
           </button>
 
+          {/* Board Column Buttons */}
           <div className="flex space-x-1">
             {boardColumns.map((column, index) => (
               <button
                 key={column}
                 onClick={() => handleColumnChange(index)}
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 border`}
+                className={`px-2 py-2 text-xs font-medium rounded-md transition-colors duration-150 border`}
                 style={{
                   backgroundColor: index === currentBoardColumnIndex ? listColor : 'transparent',
                   color: index === currentBoardColumnIndex ? 'white' : listColor,
                   borderColor: listColor,
                 }}
               >
-                {column}
+                {t[column]}
               </button>
             ))}
           </div>
 
+          {/* Add Button */}
           <Link
             to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
             className="text-green-500 hover:text-green-700"

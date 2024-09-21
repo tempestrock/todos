@@ -1,8 +1,11 @@
 {
   "add-new-task": "Neue Aufgabe hinzufügen",
+  "backlog": "Backlog",
   "cancel": "Abbrechen",
   "created": "Erstellt",
+  "done": "Fertig",
   "edit-task": "Aufgabe bearbeiten",
+  "in progress": "In Bearbeitung",
   "password": "Passwort",
   "save": "Speichern",
   "sign-in": "Anmelden",

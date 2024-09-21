@@ -1,8 +1,11 @@
 {
   "add-new-task": "Add new task",
+  "backlog": "backlog",
   "cancel": "Cancel",
   "created": "Created",
+  "done": "done",
   "edit-task": "Edit task",
+  "in progress": "in progress",
   "password": "Password",
   "save": "Save",
   "saving": "Saving",
