@@ -3,7 +3,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/reac
 import { useEffect, useState } from 'react'
 
 import { TranslationProvider } from '~/contexts/TranslationContext'
-import styles from '~/tailwind.css?url'
+import styles from '~/styles/tailwind.css?url'
 
 /**
  * Returns an array of links for the HTML document.
