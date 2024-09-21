@@ -60,7 +60,6 @@ export default function App(): JSX.Element {
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
           <Meta />
-          <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
           <Links />
         </head>
         <body className="bg-white dark:bg-gray-900">
