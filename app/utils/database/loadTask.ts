@@ -3,7 +3,6 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { Task, TaskList, TaskListMetadata, TaskListUndefined } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
 import { getCurrentEnvName, getTableName, TABLE_NAME_TASKLIST_METADATA, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
-import { printObject } from '~/utils/printObject'
 
 export async function loadTask(listId: string, taskId: string): Promise<Task | undefined> {
   console.log(`----------- loadTask(${listId}, ${taskId}) (${getCurrentEnvName()})-------------`)
@@ -39,7 +38,7 @@ export async function loadTask(listId: string, taskId: string): Promise<Task | u
     // printObject(taskList, '[loadTask] taskList')
 
     const task = taskList.tasks.find((task) => task.id === taskId)
-    printObject(task, '[loadTask] task')
+    // printObject(task, '[loadTask] task')
 
     return task
   } catch (error) {

@@ -37,6 +37,47 @@ export const signIn = (username: string, password: string): Promise<any> => {
       onFailure: (err) => {
         reject(err)
       },
+      newPasswordRequired: (_userAttributes, _requiredAttributes) => {
+        resolve({ challengeName: 'NEW_PASSWORD_REQUIRED' })
+      },
+    })
+  })
+}
+
+export const completeNewPassword = (username: string, password: string, newPassword: string): Promise<any> => {
+  const authenticationDetails = new AuthenticationDetails({
+    Username: username,
+    Password: password,
+  })
+
+  const cognitoUser = new CognitoUser({
+    Username: username,
+    Pool: userPool,
+  })
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.authenticateUser(authenticationDetails, {
+      onSuccess: (result) => {
+        // This should not happen in this flow.
+        resolve(result)
+      },
+      onFailure: (err) => {
+        reject(err)
+      },
+      newPasswordRequired: (_userAttributes, _requiredAttributes) => {
+        cognitoUser.completeNewPasswordChallenge(
+          newPassword,
+          {},
+          {
+            onSuccess: (result) => {
+              resolve(result)
+            },
+            onFailure: (err) => {
+              reject(err)
+            },
+          }
+        )
+      },
     })
   })
 }
