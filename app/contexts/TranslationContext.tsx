@@ -1,8 +1,8 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
 
-// Import your translation files
 import deTranslations from '~/translations/de.json'
 import enTranslations from '~/translations/en.json'
+import { UNDEF } from '~/types/dataTypes'
 
 interface Translations {
   [key: string]: string
@@ -16,11 +16,10 @@ interface TranslationContextProps {
 
 const TranslationContext = createContext<TranslationContextProps | undefined>(undefined)
 
-// Create a mapping of languages to translations
+// Create a mapping of languages to translations.
 const translationsMap: { [key: string]: Translations } = {
   en: enTranslations,
   de: deTranslations,
-  // Add more languages here
 }
 
 export const TranslationProvider = ({
@@ -35,11 +34,11 @@ export const TranslationProvider = ({
   const [translations, setTranslations] = useState<Translations>(translationsMap[language] || {})
 
   useEffect(() => {
-    // Update translations when language changes
+    // Update translations when language changes.
     setTranslations(translationsMap[language] || {})
 
-    // Save the language preference in localStorage
-    if (typeof window !== 'undefined') {
+    // Save the language preference in localStorage.
+    if (typeof window !== 'undefined' && language !== UNDEF) {
       localStorage.setItem('lang', language)
     }
   }, [language])
@@ -52,7 +51,7 @@ export const TranslationProvider = ({
 
   return (
     <TranslationContext.Provider value={value}>
-      {/* Since translations are synchronously available, we can render children immediately */}
+      {/* Since translations are synchronously available, we can render children immediately. */}
       {children}
     </TranslationContext.Provider>
   )

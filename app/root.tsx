@@ -2,6 +2,7 @@ import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 
+import { UNDEF } from './types/dataTypes'
 import { TranslationProvider } from '~/contexts/TranslationContext'
 import styles from '~/styles/tailwind.css?url'
 
@@ -32,10 +33,9 @@ export const meta: MetaFunction = () => {
  * @return {JSX.Element} The JSX element representing the HTML document.
  */
 export default function App(): JSX.Element {
-  const [language, setLanguage] = useState('en') // Default language
+  const [language, setLanguage] = useState(UNDEF) // no default language
 
   useEffect(() => {
-    console.log(`[App.useEffect] started`)
     // Initially looks up the local storage for the setting of the dark mode and applies if set.
     const isDarkMode = localStorage.getItem('darkMode') === 'true'
     if (isDarkMode) {
@@ -46,16 +46,17 @@ export default function App(): JSX.Element {
     if (typeof window !== 'undefined') {
       const lang = localStorage.getItem('lang')
       if (lang) {
-        console.log(`[changeLanguage] changing language to ${lang}.`)
-        // Update the language state
         setLanguage(lang)
+      } else {
+        // If no language preference is set, default to English.
+        setLanguage('en')
       }
     }
   }, [])
 
   return (
     <TranslationProvider language={language} setLanguage={setLanguage}>
-      <html lang="en">
+      <html>
         <head>
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width,initial-scale=1" />
