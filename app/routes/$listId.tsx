@@ -17,18 +17,18 @@ import {
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
-import { deleteTask } from '~/database/deleteTask'
-import { loadTask } from '~/database/loadTask'
-import { loadTaskList } from '~/database/loadTaskList'
-import { updateBoardColumn } from '~/database/saveAndUpdateData'
-import { moveUpTasksBelowPosition } from '~/listUtils/moveUpTasksBelowPosition'
-import { pushTasksDown } from '~/listUtils/pushTasksDown'
-import { swapTasks } from '~/listUtils/swapTasks'
-import { useTranslation } from '~/src/context/TranslationContext'
+import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, TaskList, BoardColumn, Task } from '~/types/dataTypes'
+import { requireAuth } from '~/utils/auth/session.server'
+import { deleteTask } from '~/utils/database/deleteTask'
+import { loadTask } from '~/utils/database/loadTask'
+import { loadTaskList } from '~/utils/database/loadTaskList'
+import { updateBoardColumn } from '~/utils/database/saveAndUpdateData'
 import { getNiceDateTime, getNow } from '~/utils/dateAndTime'
+import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
+import { pushTasksDown } from '~/utils/list/pushTasksDown'
+import { swapTasks } from '~/utils/list/swapTasks'
 import { printObject } from '~/utils/printObject'
-import { requireAuth } from '~/utils/session.server'
 
 /**
  * Displays the currently selected board column of the currently selected list.

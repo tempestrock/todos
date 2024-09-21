@@ -1,6 +1,6 @@
-import { loadTaskList } from '../database/loadTaskList'
-import { saveTask } from '../database/saveAndUpdateData'
 import { BoardColumn } from '~/types/dataTypes'
+import { loadTaskList } from '~/utils/database/loadTaskList'
+import { saveTask } from '~/utils/database/saveAndUpdateData'
 
 /**
  * Pushes all tasks in the given board column of the given list down one position

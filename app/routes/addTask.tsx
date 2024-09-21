@@ -2,14 +2,14 @@ import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } fr
 import { Form, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 
-import { useTranslation } from '../src/context/TranslationContext'
-import { saveTask } from '~/database/saveAndUpdateData'
-import { pushTasksDown } from '~/listUtils/pushTasksDown'
+import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn, Task } from '~/types/dataTypes'
+import { requireAuth } from '~/utils/auth/session.server'
+import { saveTask } from '~/utils/database/saveAndUpdateData'
 import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
+import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { printObject } from '~/utils/printObject'
-import { requireAuth } from '~/utils/session.server'
 
 export type LoaderData = unknown
 

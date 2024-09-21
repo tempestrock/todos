@@ -1,7 +1,7 @@
 import { DeleteCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 
-import { dbClient } from './dbClient'
-import { getTableName, TABLE_NAME_TASKS } from './dbConsts'
+import { dbClient } from '~/utils/database/dbClient'
+import { getTableName, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
 
 /**
  * Deletes a task from the database.

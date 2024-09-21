@@ -1,8 +1,8 @@
 import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 
-import { dbClient } from './dbClient'
-import { getTableName, TABLE_NAME_TASKLIST_METADATA } from './dbConsts'
 import { TaskList, TaskListMetadata } from '~/types/dataTypes'
+import { dbClient } from '~/utils/database/dbClient'
+import { getTableName, TABLE_NAME_TASKLIST_METADATA } from '~/utils/database/dbConsts'
 
 /**
  * Loads task list metadata from the database without the actual tasks.

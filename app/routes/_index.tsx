@@ -3,15 +3,15 @@ import { Form, json, useLoaderData, Link } from '@remix-run/react'
 import { SquareMenu } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import { useTranslation } from '../src/context/TranslationContext'
-import { loadListMetadata } from '~/database/loadListMetadata'
-import { loadUser } from '~/database/loadUser'
-import DarkModeToggle from '~/src/components/darkModeToggle'
-import { LanguageSwitcher } from '~/src/components/languageSwitcher'
+import DarkModeToggle from '~/components/DarkModeToggle'
+import { LanguageSwitcher } from '~/components/LanguageSwitcher'
+import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, TaskList, User } from '~/types/dataTypes'
-import { authAction } from '~/utils/authAction'
+import { authAction } from '~/utils/auth/authAction'
+import { requireAuth } from '~/utils/auth/session.server'
+import { loadListMetadata } from '~/utils/database/loadListMetadata'
+import { loadUser } from '~/utils/database/loadUser'
 import { printObject } from '~/utils/printObject'
-import { requireAuth } from '~/utils/session.server'
 
 /**
  * Displays the home page which shows all todo lists for the given user.

@@ -1,8 +1,8 @@
 import { GetCommand } from '@aws-sdk/lib-dynamodb'
 
-import { dbClient } from './dbClient'
-import { getCurrentEnvName, getTableName, TABLE_NAME_USERS } from './dbConsts'
 import { User } from '~/types/dataTypes'
+import { dbClient } from '~/utils/database/dbClient'
+import { getCurrentEnvName, getTableName, TABLE_NAME_USERS } from '~/utils/database/dbConsts'
 import { printObject } from '~/utils/printObject'
 
 /**

@@ -3,7 +3,7 @@
 import { json, ActionFunction, redirect, ActionFunctionArgs } from '@remix-run/node'
 
 import { disableUser } from './session.server'
-import { signIn, signOut } from '~/utils/auth'
+import { signIn, signOut } from '~/utils/auth/auth'
 
 export type ActionData = {
   success: boolean

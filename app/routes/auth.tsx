@@ -2,10 +2,10 @@ import { json, LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { useActionData, Form, redirect } from '@remix-run/react'
 import { useEffect, useRef } from 'react'
 
-import { useTranslation } from '~/src/context/TranslationContext'
+import { useTranslation } from '~/contexts/TranslationContext'
 import { User } from '~/types/dataTypes'
-import { getCurrentUser } from '~/utils/auth'
-import { authAction, ActionData } from '~/utils/authAction'
+import { getCurrentUser } from '~/utils/auth/auth'
+import { authAction, ActionData } from '~/utils/auth/authAction'
 import { printObject } from '~/utils/printObject'
 
 /**

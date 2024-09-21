@@ -2,8 +2,8 @@ import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 
-import { TranslationProvider } from './src/context/TranslationContext'
-import styles from './tailwind.css?url'
+import { TranslationProvider } from '~/contexts/TranslationContext'
+import styles from '~/tailwind.css?url'
 
 /**
  * Returns an array of links for the HTML document.

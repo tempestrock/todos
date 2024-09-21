@@ -1,8 +1,8 @@
 import { PutCommand, GetCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
 
-import { dbClient } from './dbClient'
-import { getTableName, TABLE_NAME_TASKS } from './dbConsts'
 import { Task } from '~/types/dataTypes'
+import { dbClient } from '~/utils/database/dbClient'
+import { getTableName, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
 
 /**
  * Saves a task to the database. If the task already exists, it will be updated.

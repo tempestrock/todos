@@ -1,9 +1,8 @@
-// src/context/TranslationContext.tsx
-import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react'
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react'
 
 // Import your translation files
-import deTranslations from '../translations/de.json'
-import enTranslations from '../translations/en.json'
+import deTranslations from '~/translations/de.json'
+import enTranslations from '~/translations/en.json'
 
 interface Translations {
   [key: string]: string

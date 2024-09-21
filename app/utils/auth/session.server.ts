@@ -1,6 +1,6 @@
 import { redirect } from '@remix-run/node'
 
-import { getCurrentUser } from './auth'
+import { getCurrentUser } from '~/utils/auth/auth'
 
 let user: any | undefined
 
