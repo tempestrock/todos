@@ -14,10 +14,8 @@ import { printObject } from '~/utils/printObject'
 
 export type LoaderData = unknown
 
-export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
   console.log('[addTask.loader] starting')
-  printObject(request, '[addTask.loader] request')
-  printObject(params, '[addTask.loader] params')
 
   await requireAuth(request)
 
@@ -25,8 +23,6 @@ export const loader: LoaderFunction = async ({ request, params }: LoaderFunction
 }
 
 export default function AddTaskView() {
-  console.log('[addTask.component] starting')
-
   const [searchParams] = useSearchParams()
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDetails, setTaskDetails] = useState('')
@@ -123,8 +119,8 @@ export const action: ActionFunction = async ({ request }) => {
     labels: [],
   }
 
-  printObject(taskToAdd, `[addTask.action] new task`)
   console.log(`[addTask.action] listId: '${listId}'`)
+  printObject(taskToAdd, `[addTask.action] new task`)
 
   // Push all tasks in the list down one position by incrementing their `position` values.
   await pushTasksDown(listId, boardColumn)

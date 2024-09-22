@@ -58,7 +58,7 @@ export default function HomeView() {
           <MoreMenu />
         </div>
 
-        {/* List of todo list buttons. Lists get the defined colors. When clicking a list, all list get gray. */}
+        {/* List of todo list buttons. Lists get the defined colors. When clicking a list, it changes to gray. */}
         <div className="grid grid-cols-1 gap-4">
           {todoLists.map((list) => (
             <Link
@@ -66,7 +66,7 @@ export default function HomeView() {
               to={`/${list.id}`}
               className={`w-full text-white text-2xl py-4 rounded block text-center transition-all duration-200 ease-in-out relative overflow-hidden group`}
               style={{
-                backgroundColor: loadingListId ? (loadingListId === list.id ? '#444444' : list.color) : list.color, // Keep original color when not clicked
+                backgroundColor: loadingListId ? (loadingListId === list.id ? '#444444' : list.color) : list.color,
               }}
               onClick={() => handleClick(list.id)}
             >

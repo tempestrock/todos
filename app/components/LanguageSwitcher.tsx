@@ -5,7 +5,6 @@ export const LanguageSwitcher = () => {
 
   const changeLanguage = (lang: string) => {
     if (lang !== language) {
-      console.log(`[changeLanguage] changing language to ${lang}.`)
       setLanguage(lang)
     }
   }

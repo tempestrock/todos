@@ -29,7 +29,6 @@ import { getNiceDateTime, getNow } from '~/utils/dateAndTime'
 import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
-import { printObject } from '~/utils/printObject'
 import { capitalizeFirstLetter } from '~/utils/stringHandling'
 
 /**
@@ -43,8 +42,6 @@ type LoaderData = {
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   console.log('[$listId.loader] starting')
-  printObject(request, '[$listId.loader] request')
-  printObject(params, '[$listId.loader] params')
 
   await requireAuth(request)
 
@@ -105,7 +102,6 @@ export default function ListView() {
   const toggleTools = () => setShowTools((prev) => !prev)
 
   const handleEdit = (taskId: string) => {
-    console.log('[handleEdit] taskId:', taskId)
     setLoadingTaskId(taskId)
   }
 
@@ -243,10 +239,10 @@ export default function ListView() {
                   <div className="flex space-x-6">
                     {showTools && (
                       <Link
-                        onClick={() => handleEdit(task.id)}
                         to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
                         className="text-blue-500 hover:text-blue-700"
-                      >
+                        onClick={() => handleEdit(task.id)}
+                        >
                         <FilePenLine size={20} />
                       </Link>
                     )}
@@ -364,7 +360,6 @@ export const action = async ({ request }: { request: Request }) => {
       }
 
       case 'reorder': {
-        console.log(`[$listId.action] reorder start`)
         const targetTaskId = formData.get('targetTaskId') as string
 
         console.log(`[$listId.action] Swapping tasks ${listId}, ${taskId}, ${targetTaskId}`)

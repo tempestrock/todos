@@ -8,7 +8,6 @@ import { User } from '~/types/dataTypes'
 import { getCurrentUser } from '~/utils/auth/auth'
 import { authAction, ActionData } from '~/utils/auth/authAction'
 import { getSession } from '~/utils/auth/session.server'
-import { printObject } from '~/utils/printObject'
 
 /**
  * Displays the authentication page.
@@ -20,9 +19,8 @@ export type LoaderData = {
   challengeName?: string
 }
 
-export const loader: LoaderFunction = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
   console.log('[auth.loader] starting')
-  printObject(params, '[auth.loader] params')
 
   const session = await getSession(request.headers.get('Cookie'))
   const challengeName = session.get('challengeName')

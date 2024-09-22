@@ -2,7 +2,7 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 
 import { User } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
-import { getCurrentEnvName, getTableName, TABLE_NAME_USERS } from '~/utils/database/dbConsts'
+import { getTableName, TABLE_NAME_USERS } from '~/utils/database/dbConsts'
 import { printObject } from '~/utils/printObject'
 
 /**
@@ -12,7 +12,7 @@ import { printObject } from '~/utils/printObject'
  * @return {Promise<User>} The user's data.
  */
 export const loadUser = async (userId: string): Promise<User> => {
-  console.log(`----------- loadUser(${userId}) (${getCurrentEnvName()})-------------`)
+  console.log(`Starting loadUser(${userId}).`)
 
   try {
     const getParams = {

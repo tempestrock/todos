@@ -17,8 +17,6 @@ type LoaderData = {
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
   console.log('[editTask.loader] starting')
-  printObject(request, '[editTask.loader] request')
-
   await requireAuth(request)
   const url = new URL(request.url)
   const listId = url.searchParams.get('listId')
@@ -142,8 +140,8 @@ export const action: ActionFunction = async ({ request }) => {
     labels: [],
   }
 
-  printObject(task, `[editTask.action] updated task`)
   console.log(`[editTask.action] listId: '${listId}'`)
+  printObject(task, `[editTask.action] updated task`)
 
   await saveTask(listId, task)
 

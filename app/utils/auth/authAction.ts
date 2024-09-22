@@ -58,7 +58,6 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
       }
 
       case 'signout':
-        console.log('[authAction] About to call signOut')
         signOut()
         session.unset('challengeName')
         session.unset('username')

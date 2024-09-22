@@ -2,10 +2,10 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 
 import { Task, TaskList, TaskListMetadata, TaskListUndefined } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
-import { getCurrentEnvName, getTableName, TABLE_NAME_TASKLIST_METADATA, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
+import { getTableName, TABLE_NAME_TASKLIST_METADATA, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
 
 export async function loadTask(listId: string, taskId: string): Promise<Task | undefined> {
-  console.log(`----------- loadTask(${listId}, ${taskId}) (${getCurrentEnvName()})-------------`)
+  console.log(`Starting loadTask(${listId}, ${taskId}).`)
 
   // Get the metadata of the one task list that has the given list ID.
   const taskList = await loadMetadataOfTaskList(listId)
@@ -35,10 +35,7 @@ export async function loadTask(listId: string, taskId: string): Promise<Task | u
       lastEvaluatedKey = response.LastEvaluatedKey
     } while (lastEvaluatedKey)
 
-    // printObject(taskList, '[loadTask] taskList')
-
     const task = taskList.tasks.find((task) => task.id === taskId)
-    // printObject(task, '[loadTask] task')
 
     return task
   } catch (error) {
@@ -61,15 +58,11 @@ async function loadMetadataOfTaskList(listId: string): Promise<TaskList> {
       const command = new ScanCommand(scanParams)
       const response = await dbClient().send(command)
 
-      // printObject(response.Items, '[loadMetadataOfTaskList] response.Items')
-
       if (response.Items) {
         const taskListMetadataReceived = response.Items as TaskListMetadata[]
         const taskListMetadataForGivenListIdReceived = taskListMetadataReceived.find(
           (taskList) => taskList.id === listId
         )
-
-        // printObject(taskListMetadataForGivenListIdReceived, '[loadMetadataOfTaskList] taskListMetadataForGivenListIdReceived')
 
         if (taskListMetadataForGivenListIdReceived)
           // We found the metadata for the given list ID.
