@@ -1,17 +1,15 @@
 import { LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
 import { json, useLoaderData, Link } from '@remix-run/react'
+import { useState } from 'react'
 
 import MoreMenu from '~/components/MoreMenu'
+import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, TaskList, User } from '~/types/dataTypes'
 import { authAction } from '~/utils/auth/authAction'
 import { requireAuth } from '~/utils/auth/session.server'
 import { loadListMetadata } from '~/utils/database/loadListMetadata'
 import { loadUser } from '~/utils/database/loadUser'
-
-/**
- * Displays the home page which shows all todo lists for the given user.
- */
 
 export type LoaderData = {
   user?: User
@@ -20,11 +18,6 @@ export type LoaderData = {
   success: boolean
 }
 
-/**
- * Is called with every page load.
- * Loads all tasks from the database.
- * @param request - The request object
- */
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireAuth(request)
 
@@ -32,7 +25,6 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
     const user = await loadUser(userId)
     if (!user) throw new Error('[_index.loader] Failed to load user')
 
-    // Only load the part of the lists that is necessary to show the list names and colors on the home page.
     const todoLists = await loadListMetadata(user.taskListIds)
     todoLists.sort((a, b) => a.position - b.position)
 
@@ -46,6 +38,13 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
 export default function HomeView() {
   const { todoLists, user, success } = useLoaderData<LoaderData>()
   const { t } = useTranslation()
+  const [loadingListId, setLoadingListId] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const handleClick = (listId: string) => {
+    setLoadingListId(listId)
+    setIsLoading(true)
+  }
 
   if (success)
     return (
@@ -67,10 +66,15 @@ export default function HomeView() {
             <Link
               key={list.id}
               to={`/${list.id}`}
-              className="w-full text-white text-2xl py-4 rounded block text-center transition-all duration-200 ease-in-out relative overflow-hidden group"
+              className={`w-full text-white text-2xl py-4 rounded block text-center transition-all duration-200 ease-in-out relative overflow-hidden group`}
               style={{ backgroundColor: list.color }}
+              onClick={() => handleClick(list.id)}
             >
-              <span className="relative z-10">{list.displayName}</span>
+              {loadingListId === list.id ? (
+                <Spinner />
+              ) : (
+                <span className={`relative z-10`}>{list.displayName}</span>
+              )}
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-25 transition-opacity duration-200 ease-in-out"></div>
             </Link>
           ))}
