@@ -28,6 +28,6 @@ export const moveUpTasksBelowPosition = async (
   for (const task of tasksInColumnBelowPosition) {
     console.log(`[moveUpTasksBelowPosition] moving up task '${task.title}'`)
     task.position--
-    await saveTask(listId, task)
+    await saveTask(task)
   }
 }

@@ -126,7 +126,7 @@ export const action: ActionFunction = async ({ request }) => {
   await pushTasksDown(listId, boardColumn)
 
   // Save the new task.
-  await saveTask(listId, taskToAdd)
+  await saveTask(taskToAdd)
 
   return redirect(`/${listId}`)
 }

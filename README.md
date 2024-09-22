@@ -32,7 +32,7 @@ In DynamoDB, there are the following tables:
  | Table name         | Partition Key | Sort Key | Other Fields                                                                      |
  | ------------------ | ------------- | -------- | --------------------------------------------------------------------------------- |
  | `TaskListMetadata` | `id`          | `name`   | `color`                                                                           |
- | `Tasks`            | `listId`      | `id`     | `title`, `details`, `boardColumn`, `position`, `createdAt`, `updatedAt`, `labels` |
+ | `Tasks`            | `id`          | (none)   | `title`, `details`, `boardColumn`, `position`, `createdAt`, `updatedAt`, `labels` |
  | `Users`            | `id`          | (none)   | `displayName`, `taskListIds`                                                      |
 
 They exist three times with an additional postfix `-dev`, `-uat`, and `-prod`,

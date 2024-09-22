@@ -1,85 +1,37 @@
-import { ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { GetCommand } from '@aws-sdk/lib-dynamodb'
 
-import { Task, TaskList, TaskListMetadata, TaskListUndefined } from '~/types/dataTypes'
+import { printObject } from '../printObject'
+import { Task } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
-import { getTableName, TABLE_NAME_TASKLIST_METADATA, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
+import { getTableName, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
 
-export async function loadTask(listId: string, taskId: string): Promise<Task | undefined> {
-  console.log(`Starting loadTask(${listId}, ${taskId}).`)
-
-  // Get the metadata of the one task list that has the given list ID.
-  const taskList = await loadMetadataOfTaskList(listId)
-
-  // Read all tasks from a second table.
-  let lastEvaluatedKey: Record<string, any> | undefined
+export async function loadTask(taskId: string): Promise<Task | undefined> {
+  console.log(`Starting loadTask(${taskId}).`)
 
   try {
-    do {
-      const scanParams = {
-        TableName: getTableName(TABLE_NAME_TASKS),
-        ExclusiveStartKey: lastEvaluatedKey,
-      }
+    // Fetch the task directly by its unique ID
+    const getParams = {
+      TableName: getTableName(TABLE_NAME_TASKS),
+      Key: {
+        id: taskId,
+      },
+    }
 
-      const command = new ScanCommand(scanParams)
-      const response = await dbClient().send(command)
+    const command = new GetCommand(getParams)
+    const response = await dbClient().send(command)
 
-      if (response.Items) {
-        const tasksReceived = response.Items as Task[]
+    const task = response.Item as Task | undefined
 
-        // Assign those tasks to the list that have the correct list ID.
-        tasksReceived.forEach((task) => {
-          if (task.listId === listId) taskList.tasks.push(task)
-        })
-      }
-
-      lastEvaluatedKey = response.LastEvaluatedKey
-    } while (lastEvaluatedKey)
-
-    const task = taskList.tasks.find((task) => task.id === taskId)
-
-    return task
+    // Verify that the task exists and belongs to the specified listId
+    if (task) {
+      printObject(task, '[loadTask] task found')
+      return task
+    } else {
+      console.error(`Task with id ${taskId} not found.`)
+      return undefined
+    }
   } catch (error) {
     console.error('[loadTask]', error)
-    throw error
-  }
-}
-
-async function loadMetadataOfTaskList(listId: string): Promise<TaskList> {
-  let taskList: TaskList = TaskListUndefined
-  let lastEvaluatedKey: Record<string, any> | undefined
-
-  try {
-    do {
-      const scanParams = {
-        TableName: getTableName(TABLE_NAME_TASKLIST_METADATA),
-        ExclusiveStartKey: lastEvaluatedKey,
-      }
-
-      const command = new ScanCommand(scanParams)
-      const response = await dbClient().send(command)
-
-      if (response.Items) {
-        const taskListMetadataReceived = response.Items as TaskListMetadata[]
-        const taskListMetadataForGivenListIdReceived = taskListMetadataReceived.find(
-          (taskList) => taskList.id === listId
-        )
-
-        if (taskListMetadataForGivenListIdReceived)
-          // We found the metadata for the given list ID.
-          // Take the metadata and convert it to a task list by
-          // adding an empty task array.
-          taskList = {
-            ...taskListMetadataForGivenListIdReceived,
-            tasks: [],
-          }
-      }
-
-      lastEvaluatedKey = response.LastEvaluatedKey
-    } while (lastEvaluatedKey)
-
-    return taskList
-  } catch (error) {
-    console.error('[loadMetadataOfTaskList]', error)
     throw error
   }
 }

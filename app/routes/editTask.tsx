@@ -19,13 +19,11 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
   console.log('[editTask.loader] starting')
   await requireAuth(request)
   const url = new URL(request.url)
-  const listId = url.searchParams.get('listId')
   const taskId = url.searchParams.get('taskId')
 
-  if (!listId) throw new Error('[editTask.loader] No list ID provided')
   if (!taskId) throw new Error('[editTask.loader] No task ID provided')
 
-  const task = await loadTask(listId, taskId)
+  const task = await loadTask(taskId)
   if (!task) throw new Error('[editTask.loader] Failed to load task')
 
   return json<LoaderData>({ task })
@@ -143,7 +141,7 @@ export const action: ActionFunction = async ({ request }) => {
   console.log(`[editTask.action] listId: '${listId}'`)
   printObject(task, `[editTask.action] updated task`)
 
-  await saveTask(listId, task)
+  await saveTask(task)
 
   return redirect(`/${listId}`)
 }

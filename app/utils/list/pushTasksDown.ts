@@ -21,6 +21,6 @@ export const pushTasksDown = async (listId: string, boardColumn: BoardColumn): P
   for (const task of tasksInColumn) {
     console.log(`[pushTasksDown] pushing down task '${task.title}'`)
     task.position++
-    await saveTask(listId, task)
+    await saveTask(task)
   }
 }

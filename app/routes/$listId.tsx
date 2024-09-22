@@ -239,7 +239,7 @@ export default function ListView() {
                   <div className="flex space-x-6">
                     {showTools && (
                       <Link
-                        to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
+                        to={`/editTask?taskId=${task.id}&boardColumn=${currentBoardColumn}`}
                         className="text-blue-500 hover:text-blue-700"
                         onClick={() => handleEdit(task.id)}
                         >
@@ -319,7 +319,7 @@ export const action = async ({ request }: { request: Request }) => {
   try {
     switch (intent) {
       case 'delete': {
-        const taskToDelete = await loadTask(listId, taskId)
+        const taskToDelete = await loadTask(taskId)
         if (!taskToDelete) throw new Error(`Could not find task '${taskId}' to delete.`)
 
         const boardColumnOfDeletedTask = taskToDelete.boardColumn
@@ -333,7 +333,7 @@ export const action = async ({ request }: { request: Request }) => {
 
       case 'move': {
         const targetColumn = formData.get('targetColumn') as BoardColumn
-        const taskToUpdate = await loadTask(listId, taskId)
+        const taskToUpdate = await loadTask(taskId)
         if (!taskToUpdate) throw new Error(`Could not find task '${taskId}' to update.`)
 
         const boardColumnSoFar = taskToUpdate.boardColumn
@@ -351,7 +351,7 @@ export const action = async ({ request }: { request: Request }) => {
         await pushTasksDown(listId, targetColumn)
 
         // Save the updated task.
-        await updateBoardColumn(listId, updatedTask)
+        await updateBoardColumn(updatedTask)
 
         // Move all tasks below the moved task up one position.
         await moveUpTasksBelowPosition(listId, boardColumnSoFar, positionSoFar)
@@ -363,7 +363,7 @@ export const action = async ({ request }: { request: Request }) => {
         const targetTaskId = formData.get('targetTaskId') as string
 
         console.log(`[$listId.action] Swapping tasks ${listId}, ${taskId}, ${targetTaskId}`)
-        await swapTasks(listId, taskId, targetTaskId)
+        await swapTasks(taskId, targetTaskId)
 
         return json({ success: true, message: 'Task reordered successfully' })
       }

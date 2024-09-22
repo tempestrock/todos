@@ -12,13 +12,12 @@ import { getTableName, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
  * @param {Task} task - The task to be saved.
  * @return {Promise<void>} A promise that resolves when the task has been saved.
  */
-export async function saveTask(listId: string, task: Task): Promise<void> {
+export async function saveTask(task: Task): Promise<void> {
   try {
     // Check if the task already exists.
     const getParams = {
       TableName: getTableName(TABLE_NAME_TASKS),
       Key: {
-        listId,
         id: task.id,
       },
     }
@@ -32,7 +31,6 @@ export async function saveTask(listId: string, task: Task): Promise<void> {
       const updateParams = {
         TableName: getTableName(TABLE_NAME_TASKS),
         Key: {
-          listId: listId,
           id: task.id,
         },
         UpdateExpression: 'set #title = :t, details = :d, boardColumn = :b, #position = :p, updatedAt = :u',
@@ -77,13 +75,12 @@ export async function saveTask(listId: string, task: Task): Promise<void> {
  * @return {Promise<void>} A promise that resolves when the update is successful.
  * @throws {Error} If the task does not exist in the database.
  */
-export async function updateBoardColumn(listId: string, task: Task): Promise<void> {
+export async function updateBoardColumn(task: Task): Promise<void> {
   try {
     // Check if the task already exists.
     const getParams = {
       TableName: getTableName(TABLE_NAME_TASKS),
       Key: {
-        listId,
         id: task.id,
       },
     }
@@ -97,7 +94,6 @@ export async function updateBoardColumn(listId: string, task: Task): Promise<voi
     const updateParams = {
       TableName: getTableName(TABLE_NAME_TASKS),
       Key: {
-        listId: listId,
         id: task.id,
       },
       UpdateExpression: 'set #position = :p, boardColumn = :b, updatedAt = :u',

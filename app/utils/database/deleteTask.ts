@@ -17,7 +17,6 @@ export async function deleteTask(listId: string, taskId: string): Promise<void> 
     const getParams = {
       TableName: getTableName(TABLE_NAME_TASKS),
       Key: {
-        listId,
         id: taskId,
       },
     }
@@ -33,7 +32,6 @@ export async function deleteTask(listId: string, taskId: string): Promise<void> 
     const deleteParams = {
       TableName: getTableName(TABLE_NAME_TASKS),
       Key: {
-        listId,
         id: taskId,
       },
     }
