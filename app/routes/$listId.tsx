@@ -46,8 +46,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   printObject(request, '[$listId.loader] request')
   printObject(params, '[$listId.loader] params')
 
-  await new Promise((resolve) => setTimeout(resolve, 400)) // Simulate sleep
-
   await requireAuth(request)
 
   try {
@@ -105,6 +103,11 @@ export default function ListView() {
   }
 
   const toggleTools = () => setShowTools((prev) => !prev)
+
+  const handleEdit = (taskId: string) => {
+    console.log('[handleEdit] taskId:', taskId)
+    setLoadingTaskId(taskId)
+  }
 
   const handleDelete = (taskId: string) => {
     setLoadingTaskId(taskId)
@@ -240,6 +243,7 @@ export default function ListView() {
                   <div className="flex space-x-6">
                     {showTools && (
                       <Link
+                        onClick={() => handleEdit(task.id)}
                         to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
                         className="text-blue-500 hover:text-blue-700"
                       >
@@ -296,7 +300,7 @@ export default function ListView() {
                 </div>
                 {/* Spinner Overlay */}
                 {loadingTaskId === task.id && (
-                  <div className="absolute inset-0 bg-gray-900 bg-opacity-70 flex justify-center items-center z-10">
+                  <div className="absolute inset-0 bg-gray-900 bg-opacity-65 flex justify-center items-center z-10">
                     <Spinner size={40} lightModeColor="text-gray-100" />
                   </div>
                 )}

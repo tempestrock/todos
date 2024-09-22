@@ -1,7 +1,8 @@
 import { json, LoaderFunction, LoaderFunctionArgs } from '@remix-run/node'
-import { useActionData, Form, redirect, useLoaderData } from '@remix-run/react'
+import { useActionData, Form, redirect, useLoaderData, useNavigation } from '@remix-run/react'
 import { useEffect, useRef } from 'react'
 
+import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { User } from '~/types/dataTypes'
 import { getCurrentUser } from '~/utils/auth/auth'
@@ -47,6 +48,7 @@ export const action = authAction
 export default function Auth() {
   const { challengeName } = useLoaderData<LoaderData>()
   const actionData = useActionData<ActionData>()
+  const navigation = useNavigation()
   const usernameInputRef = useRef<HTMLInputElement>(null)
   const { t } = useTranslation()
 
@@ -64,17 +66,12 @@ export default function Auth() {
         <h1 className="text-3xl text-gray-900 dark:text-gray-100 flex justify-center mt-8 mb-4">Todos</h1>
         <div>
           <h2 className="flex justify-center text-xl text-gray-900 dark:text-gray-100 my-4">{`${t['set-new-password']}`}</h2>
+
           <div className="mx-auto flex justify-center">
             <Form method="post" className="w-64" autoComplete="off">
               <input type="hidden" name="action" value="completeNewPassword" />
               {/* This hidden field is just to prefent browsers from crazy autofilling the password field. */}
-              <input
-                type="text"
-                name="username"
-                autoComplete="username"
-                value=""
-                style={{ display: 'none' }}
-              />
+              <input type="text" name="username" autoComplete="username" value="" style={{ display: 'none' }} />
               <div className="flex flex-col items-start">
                 <input
                   type="password"
@@ -88,7 +85,11 @@ export default function Auth() {
                   className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded mt-6 pt-1 px-2 pb-1"
                   type="submit"
                 >
-                  {t['set-password']}
+                  {navigation.state === 'submitting' ? (
+                    <Spinner size={24} lightModeColor="text-gray-100" />
+                  ) : (
+                    t['set-password']
+                  )}
                 </button>
               </div>
             </Form>
@@ -132,7 +133,11 @@ export default function Auth() {
                   className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded mt-6 pt-1 px-2 pb-1"
                   type="submit"
                 >
-                  {t['sign-in']}
+                  {navigation.state === 'submitting' ? (
+                    <Spinner size={24} lightModeColor="text-gray-100" />
+                  ) : (
+                    t['sign-in']
+                  )}
                 </button>
               </div>
             </Form>

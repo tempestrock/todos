@@ -10,8 +10,8 @@ const Spinner = ({ size = 36, lightModeColor = 'text-gray-900', darkModeColor = 
   return (
     <div className="flex justify-center items-center h-full">
       <LoaderCircle
-        className={`animate-spin ${lightModeColor} dark:${darkModeColor}`} // Apply color based on light or dark mode
-        style={{ width: size, height: size }} // Dynamically set width and height
+        className={`animate-spin ${lightModeColor} dark:${darkModeColor}`} // Apply color based on light or dark mode.
+        style={{ width: size, height: size }} // Dynamically set width and height.
       />
     </div>
   )

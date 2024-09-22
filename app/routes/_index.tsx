@@ -66,7 +66,7 @@ export default function HomeView() {
               to={`/${list.id}`}
               className={`w-full text-white text-2xl py-4 rounded block text-center transition-all duration-200 ease-in-out relative overflow-hidden group`}
               style={{
-                backgroundColor: loadingListId ? (loadingListId === list.id ? 'gray' : list.color) : list.color, // Keep original color when not clicked
+                backgroundColor: loadingListId ? (loadingListId === list.id ? '#444444' : list.color) : list.color, // Keep original color when not clicked
               }}
               onClick={() => handleClick(list.id)}
             >
