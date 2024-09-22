@@ -39,11 +39,9 @@ export default function HomeView() {
   const { todoLists, user, success } = useLoaderData<LoaderData>()
   const { t } = useTranslation()
   const [loadingListId, setLoadingListId] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const handleClick = (listId: string) => {
     setLoadingListId(listId)
-    setIsLoading(true)
   }
 
   if (success)
@@ -60,20 +58,22 @@ export default function HomeView() {
           <MoreMenu />
         </div>
 
-        {/* List of todo list buttons */}
+        {/* List of todo list buttons. Lists get the defined colors. When clicking a list, all list get gray. */}
         <div className="grid grid-cols-1 gap-4">
           {todoLists.map((list) => (
             <Link
               key={list.id}
               to={`/${list.id}`}
               className={`w-full text-white text-2xl py-4 rounded block text-center transition-all duration-200 ease-in-out relative overflow-hidden group`}
-              style={{ backgroundColor: list.color }}
+              style={{
+                backgroundColor: loadingListId ? (loadingListId === list.id ? 'gray' : list.color) : list.color, // Keep original color when not clicked
+              }}
               onClick={() => handleClick(list.id)}
             >
               {loadingListId === list.id ? (
-                <Spinner />
+                <Spinner lightModeColor="text-gray-100" />
               ) : (
-                <span className={`relative z-10`}>{list.displayName}</span>
+                <span className="relative z-10">{list.displayName}</span>
               )}
               <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-25 transition-opacity duration-200 ease-in-out"></div>
             </Link>

@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { Link, Outlet, useLoaderData, useSubmit } from '@remix-run/react'
+import { Link, Outlet, useLoaderData, useNavigation, useSubmit } from '@remix-run/react'
 import {
   ArrowDownFromLine,
   ArrowLeftFromLine,
@@ -14,9 +14,10 @@ import {
   PanelTopOpen,
   Trash2,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
+import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, TaskList, BoardColumn, Task } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
@@ -45,6 +46,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   printObject(request, '[$listId.loader] request')
   printObject(params, '[$listId.loader] params')
 
+  await new Promise((resolve) => setTimeout(resolve, 400)) // Simulate sleep
+
   await requireAuth(request)
 
   try {
@@ -69,11 +72,27 @@ export default function ListView() {
   const listId = taskList.id
   const listColor = taskList.color
   const boardColumns = Object.values(BoardColumn)
+  const navigation = useNavigation() // hook to track the navigation state
+
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
   const [showTools, setShowTools] = useState(false)
   const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
+  const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null)
+  const [loadingHome, setLoadingHome] = useState<boolean>(false)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
   const { t } = useTranslation()
+
+  useEffect(() => {
+    if (navigation.state === 'idle') {
+      // Reset spinner once the navigation completes. This is necessary for
+      // the spinner of the reordering and movement of tasks to work correctly.
+      setLoadingTaskId(null)
+    }
+  }, [navigation.state])
+
+  const handleHomeClick = () => {
+    setLoadingHome(true)
+  }
 
   const handleColumnChange = (index: number) => setCurrentBoardColumnIndex(index)
 
@@ -88,6 +107,7 @@ export default function ListView() {
   const toggleTools = () => setShowTools((prev) => !prev)
 
   const handleDelete = (taskId: string) => {
+    setLoadingTaskId(taskId)
     if (confirm('Are you sure you want to delete this task?')) {
       // Call the action to delete the task in the database.
       submit({ intent: 'delete', listId, taskId }, { method: 'post' })
@@ -95,6 +115,7 @@ export default function ListView() {
   }
 
   const handleMove = (taskId: string, direction: 'prev' | 'next') => {
+    setLoadingTaskId(taskId)
     const currentIndex = boardColumns.indexOf(currentBoardColumn)
     const targetColumn = direction === 'prev' ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
 
@@ -103,6 +124,7 @@ export default function ListView() {
   }
 
   const handleReorder = (taskId: string, direction: 'up' | 'down') => {
+    setLoadingTaskId(taskId)
     const currentTask = taskList.tasks.find((task) => task.id === taskId)
     if (!currentTask) throw new Error(`[handleReorder] currentTask with id '${taskId}' not found`)
 
@@ -135,8 +157,8 @@ export default function ListView() {
       <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-10 shadow-md">
         <div className="container mx-auto p-4 flex justify-between items-center">
           {/* Home Button */}
-          <Link to="/" className="text-xs text-blue-500 hover:text-blue-700">
-            <Home size={24} />
+          <Link to="/" className="text-xs text-blue-500 hover:text-blue-700" onClick={() => handleHomeClick()}>
+            {loadingHome ? <Spinner size={24} lightModeColor="text-blue-500" /> : <Home size={24} />}
           </Link>
 
           {/* Tools Button */}
@@ -198,7 +220,9 @@ export default function ListView() {
                       <div>
                         {t['created']}: {getNiceDateTime(task.createdAt)}
                       </div>
-                      <div>{t['updated']}: {getNiceDateTime(task.updatedAt)}</div>
+                      <div>
+                        {t['updated']}: {getNiceDateTime(task.updatedAt)}
+                      </div>
                     </div>
                     <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
                       <ReactMarkdown
@@ -270,6 +294,12 @@ export default function ListView() {
                     </button>
                   )}
                 </div>
+                {/* Spinner Overlay */}
+                {loadingTaskId === task.id && (
+                  <div className="absolute inset-0 bg-gray-900 bg-opacity-70 flex justify-center items-center z-10">
+                    <Spinner size={40} lightModeColor="text-gray-100" />
+                  </div>
+                )}
               </li>
             ))}
         </ul>
