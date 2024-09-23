@@ -239,7 +239,7 @@ export default function ListView() {
                   <div className="flex space-x-6">
                     {showTools && (
                       <Link
-                        to={`/editTask?taskId=${task.id}&boardColumn=${currentBoardColumn}`}
+                        to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
                         className="text-blue-500 hover:text-blue-700"
                         onClick={() => handleEdit(task.id)}
                         >
