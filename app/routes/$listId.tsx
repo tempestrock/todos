@@ -26,6 +26,7 @@ import { loadTask } from '~/utils/database/loadTask'
 import { loadTaskList } from '~/utils/database/loadTaskList'
 import { updateBoardColumn } from '~/utils/database/saveAndUpdateData'
 import { getNiceDateTime, getNow } from '~/utils/dateAndTime'
+import { LANG_DEFAULT } from '~/utils/language'
 import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
@@ -76,6 +77,8 @@ export default function ListView() {
   const [loadingHome, setLoadingHome] = useState<boolean>(false)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
   const { t } = useTranslation()
+  let lang = localStorage.getItem('lang')
+  if (!lang) lang = LANG_DEFAULT
 
   useEffect(() => {
     if (navigation.state === 'idle') {
@@ -217,10 +220,10 @@ export default function ListView() {
                   <div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
                       <div>
-                        {t['created']}: {getNiceDateTime(task.createdAt)}
+                        {t['created']}: {getNiceDateTime(task.createdAt, lang)}
                       </div>
                       <div>
-                        {t['updated']}: {getNiceDateTime(task.updatedAt)}
+                        {t['updated']}: {getNiceDateTime(task.updatedAt, lang)}
                       </div>
                     </div>
                     <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
@@ -242,7 +245,7 @@ export default function ListView() {
                         to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
                         className="text-blue-500 hover:text-blue-700"
                         onClick={() => handleEdit(task.id)}
-                        >
+                      >
                         <FilePenLine size={20} />
                       </Link>
                     )}

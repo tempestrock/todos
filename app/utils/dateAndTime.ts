@@ -1,3 +1,4 @@
+import { LANG_DE } from './language'
 import { DateTimeString } from '~/types/dataTypes'
 
 export const getNow = (): DateTimeString => {
@@ -34,7 +35,7 @@ export const getNow = (): DateTimeString => {
   return `${year}-${month}-${day}_${hours}:${minutes}:${seconds}`
 }
 
-export const getNiceDateTime = (dateTime: DateTimeString): string => {
+export const getNiceDateTime = (dateTime: DateTimeString, language: string): string => {
   const [datePart, timePart] = dateTime.split('_')
   const [year, month, day] = datePart.split('-')
   const [hours, minutes] = timePart.split(':')
@@ -67,7 +68,7 @@ export const getNiceDateTime = (dateTime: DateTimeString): string => {
   const time = `${hours}:${minutes}`
 
   if (isToday) {
-    return `today, ${time}`
+    return `${language === LANG_DE ? 'heute' : 'today'}, ${time}`
   } else if (isCurrentYear) {
     return `${day}.${month}., ${time}`
   } else {

@@ -3,6 +3,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/reac
 import { useEffect, useState } from 'react'
 
 import { UNDEF } from './types/dataTypes'
+import { LANG_DEFAULT } from './utils/language'
 import { TranslationProvider } from '~/contexts/TranslationContext'
 import styles from '~/styles/tailwind.css?url'
 
@@ -48,8 +49,8 @@ export default function App(): JSX.Element {
       if (lang) {
         setLanguage(lang)
       } else {
-        // If no language preference is set, default to English.
-        setLanguage('en')
+        // If no language preference is set, set to default.
+        setLanguage(LANG_DEFAULT)
       }
     }
   }, [])
