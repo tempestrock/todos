@@ -77,7 +77,7 @@ export default function ListView() {
   const [loadingHome, setLoadingHome] = useState<boolean>(false)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
   const { t } = useTranslation()
-  const lang = localStorage.getItem('lang') || LANG_DEFAULT
+  const lang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
   useEffect(() => {
     if (navigation.state === 'idle') {
