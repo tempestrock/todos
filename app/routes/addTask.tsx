@@ -116,7 +116,7 @@ export const action: ActionFunction = async ({ request }) => {
     listId,
     createdAt: nowStr,
     updatedAt: nowStr,
-    labels: [],
+    labelIds: [],
   }
 
   console.log(`[addTask.action] listId: '${listId}'`)

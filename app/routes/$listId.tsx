@@ -22,6 +22,7 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, TaskList, BoardColumn, Task } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
 import { deleteTask } from '~/utils/database/deleteTask'
+import { loadLabels } from '~/utils/database/loadLabels'
 import { loadTask } from '~/utils/database/loadTask'
 import { loadTaskList } from '~/utils/database/loadTaskList'
 import { updateBoardColumn } from '~/utils/database/saveAndUpdateData'
@@ -54,7 +55,17 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     // Sort tasks by position.
     taskList.tasks.sort((a, b) => a.position - b.position)
 
-    return json<LoaderData>({ taskList, labels: [] })
+    // Collect all label IDs from tasks
+    const labelIdsSet = new Set<string>()
+    taskList.tasks.forEach((task) => {
+      task.labelIds.forEach((labelId) => labelIdsSet.add(labelId))
+    })
+    const labelIds = Array.from(labelIdsSet)
+
+    // Load labels from the database
+    const labels = await loadLabels(labelIds)
+
+    return json<LoaderData>({ taskList, labels })
   } catch (error) {
     console.error('[$listId.loader] Error loading tasks:', error)
     return json({ error: '[$listId.loader] Failed to load tasks' }, { status: 500 })
@@ -62,7 +73,12 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 }
 
 export default function ListView() {
-  const { taskList } = useLoaderData<LoaderData>()
+  const { taskList, labels } = useLoaderData<LoaderData>()
+
+  // Creating a map of labels for efficient lookup.
+  const labelsMap = new Map<string, Label>()
+  labels.forEach((label) => labelsMap.set(label.id, label))
+
   const submit = useSubmit()
 
   const listId = taskList.id
@@ -213,6 +229,19 @@ export default function ListView() {
                   <div className={`text-gray-500 ${task.details === '' ? 'opacity-50' : ''}`}>
                     {visibleTaskDetails[task.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </div>
+                </div>
+
+                {/* Labels of the task */}
+                <div>
+                  {task.labelIds.map((labelId) => {
+                    const label = labelsMap.get(labelId)
+                    if (!label) return null
+                    return (
+                      <span key={label.id} className="px-2 py-1 mr-2 rounded text-xs text-gray-100" style={{ backgroundColor: label.color }}>
+                        {label.displayName[lang] || label.displayName[lang]}
+                      </span>
+                    )
+                  })}
                 </div>
 
                 {visibleTaskDetails[task.id] && (

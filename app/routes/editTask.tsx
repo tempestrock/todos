@@ -135,7 +135,7 @@ export const action: ActionFunction = async ({ request }) => {
     listId,
     createdAt,
     updatedAt: getNow(),
-    labels: [],
+    labelIds: [],
   }
 
   console.log(`[editTask.action] listId: '${listId}'`)

@@ -3,7 +3,7 @@
 # Variables
 REGION="eu-central-1"
 
-DB_POSTFIX="prod" # HUGO: make this a parameter of the script
+DB_POSTFIX="dev" # HUGO: make this a parameter of the script
 
 # Function to create a DynamoDB table
 create_table() {
@@ -20,13 +20,9 @@ create_table() {
   echo "${table_name} created successfully."
 }
 
-# Create TaskListMetadata table
 # create_table "TaskListMetadata"
-
-# Create Tasks table
-create_table "Tasks"
-
-# Create Users table
+# create_table "Tasks"
 # create_table "Users"
+create_table "Labels"
 
 echo "All tables created successfully."

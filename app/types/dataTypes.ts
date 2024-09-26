@@ -31,7 +31,7 @@ export type Task = {
   listId: string
   createdAt: DateTimeString
   updatedAt: DateTimeString
-  labels: string[]
+  labelIds: string[]
 }
 
 // Enum to represent board columns.
@@ -41,18 +41,11 @@ export enum BoardColumn {
   DONE = 'done',
 }
 
-// Label structure with name and color
 export type Label = {
-  name: string
+  id: string
+  displayName: { [key: string]: string }
   color: string
 }
-
-// List of available labels (with the restriction that label names must be unique)
-export const availableLabels: Label[] = [
-  { name: 'Urgent', color: 'red' },
-  { name: 'Home', color: 'blue' },
-  { name: 'Work', color: 'green' },
-]
 
 export type User = {
   id: string

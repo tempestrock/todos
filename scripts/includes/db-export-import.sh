@@ -11,7 +11,7 @@
 export_tables() {
   source_environment=$1 # environment name to use for export
   target_environment=$2 # environment name to use for later import - necessary to prepare the data already via this script
-  table_names=(TaskListMetadata Tasks Users)
+  table_names=(TaskListMetadata Tasks Users Labels)
 
   if [[ ${TABLE_DIR} == '' ]]; then
     export TABLE_DIR=table-data # directory to store exported data
