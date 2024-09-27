@@ -3,7 +3,7 @@
 # Variables
 REGION="eu-central-1"
 
-DB_POSTFIX="dev" # HUGO: make this a parameter of the script
+DB_POSTFIX="prod" # HUGO: make this a parameter of the script
 
 # Function to create a DynamoDB table
 create_table() {

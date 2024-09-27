@@ -232,7 +232,7 @@ export default function ListView() {
                 </div>
 
                 {/* Labels of the task */}
-                <div>
+                <div className='mb-2'>
                   {task.labelIds.map((labelId) => {
                     const label = labelsMap.get(labelId)
                     if (!label) return null

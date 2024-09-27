@@ -1,5 +1,6 @@
 import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } from '@remix-run/node'
 import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
+import { ChevronDown, ChevronUp, CirclePlus, CircleX } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 
 import Spinner from '~/components/Spinner'
@@ -81,7 +82,7 @@ export default function EditTaskView() {
 
   const handleAddLabel = (labelId: string) => {
     setTaskLabels((prevLabels) => [...prevLabels, labelId])
-    setShowAddLabel(false)
+    // setShowAddLabel(false)
   }
 
   const availableLabels = labels.filter((label) => !taskLabels.includes(label.id))
@@ -97,7 +98,7 @@ export default function EditTaskView() {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl text-gray-900 dark:text-gray-100 font-semibold mb-4">{t['edit-task']}</h2>
+      <h2 className="text-2xl text-gray-900 dark:text-gray-100 font-semibold mb-4">{t['edit-task']}</h2>
 
       <Form method="post">
         <input type="hidden" name="listId" value={listId} />
@@ -111,126 +112,146 @@ export default function EditTaskView() {
           <input type="hidden" name="labelIds" value={labelId} key={labelId} />
         ))}
 
-        <input
-          ref={titleInputRef}
-          type="text"
-          name="taskTitle"
-          placeholder="Task Title"
-          className="w-full p-2 border rounded mb-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
-          value={taskTitle}
-          onChange={(e) => setTaskTitle(e.target.value)}
-        />
+        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded pt-4 px-2">
+          {/* Task title field */}
+          <input
+            ref={titleInputRef}
+            type="text"
+            name="taskTitle"
+            placeholder="Task Title"
+            className="w-full p-2 border border-blue-300 rounded mb-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 dark:border-gray-700"
+            value={taskTitle}
+            onChange={(e) => setTaskTitle(e.target.value)}
+          />
 
-        <textarea
-          name="taskDetails"
-          placeholder="Task Details"
-          className="w-full p-2 border rounded mb-4 h-48 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
-          value={taskDetails}
-          onChange={(e) => setTaskDetails(e.target.value)}
-        />
-
-        {/* Display assigned labels */}
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2">{t['labels-assigned']}:</h3>
-          <ul className="space-y-2">
-            {taskLabels.map((labelId) => {
-              const label = labelsMap.get(labelId)
-              if (!label) return null
-              return (
-                <li key={label.id} className="flex items-center space-x-2">
-                  <span className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
-                    {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveLabel(label.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    {t['remove']}
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
-          <button
-            type="button"
-            onClick={() => setShowAddLabel(true)}
-            className="mt-2 text-blue-500 hover:text-blue-700"
-          >
-            {t['add-label']}
-          </button>
+          {/* Task details field */}
+          <textarea
+            name="taskDetails"
+            placeholder="Task Details"
+            className="w-full p-2 border rounded mb-4 h-48 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+            value={taskDetails}
+            onChange={(e) => setTaskDetails(e.target.value)}
+          />
         </div>
 
-        {/* Add label selection */}
-        {showAddLabel && (
-          <div className="mb-4">
-            <h3 className="font-semibold mb-2">{t['select-label-to-add']}:</h3>
-            <ul className="space-y-2">
-              {availableLabels.map((label) => (
-                <li key={label.id} className="flex items-center space-x-2">
-                  <span className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
-                    {label.displayName[lang] || label.displayName['en']}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleAddLabel(label.id)}
-                    className="text-green-500 hover:text-green-700"
-                  >
-                    {t['add']}
-                  </button>
-                </li>
-              ))}
-            </ul>
+        {/* Assigned labels */}
+        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded my-4 pt-3 px-2">
+          {taskLabels.length > 0 && (
+            <div>
+              <div className="text-xl text-gray-900 dark:text-gray-100 ml-2 mb-3">{t['labels-assigned']}</div>
+              <ul className="space-y-2">
+                {taskLabels.map((labelId) => {
+                  const label = labelsMap.get(labelId)
+                  if (!label) return null
+                  return (
+                    <li key={label.id} className="flex items-center space-x-2">
+                      <span className="ml-4 px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
+                        {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveLabel(label.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <CircleX size={20} />
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
 
-            {/* Create New Label Section */}
-            <div className="mt-4">
-              <h3 className="font-semibold mb-2">{t['create-new-label']}:</h3>
-              {ALL_LANGUAGES.map((langCode) => (
-                <div key={langCode} className="mb-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {`${t['display-name']} (${langCode.toUpperCase()})`}
+              <hr className="mt-6 mb-4 mx-2 border-gray-300 dark:border-blue-700" />
+            </div>
+          )}
+
+          {/* Add labels button */}
+          <button
+            type="button"
+            onClick={() => setShowAddLabel(!showAddLabel)}
+            className="mt-2 mb-4 ml-2 text-xl text-gray-900 dark:text-gray-100"
+          >
+            <div className="flex items-center gap-2">
+              {t['new-labels']}{' '}
+              {taskLabels.length === 0 || showAddLabel ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+            </div>
+          </button>
+
+          {/* Add label selection */}
+          {(taskLabels.length === 0 || showAddLabel) && (
+            <div className="mb-4">
+              {availableLabels.length > 0 && (
+                <div className="mb-4">
+                  <div className="text-gray-900 dark:text-gray-100 font-semibold ml-2 mb-2">{t['add']}:</div>
+
+                  <ul className="space-y-2">
+                    {availableLabels.map((label) => (
+                      <li key={label.id} className="flex items-center space-x-2">
+                        <span className="ml-4 px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
+                          {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleAddLabel(label.id)}
+                          className="text-green-500 hover:text-green-700"
+                        >
+                          <CirclePlus size={20} />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <hr className="mt-6 mb-4 ml-2 w-1/4 border-gray-300 dark:border-blue-700" />
+                </div>
+              )}
+
+              {/* Create New Label Section */}
+              <div>
+                <div className="text-gray-900 dark:text-gray-100 font-semibold ml-2 mb-2">{t['create']}:</div>
+
+                {ALL_LANGUAGES.map((langCode) => (
+                  <div key={langCode} className="mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mx-2">
+                      {`${t['display-name']} (${langCode.toUpperCase()})`}
+                    </label>
+
+                    <input
+                      type="text"
+                      value={newLabelNames[langCode] || ''}
+                      onChange={(e) => handleNewLabelNameChange(langCode, e.target.value)}
+                      className="mt-1 ml-2 w-11/12 py-2 pl-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                    />
+                  </div>
+                ))}
+
+                <div className="mb-2">
+                  <label className="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t['color']}
                   </label>
                   <input
                     type="text"
-                    value={newLabelNames[langCode] || ''}
-                    onChange={(e) => handleNewLabelNameChange(langCode, e.target.value)}
-                    className="mt-1 block w-full p-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                    value={newLabelColor}
+                    onChange={(e) => handleNewLabelColorChange(e.target.value)}
+                    placeholder="#FF0000, blue, etc."
+                    className="mt-1 ml-2 w-11/12 py-2 pl-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
                   />
                 </div>
-              ))}
-              <div className="mb-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t['color']}</label>
-                <input
-                  type="text"
-                  value={newLabelColor}
-                  onChange={(e) => handleNewLabelColorChange(e.target.value)}
-                  placeholder="#FF0000"
-                  className="mt-1 block w-full p-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
-                />
-              </div>
 
-              <input type="hidden" name="newLabelNames" value={JSON.stringify(newLabelNames)} />
-              <input type="hidden" name="newLabelColor" value={newLabelColor} />
+                <input type="hidden" name="newLabelNames" value={JSON.stringify(newLabelNames)} />
+                <input type="hidden" name="newLabelColor" value={newLabelColor} />
 
-              <div className="flex items-center space-x-4">
-                <button
-                  type="submit"
-                  className="mt-2 text-green-500 hover:text-green-700"
-                  disabled={navigation.state === 'submitting'} // Disable the button during form submission
-                >
-                  {navigation.state === 'submitting' ? <Spinner size={24} /> : t['add-new-label']}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowAddLabel(false)}
-                  className="mt-2 text-gray-500 hover:text-gray-700"
-                >
-                  {t['cancel']}
-                </button>
+                <div className="ml-4 flex items-center space-x-4">
+                  <button
+                    type="submit"
+                    className="mt-2 text-green-500 hover:text-green-700"
+                    disabled={navigation.state === 'submitting'} // Disable the button during form submission
+                  >
+                    {navigation.state === 'submitting' ? <Spinner size={24} /> : t['add-new-label']}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="flex justify-end space-x-2">
           <button
