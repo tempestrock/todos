@@ -9,8 +9,10 @@ import { requireAuth } from '~/utils/auth/session.server'
 import { loadAllLabels } from '~/utils/database/loadAllLabels'
 import { loadTask } from '~/utils/database/loadTask'
 import { saveTask } from '~/utils/database/saveAndUpdateData'
+import { saveLabel } from '~/utils/database/saveLabel'
 import { getNow } from '~/utils/dateAndTime'
-import { LANG_DEFAULT } from '~/utils/language'
+import { getUid } from '~/utils/getUid'
+import { ALL_LANGUAGES, LANG_DEFAULT } from '~/utils/language'
 import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
@@ -52,8 +54,14 @@ export default function EditTaskView() {
 
   const titleInputRef = useRef<HTMLInputElement>(null)
 
+  // State for new label creation
+  const [newLabelNames, setNewLabelNames] = useState<{ [key: string]: string }>({})
+  const [newLabelColor, setNewLabelColor] = useState('')
+  const [isCreatingLabel, setIsCreatingLabel] = useState(false)
+  const [labelCreationError, setLabelCreationError] = useState('')
+
   useEffect(() => {
-    // Directly put the cursor into the title field.
+    // Focus on the title input field
     if (titleInputRef.current) {
       titleInputRef.current.focus()
     }
@@ -65,7 +73,7 @@ export default function EditTaskView() {
     }
   }, [task])
 
-  // Create a Map of labels for efficient lookup.
+  // Create a Map of labels for efficient lookup
   const labelsMap = new Map<string, Label>()
   labels.forEach((label) => labelsMap.set(label.id, label))
 
@@ -79,6 +87,49 @@ export default function EditTaskView() {
   }
 
   const availableLabels = labels.filter((label) => !taskLabels.includes(label.id))
+
+  // Handle input changes for new label creation
+  const handleNewLabelNameChange = (langCode: string, value: string) => {
+    setNewLabelNames((prevNames) => ({ ...prevNames, [langCode]: value }))
+  }
+
+  const handleNewLabelColorChange = (value: string) => {
+    setNewLabelColor(value)
+  }
+
+  // Function to create a new label
+  const createNewLabel = async () => {
+    setIsCreatingLabel(true)
+    setLabelCreationError('')
+
+    try {
+      const newLabelId = getUid()
+      const newLabel: Label = {
+        id: newLabelId,
+        displayName: newLabelNames,
+        color: newLabelColor,
+      }
+
+      // Log the new label
+      console.log('Creating new label:', newLabel)
+
+      await saveLabel(newLabel)
+
+      // Update the labels state
+      setTaskLabels((prevLabels) => [...prevLabels, newLabelId])
+      labels.push(newLabel)
+      setShowAddLabel(false)
+
+      // Clear the input fields
+      setNewLabelNames({})
+      setNewLabelColor('')
+    } catch (error) {
+      console.error('Error in createNewLabel:', error)
+      setLabelCreationError(t['label-creation-failed'])
+    } finally {
+      setIsCreatingLabel(false)
+    }
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -124,7 +175,7 @@ export default function EditTaskView() {
               return (
                 <li key={label.id} className="flex items-center space-x-2">
                   <span className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
-                    {label.displayName[lang] || label.displayName['en']}
+                    {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
                   </span>
                   <button
                     type="button"
@@ -166,13 +217,57 @@ export default function EditTaskView() {
                 </li>
               ))}
             </ul>
-            <button
-              type="button"
-              onClick={() => setShowAddLabel(false)}
-              className="mt-2 text-gray-500 hover:text-gray-700"
-            >
-              {t['cancel']}
-            </button>
+
+            {/* Create New Label Section */}
+            <div className="mt-4">
+              <h3 className="font-semibold mb-2">{t['create-new-label']}:</h3>
+              {ALL_LANGUAGES.map((langCode) => (
+                <div key={langCode} className="mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {`${t['display-name']} (${langCode.toUpperCase()})`}
+                  </label>
+                  <input
+                    type="text"
+                    value={newLabelNames[langCode] || ''}
+                    onChange={(e) => handleNewLabelNameChange(langCode, e.target.value)}
+                    className="mt-1 block w-full p-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                  />
+                </div>
+              ))}
+              <div className="mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t['color']}</label>
+                <input
+                  type="text"
+                  value={newLabelColor}
+                  onChange={(e) => handleNewLabelColorChange(e.target.value)}
+                  placeholder="#FF0000"
+                  className="mt-1 block w-full p-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                />
+              </div>
+
+              {/* Display error message if any */}
+              {labelCreationError && <div className="text-red-500 mb-2">{labelCreationError}</div>}
+
+              <input type="hidden" name="newLabelNames" value={JSON.stringify(newLabelNames)} />
+              <input type="hidden" name="newLabelColor" value={newLabelColor} />
+
+              <div className="flex items-center space-x-4">
+                <button
+                  type="submit" // Submit the form to trigger the action
+                  className="mt-2 text-green-500 hover:text-green-700"
+                  disabled={isCreatingLabel}
+                >
+                  {isCreatingLabel ? <Spinner size={24} /> : t['add-new-label']}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddLabel(false)}
+                  className="mt-2 text-gray-500 hover:text-gray-700"
+                >
+                  {t['cancel']}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -219,6 +314,26 @@ export const action: ActionFunction = async ({ request }) => {
 
   // Get labelIds from formData
   const labelIds = formData.getAll('labelIds') as string[]
+
+  // Check if new label data exists
+  const newLabelNames = formData.get('newLabelNames') as string | null
+  const newLabelColor = formData.get('newLabelColor') as string | null
+
+  if (newLabelNames && newLabelColor) {
+    // Handle new label creation
+    const newLabelId = getUid()
+    const newLabel: Label = {
+      id: newLabelId,
+      displayName: JSON.parse(newLabelNames),
+      color: newLabelColor,
+    }
+
+    // Save the new label to the database
+    await saveLabel(newLabel)
+
+    // Add the new label to the task
+    labelIds.push(newLabelId)
+  }
 
   // Build up the updated task object.
   const task: Task = {
