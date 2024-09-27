@@ -4,15 +4,18 @@ import { useState, useEffect, useRef } from 'react'
 
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
-import { Task, BoardColumn, DateTimeString } from '~/types/dataTypes'
+import { Task, BoardColumn, DateTimeString, Label } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
+import { loadAllLabels } from '~/utils/database/loadAllLabels'
 import { loadTask } from '~/utils/database/loadTask'
 import { saveTask } from '~/utils/database/saveAndUpdateData'
 import { getNow } from '~/utils/dateAndTime'
+import { LANG_DEFAULT } from '~/utils/language'
 import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
   task: Task
+  labels: Label[]
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
@@ -26,20 +29,26 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
   const task = await loadTask(taskId)
   if (!task) throw new Error('[editTask.loader] Failed to load task')
 
-  return json<LoaderData>({ task })
+  // Load all labels
+  const labels = await loadAllLabels()
+
+  return json<LoaderData>({ task, labels })
 }
 
 export default function EditTaskView() {
-  const { task } = useLoaderData<LoaderData>()
+  const { task, labels } = useLoaderData<LoaderData>()
   const navigation = useNavigation()
   const navigate = useNavigate()
   const [taskTitle, setTaskTitle] = useState(task?.title || '')
   const [taskDetails, setTaskDetails] = useState(task?.details || '')
+  const [taskLabels, setTaskLabels] = useState<string[]>(task?.labelIds || [])
+  const [showAddLabel, setShowAddLabel] = useState(false)
   const [searchParams] = useSearchParams()
   const currentBoardColumn = searchParams.get('boardColumn') as BoardColumn
   const listId = searchParams.get('listId')
   if (!listId) throw new Error('[editTask.component] No list ID provided')
   const { t } = useTranslation()
+  const lang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
   const titleInputRef = useRef<HTMLInputElement>(null)
 
@@ -52,8 +61,24 @@ export default function EditTaskView() {
     if (task) {
       setTaskTitle(task.title)
       setTaskDetails(task.details)
+      setTaskLabels(task.labelIds || [])
     }
   }, [task])
+
+  // Create a Map of labels for efficient lookup.
+  const labelsMap = new Map<string, Label>()
+  labels.forEach((label) => labelsMap.set(label.id, label))
+
+  const handleRemoveLabel = (labelId: string) => {
+    setTaskLabels((prevLabels) => prevLabels.filter((id) => id !== labelId))
+  }
+
+  const handleAddLabel = (labelId: string) => {
+    setTaskLabels((prevLabels) => [...prevLabels, labelId])
+    setShowAddLabel(false)
+  }
+
+  const availableLabels = labels.filter((label) => !taskLabels.includes(label.id))
 
   return (
     <div className="container mx-auto p-4">
@@ -65,6 +90,11 @@ export default function EditTaskView() {
         <input type="hidden" name="boardColumn" value={currentBoardColumn} />
         <input type="hidden" name="position" value={task.position} />
         <input type="hidden" name="createdAt" value={task.createdAt} />
+
+        {/* Include hidden inputs for labelIds */}
+        {taskLabels.map((labelId) => (
+          <input type="hidden" name="labelIds" value={labelId} key={labelId} />
+        ))}
 
         <input
           ref={titleInputRef}
@@ -83,6 +113,68 @@ export default function EditTaskView() {
           value={taskDetails}
           onChange={(e) => setTaskDetails(e.target.value)}
         />
+
+        {/* Display assigned labels */}
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">{t['labels-assigned']}:</h3>
+          <ul className="space-y-2">
+            {taskLabels.map((labelId) => {
+              const label = labelsMap.get(labelId)
+              if (!label) return null
+              return (
+                <li key={label.id} className="flex items-center space-x-2">
+                  <span className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
+                    {label.displayName[lang] || label.displayName['en']}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveLabel(label.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    {t['remove']}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          <button
+            type="button"
+            onClick={() => setShowAddLabel(true)}
+            className="mt-2 text-blue-500 hover:text-blue-700"
+          >
+            {t['add-label']}
+          </button>
+        </div>
+
+        {/* Add label selection */}
+        {showAddLabel && (
+          <div className="mb-4">
+            <h3 className="font-semibold mb-2">{t['select-label-to-add']}:</h3>
+            <ul className="space-y-2">
+              {availableLabels.map((label) => (
+                <li key={label.id} className="flex items-center space-x-2">
+                  <span className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
+                    {label.displayName[lang] || label.displayName['en']}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleAddLabel(label.id)}
+                    className="text-green-500 hover:text-green-700"
+                  >
+                    {t['add']}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              onClick={() => setShowAddLabel(false)}
+              className="mt-2 text-gray-500 hover:text-gray-700"
+            >
+              {t['cancel']}
+            </button>
+          </div>
+        )}
 
         <div className="flex justify-end space-x-2">
           <button
@@ -125,6 +217,9 @@ export const action: ActionFunction = async ({ request }) => {
   if (!listId) throw new Error('[editTask.action] No list ID provided')
   if (!taskId) throw new Error('[editTask.action] No task ID provided')
 
+  // Get labelIds from formData
+  const labelIds = formData.getAll('labelIds') as string[]
+
   // Build up the updated task object.
   const task: Task = {
     id: taskId,
@@ -135,7 +230,7 @@ export const action: ActionFunction = async ({ request }) => {
     listId,
     createdAt,
     updatedAt: getNow(),
-    labelIds: [],
+    labelIds,
   }
 
   console.log(`[editTask.action] listId: '${listId}'`)

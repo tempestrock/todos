@@ -33,7 +33,8 @@ export async function saveTask(task: Task): Promise<void> {
         Key: {
           id: task.id,
         },
-        UpdateExpression: 'set #title = :t, details = :d, boardColumn = :b, #position = :p, updatedAt = :u',
+        UpdateExpression:
+          'set #title = :t, details = :d, boardColumn = :b, #position = :p, updatedAt = :u, labelIds = :l',
         ExpressionAttributeNames: {
           '#title': 'title',
           '#position': 'position',
@@ -44,6 +45,7 @@ export async function saveTask(task: Task): Promise<void> {
           ':b': task.boardColumn,
           ':p': task.position,
           ':u': task.updatedAt,
+          ':l': task.labelIds,
         },
       }
 
