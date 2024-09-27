@@ -57,8 +57,6 @@ export default function EditTaskView() {
   // State for new label creation
   const [newLabelNames, setNewLabelNames] = useState<{ [key: string]: string }>({})
   const [newLabelColor, setNewLabelColor] = useState('')
-  const [isCreatingLabel, setIsCreatingLabel] = useState(false)
-  const [labelCreationError, setLabelCreationError] = useState('')
 
   useEffect(() => {
     // Focus on the title input field
@@ -95,40 +93,6 @@ export default function EditTaskView() {
 
   const handleNewLabelColorChange = (value: string) => {
     setNewLabelColor(value)
-  }
-
-  // Function to create a new label
-  const createNewLabel = async () => {
-    setIsCreatingLabel(true)
-    setLabelCreationError('')
-
-    try {
-      const newLabelId = getUid()
-      const newLabel: Label = {
-        id: newLabelId,
-        displayName: newLabelNames,
-        color: newLabelColor,
-      }
-
-      // Log the new label
-      console.log('Creating new label:', newLabel)
-
-      await saveLabel(newLabel)
-
-      // Update the labels state
-      setTaskLabels((prevLabels) => [...prevLabels, newLabelId])
-      labels.push(newLabel)
-      setShowAddLabel(false)
-
-      // Clear the input fields
-      setNewLabelNames({})
-      setNewLabelColor('')
-    } catch (error) {
-      console.error('Error in createNewLabel:', error)
-      setLabelCreationError(t['label-creation-failed'])
-    } finally {
-      setIsCreatingLabel(false)
-    }
   }
 
   return (
@@ -245,19 +209,16 @@ export default function EditTaskView() {
                 />
               </div>
 
-              {/* Display error message if any */}
-              {labelCreationError && <div className="text-red-500 mb-2">{labelCreationError}</div>}
-
               <input type="hidden" name="newLabelNames" value={JSON.stringify(newLabelNames)} />
               <input type="hidden" name="newLabelColor" value={newLabelColor} />
 
               <div className="flex items-center space-x-4">
                 <button
-                  type="submit" // Submit the form to trigger the action
+                  type="submit"
                   className="mt-2 text-green-500 hover:text-green-700"
-                  disabled={isCreatingLabel}
+                  disabled={navigation.state === 'submitting'} // Disable the button during form submission
                 >
-                  {isCreatingLabel ? <Spinner size={24} /> : t['add-new-label']}
+                  {navigation.state === 'submitting' ? <Spinner size={24} /> : t['add-new-label']}
                 </button>
                 <button
                   type="button"
