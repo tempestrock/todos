@@ -1,3 +1,4 @@
+// ListView.tsx
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import { Link, Outlet, useLoaderData, useNavigation, useSubmit } from '@remix-run/react'
 import {
@@ -12,7 +13,7 @@ import {
   Home,
   Trash2,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
 import Spinner from '~/components/Spinner'
@@ -29,6 +30,7 @@ import { LANG_DEFAULT } from '~/utils/language'
 import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
+import { useTaskStore } from '~/utils/store/useTaskStore'
 import { capitalizeFirstLetter } from '~/utils/stringHandling'
 
 /**
@@ -72,11 +74,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export default function ListView() {
   const { taskList, labels } = useLoaderData<LoaderData>()
-
-  // Creating a map of labels for efficient lookup.
-  const labelsMap = new Map<string, Label>()
-  labels.forEach((label) => labelsMap.set(label.id, label))
-
   const submit = useSubmit()
 
   const listId = taskList.id
@@ -85,13 +82,33 @@ export default function ListView() {
   const navigation = useNavigation() // hook to track the navigation state
 
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
-  const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
-  const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null)
-  const [loadingHome, setLoadingHome] = useState<boolean>(false)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
+
   const { t } = useTranslation()
   const lang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
+  // Use the store
+  const tasks = useTaskStore((state) => state.tasks)
+  const setTasks = useTaskStore((state) => state.setTasks)
+  const visibleTaskDetails = useTaskStore((state) => state.visibleTaskDetails)
+  const toggleTaskDetails = useTaskStore((state) => state.toggleTaskDetails)
+
+  const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null)
+  const [loadingHome, setLoadingHome] = useState<boolean>(false)
+
+  // Create a map of labels for efficient lookup
+  const labelsMap = useMemo(() => {
+    const map = new Map<string, Label>()
+    labels.forEach((label) => map.set(label.id, label))
+    return map
+  }, [labels])
+
+  // Initialize tasks in the store
+  useEffect(() => {
+    setTasks(taskList.tasks)
+  }, [taskList.tasks, setTasks])
+
+  // Reset loading state when navigation is idle
   useEffect(() => {
     if (navigation.state === 'idle') {
       // Reset spinner once the navigation completes. This is necessary for
@@ -106,12 +123,9 @@ export default function ListView() {
 
   const handleColumnChange = (index: number) => setCurrentBoardColumnIndex(index)
 
-  const toggleTaskDetails = (taskId: string, event: React.MouseEvent) => {
-    event.stopPropagation() // Prevent the click from triggering other elements
-    setVisibleTaskDetails((prev) => ({
-      ...prev,
-      [taskId]: !prev[taskId],
-    }))
+  const handleToggleTaskDetails = (taskId: string, event: React.MouseEvent) => {
+    event.stopPropagation()
+    toggleTaskDetails(taskId)
   }
 
   const handleEdit = (taskId: string) => {
@@ -137,31 +151,57 @@ export default function ListView() {
 
   const handleReorder = (taskId: string, direction: 'up' | 'down') => {
     setLoadingTaskId(taskId)
-    const currentTask = taskList.tasks.find((task) => task.id === taskId)
-    if (!currentTask) throw new Error(`[handleReorder] currentTask with id '${taskId}' not found`)
 
-    const currentPosition = currentTask.position
-    const targetPosition = direction === 'up' ? currentPosition - 1 : currentPosition + 1
+    // Get the current tasks from the store
+    const currentTasks = useTaskStore.getState().tasks
 
-    // Find the task at the target position in the current column.
-    const targetTask = taskList.tasks.find(
-      (task) => task.boardColumn == currentBoardColumn && task.position === targetPosition
-    )
-    if (!targetTask)
-      throw new Error(
-        `[handleReorder] targetTask with position '${targetPosition}' not found in column '${currentBoardColumn}'`
-      )
+    // Find tasks in the current column
+    const tasksInCurrentColumn = currentTasks.filter((task) => task.boardColumn === currentBoardColumn)
+
+    const currentTaskIndex = tasksInCurrentColumn.findIndex((task) => task.id === taskId)
+    if (currentTaskIndex === -1) {
+      setLoadingTaskId(null)
+      return
+    }
+
+    const targetTaskIndex = direction === 'up' ? currentTaskIndex - 1 : currentTaskIndex + 1
+
+    if (targetTaskIndex < 0 || targetTaskIndex >= tasksInCurrentColumn.length) {
+      setLoadingTaskId(null)
+      return
+    }
+
+    const currentTask = tasksInCurrentColumn[currentTaskIndex]
+    const targetTask = tasksInCurrentColumn[targetTaskIndex]
+
+    // Update positions
+    const updatedTasks = currentTasks.map((task) => {
+      if (task.id === currentTask.id) {
+        return { ...task, position: targetTask.position }
+      }
+      if (task.id === targetTask.id) {
+        return { ...task, position: currentTask.position }
+      }
+      return task
+    })
+
+    // Update tasks in the store
+    setTasks(updatedTasks)
 
     submit(
       {
         intent: 'reorder',
         listId,
-        taskId,
+        taskId: currentTask.id,
         targetTaskId: targetTask.id,
       },
       { method: 'post' }
     )
   }
+
+  const tasksInCurrentColumn = useMemo(() => {
+    return tasks.filter((task) => task.boardColumn === currentBoardColumn).sort((a, b) => a.position - b.position)
+  }, [tasks, currentBoardColumn])
 
   return (
     <div className="container mx-auto">
@@ -169,7 +209,7 @@ export default function ListView() {
       <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-10 shadow-md">
         <div className="container mx-auto p-4 flex justify-between items-center">
           {/* Home Button */}
-          <Link to="/" className="text-xs text-blue-500 hover:text-blue-700" onClick={() => handleHomeClick()}>
+          <Link to="/" className="text-xs text-blue-500 hover:text-blue-700" onClick={handleHomeClick}>
             {loadingHome ? <Spinner size={24} lightModeColor="text-blue-500" /> : <Home size={24} />}
           </Link>
 
@@ -204,119 +244,123 @@ export default function ListView() {
       {/* Task list */}
       <div className="pt-20 p-4">
         <ul className="space-y-4">
-          {taskList?.tasks
-            .filter((task) => task.boardColumn === currentBoardColumn)
-            .map((task, index, tasksInCurrentColumn) => (
-              <li
-                key={task.id}
-                className="border p-4 rounded relative cursor-pointer text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 hover:dark:bg-gray-700 transition-colors duration-150"
-                onClick={(e) => toggleTaskDetails(task.id, e)}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div className="font-bold">{task.title}</div>
-                  <div className={`text-gray-600 dark:text-gray-300 ${task.details === '' ? 'opacity-30' : ''}`}>
-                    {visibleTaskDetails[task.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+          {tasksInCurrentColumn.map((task, index) => (
+            <li
+              key={task.id}
+              className="border p-4 rounded relative cursor-pointer text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 hover:dark:bg-gray-700 transition-colors duration-150"
+              onClick={(e) => handleToggleTaskDetails(task.id, e)}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div className="font-bold">{task.title}</div>
+                <div className={`text-gray-600 dark:text-gray-300 ${task.details === '' ? 'opacity-30' : ''}`}>
+                  {visibleTaskDetails[task.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+                </div>
+              </div>
+
+              {/* Labels of the task */}
+              <div className="mb-2">
+                {task.labelIds.map((labelId) => {
+                  const label = labelsMap.get(labelId)
+                  if (!label) return null
+                  return (
+                    <span
+                      key={label.id}
+                      className="px-2 py-1 mr-2 rounded text-xs text-gray-100"
+                      style={{ backgroundColor: label.color }}
+                    >
+                      {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
+                    </span>
+                  )
+                })}
+              </div>
+
+              {/* Details and Tools for Task */}
+              {visibleTaskDetails[task.id] && (
+                <div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
+                    <div>
+                      {t['created']}: {getNiceDateTime(task.createdAt, lang)}
+                    </div>
+                    <div>
+                      {t['updated']}: {getNiceDateTime(task.updatedAt, lang)}
+                    </div>
                   </div>
-                </div>
 
-                {/* Labels of the task */}
-                <div className="mb-2">
-                  {task.labelIds.map((labelId) => {
-                    const label = labelsMap.get(labelId)
-                    if (!label) return null
-                    return (
-                      <span
-                        key={label.id}
-                        className="px-2 py-1 mr-2 rounded text-xs text-gray-100"
-                        style={{ backgroundColor: label.color }}
+                  <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
+                    <ReactMarkdown
+                      components={{
+                        a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />,
+                      }}
+                    >
+                      {task.details}
+                    </ReactMarkdown>
+                  </div>
+
+                  {/* Task Tools (Edit, Move, Reorder, Delete) */}
+                  <div className="mt-2 flex justify-between items-center">
+                    <div className="flex space-x-6">
+                      <Link
+                        to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
+                        className="text-blue-500 hover:text-blue-700"
+                        onClick={() => handleEdit(task.id)}
                       >
-                        {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
-                      </span>
-                    )
-                  })}
-                </div>
+                        <FilePenLine size={20} />
+                      </Link>
 
-                {/* Details and Tools for Task */}
-                {visibleTaskDetails[task.id] && (
-                  <div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
-                      <div>
-                        {t['created']}: {getNiceDateTime(task.createdAt, lang)}
-                      </div>
-                      <div>
-                        {t['updated']}: {getNiceDateTime(task.updatedAt, lang)}
-                      </div>
-                    </div>
-
-                    <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
-                      <ReactMarkdown
-                        components={{
-                          a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />,
-                        }}
+                      <button
+                        onClick={() => handleMove(task.id, 'prev')}
+                        className={`text-green-500 hover:text-green-700 ${
+                          currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        disabled={currentBoardColumnIndex === 0}
                       >
-                        {task.details}
-                      </ReactMarkdown>
-                    </div>
+                        <ArrowLeftFromLine size={20} />
+                      </button>
 
-                    {/* Task Tools (Edit, Move, Reorder, Delete) */}
-                    <div className="mt-2 flex justify-between items-center">
-                      <div className="flex space-x-6">
-                        <Link
-                          to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
-                          className="text-blue-500 hover:text-blue-700"
-                          onClick={() => handleEdit(task.id)}
-                        >
-                          <FilePenLine size={20} />
-                        </Link>
+                      <button
+                        onClick={() => handleMove(task.id, 'next')}
+                        className={`text-green-500 hover:text-green-700 ${
+                          currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        disabled={currentBoardColumnIndex === boardColumns.length - 1}
+                      >
+                        <ArrowRightFromLine size={20} />
+                      </button>
 
-                        <button
-                          onClick={() => handleMove(task.id, 'prev')}
-                          className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          disabled={currentBoardColumnIndex === 0}
-                        >
-                          <ArrowLeftFromLine size={20} />
-                        </button>
+                      <button
+                        onClick={() => handleReorder(task.id, 'up')}
+                        className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={index === 0}
+                      >
+                        <ArrowUpFromLine size={20} />
+                      </button>
 
-                        <button
-                          onClick={() => handleMove(task.id, 'next')}
-                          className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          disabled={currentBoardColumnIndex === boardColumns.length - 1}
-                        >
-                          <ArrowRightFromLine size={20} />
-                        </button>
-
-                        <button
-                          onClick={() => handleReorder(task.id, 'up')}
-                          className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          disabled={index === 0}
-                        >
-                          <ArrowUpFromLine size={20} />
-                        </button>
-
-                        <button
-                          onClick={() => handleReorder(task.id, 'down')}
-                          className={`text-teal-500 hover:text-teal-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          disabled={index === tasksInCurrentColumn.length - 1}
-                        >
-                          <ArrowDownFromLine size={20} />
-                        </button>
-                      </div>
-
-                      <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
-                        <Trash2 size={20} />
+                      <button
+                        onClick={() => handleReorder(task.id, 'down')}
+                        className={`text-teal-500 hover:text-teal-700 ${
+                          index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        disabled={index === tasksInCurrentColumn.length - 1}
+                      >
+                        <ArrowDownFromLine size={20} />
                       </button>
                     </div>
-                  </div>
-                )}
 
-                {/* Spinner Overlay */}
-                {loadingTaskId === task.id && (
-                  <div className="absolute inset-0 bg-gray-900 bg-opacity-65 flex justify-center items-center z-10">
-                    <Spinner size={40} lightModeColor="text-gray-100" />
+                    <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={20} />
+                    </button>
                   </div>
-                )}
-              </li>
-            ))}
+                </div>
+              )}
+
+              {/* Spinner Overlay */}
+              {loadingTaskId === task.id && (
+                <div className="absolute inset-0 bg-gray-900 bg-opacity-65 flex justify-center items-center z-10">
+                  <Spinner size={40} lightModeColor="text-gray-100" />
+                </div>
+              )}
+            </li>
+          ))}
         </ul>
       </div>
 
