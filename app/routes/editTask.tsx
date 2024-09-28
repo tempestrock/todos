@@ -1,6 +1,6 @@
 import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } from '@remix-run/node'
 import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
-import { ChevronDown, ChevronUp, CirclePlus, CircleX } from 'lucide-react'
+import { CirclePlus, CircleX } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 
 import Spinner from '~/components/Spinner'
@@ -45,7 +45,6 @@ export default function EditTaskView() {
   const [taskTitle, setTaskTitle] = useState(task?.title || '')
   const [taskDetails, setTaskDetails] = useState(task?.details || '')
   const [taskLabels, setTaskLabels] = useState<string[]>(task?.labelIds || [])
-  const [showAddLabel, setShowAddLabel] = useState(false)
   const [searchParams] = useSearchParams()
   const currentBoardColumn = searchParams.get('boardColumn') as BoardColumn
   const listId = searchParams.get('listId')
@@ -164,93 +163,80 @@ export default function EditTaskView() {
             </div>
           )}
 
-          {/* Add labels button */}
-          <button
-            type="button"
-            onClick={() => setShowAddLabel(!showAddLabel)}
-            className="mt-2 mb-4 ml-2 text-xl text-gray-900 dark:text-gray-100"
-          >
-            <div className="flex items-center gap-2">
-              {t['new-labels']}{' '}
-              {taskLabels.length === 0 || showAddLabel ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
-            </div>
-          </button>
+          {/* Add labels title */}
+          <div className="flex items-center gap-2">{t['new-labels']} </div>
 
           {/* Add label selection */}
-          {(taskLabels.length === 0 || showAddLabel) && (
-            <div className="mb-4">
-              {availableLabels.length > 0 && (
-                <div className="mb-4">
-                  <div className="text-gray-900 dark:text-gray-100 font-semibold ml-2 mb-2">{t['add']}:</div>
+          <div className="mb-4">
+            {availableLabels.length > 0 && (
+              <div className="mb-4">
+                <div className="text-gray-900 dark:text-gray-100 font-semibold ml-2 mb-2">{t['add']}:</div>
 
-                  <ul className="space-y-2">
-                    {availableLabels.map((label) => (
-                      <li key={label.id} className="flex items-center space-x-2">
-                        <span className="ml-4 px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
-                          {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleAddLabel(label.id)}
-                          className="text-green-500 hover:text-green-700"
-                        >
-                          <CirclePlus size={20} />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                <ul className="space-y-2">
+                  {availableLabels.map((label) => (
+                    <li key={label.id} className="flex items-center space-x-2">
+                      <span className="ml-4 px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
+                        {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleAddLabel(label.id)}
+                        className="text-green-500 hover:text-green-700"
+                      >
+                        <CirclePlus size={20} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
 
-                  <hr className="mt-6 mb-4 ml-2 w-1/4 border-gray-300 dark:border-blue-700" />
-                </div>
-              )}
+                <hr className="mt-6 mb-4 ml-2 w-1/4 border-gray-300 dark:border-blue-700" />
+              </div>
+            )}
 
-              {/* Create New Label Section */}
-              <div>
-                <div className="text-gray-900 dark:text-gray-100 font-semibold ml-2 mb-2">{t['create']}:</div>
+            {/* Create New Label Section */}
+            <div>
+              <div className="text-gray-900 dark:text-gray-100 font-semibold ml-2 mb-2">{t['create']}:</div>
 
-                {ALL_LANGUAGES.map((langCode) => (
-                  <div key={langCode} className="mb-2">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mx-2">
-                      {`${t['display-name']} (${langCode.toUpperCase()})`}
-                    </label>
-
-                    <input
-                      type="text"
-                      value={newLabelNames[langCode] || ''}
-                      onChange={(e) => handleNewLabelNameChange(langCode, e.target.value)}
-                      className="mt-1 ml-2 w-11/12 py-2 pl-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
-                    />
-                  </div>
-                ))}
-
-                <div className="mb-2">
-                  <label className="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {t['color']}
+              {ALL_LANGUAGES.map((langCode) => (
+                <div key={langCode} className="mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mx-2">
+                    {`${t['display-name']} (${langCode.toUpperCase()})`}
                   </label>
+
                   <input
                     type="text"
-                    value={newLabelColor}
-                    onChange={(e) => handleNewLabelColorChange(e.target.value)}
-                    placeholder="#FF0000, blue, etc."
+                    value={newLabelNames[langCode] || ''}
+                    onChange={(e) => handleNewLabelNameChange(langCode, e.target.value)}
                     className="mt-1 ml-2 w-11/12 py-2 pl-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
                   />
                 </div>
+              ))}
 
-                <input type="hidden" name="newLabelNames" value={JSON.stringify(newLabelNames)} />
-                <input type="hidden" name="newLabelColor" value={newLabelColor} />
+              <div className="mb-2">
+                <label className="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{t['color']}</label>
+                <input
+                  type="text"
+                  value={newLabelColor}
+                  onChange={(e) => handleNewLabelColorChange(e.target.value)}
+                  placeholder="#FF0000, blue, etc."
+                  className="mt-1 ml-2 w-11/12 py-2 pl-2 border rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                />
+              </div>
 
-                <div className="ml-4 flex items-center space-x-4">
-                  <button
-                    type="submit"
-                    className="mt-2 text-green-500 hover:text-green-700"
-                    disabled={navigation.state === 'submitting'} // Disable the button during form submission
-                  >
-                    {navigation.state === 'submitting' ? <Spinner size={24} /> : t['add-new-label']}
-                  </button>
-                </div>
+              <input type="hidden" name="newLabelNames" value={JSON.stringify(newLabelNames)} />
+              <input type="hidden" name="newLabelColor" value={newLabelColor} />
+
+              <div className="ml-4 flex items-center space-x-4">
+                <button
+                  type="submit"
+                  className="mt-2 text-green-500 hover:text-green-700"
+                  disabled={navigation.state === 'submitting'} // Disable the button during form submission
+                >
+                  {navigation.state === 'submitting' ? <Spinner size={24} /> : t['add-new-label']}
+                </button>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         <div className="flex justify-end space-x-2">
