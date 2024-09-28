@@ -10,8 +10,6 @@ import {
   CirclePlus,
   FilePenLine,
   Home,
-  PanelTopClose,
-  PanelTopOpen,
   Trash2,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -87,7 +85,6 @@ export default function ListView() {
   const navigation = useNavigation() // hook to track the navigation state
 
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
-  const [showTools, setShowTools] = useState(false)
   const [visibleTaskDetails, setVisibleTaskDetails] = useState<Record<string, boolean>>({})
   const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null)
   const [loadingHome, setLoadingHome] = useState<boolean>(false)
@@ -116,8 +113,6 @@ export default function ListView() {
       [taskId]: !prev[taskId],
     }))
   }
-
-  const toggleTools = () => setShowTools((prev) => !prev)
 
   const handleEdit = (taskId: string) => {
     setLoadingTaskId(taskId)
@@ -178,11 +173,6 @@ export default function ListView() {
             {loadingHome ? <Spinner size={24} lightModeColor="text-blue-500" /> : <Home size={24} />}
           </Link>
 
-          {/* Tools Button */}
-          <button onClick={toggleTools} className={`text-xs text-blue-500 hover:text-blue-700`}>
-            {showTools ? <PanelTopOpen size={24} /> : <PanelTopClose size={24} />}
-          </button>
-
           {/* Board Column Buttons */}
           <div className="flex space-x-1">
             {boardColumns.map((column, index) => (
@@ -213,8 +203,6 @@ export default function ListView() {
 
       {/* Task list */}
       <div className="pt-20 p-4">
-        {' '}
-        {/* Adjust pt-20 as needed based on your title bar height */}
         <ul className="space-y-4">
           {taskList?.tasks
             .filter((task) => task.boardColumn === currentBoardColumn)
@@ -226,24 +214,29 @@ export default function ListView() {
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="font-bold">{task.title}</div>
-                  <div className={`text-gray-500 ${task.details === '' ? 'opacity-50' : ''}`}>
+                  <div className={`text-gray-600 dark:text-gray-300 ${task.details === '' ? 'opacity-30' : ''}`}>
                     {visibleTaskDetails[task.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </div>
                 </div>
 
                 {/* Labels of the task */}
-                <div className='mb-2'>
+                <div className="mb-2">
                   {task.labelIds.map((labelId) => {
                     const label = labelsMap.get(labelId)
                     if (!label) return null
                     return (
-                      <span key={label.id} className="px-2 py-1 mr-2 rounded text-xs text-gray-100" style={{ backgroundColor: label.color }}>
-                        {label.displayName[lang] || label.displayName[lang]}
+                      <span
+                        key={label.id}
+                        className="px-2 py-1 mr-2 rounded text-xs text-gray-100"
+                        style={{ backgroundColor: label.color }}
+                      >
+                        {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
                       </span>
                     )
                   })}
                 </div>
 
+                {/* Details and Tools for Task */}
                 {visibleTaskDetails[task.id] && (
                   <div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
@@ -254,6 +247,7 @@ export default function ListView() {
                         {t['updated']}: {getNiceDateTime(task.updatedAt, lang)}
                       </div>
                     </div>
+
                     <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
                       <ReactMarkdown
                         components={{
@@ -263,68 +257,58 @@ export default function ListView() {
                         {task.details}
                       </ReactMarkdown>
                     </div>
+
+                    {/* Task Tools (Edit, Move, Reorder, Delete) */}
+                    <div className="mt-2 flex justify-between items-center">
+                      <div className="flex space-x-6">
+                        <Link
+                          to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
+                          className="text-blue-500 hover:text-blue-700"
+                          onClick={() => handleEdit(task.id)}
+                        >
+                          <FilePenLine size={20} />
+                        </Link>
+
+                        <button
+                          onClick={() => handleMove(task.id, 'prev')}
+                          className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={currentBoardColumnIndex === 0}
+                        >
+                          <ArrowLeftFromLine size={20} />
+                        </button>
+
+                        <button
+                          onClick={() => handleMove(task.id, 'next')}
+                          className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={currentBoardColumnIndex === boardColumns.length - 1}
+                        >
+                          <ArrowRightFromLine size={20} />
+                        </button>
+
+                        <button
+                          onClick={() => handleReorder(task.id, 'up')}
+                          className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={index === 0}
+                        >
+                          <ArrowUpFromLine size={20} />
+                        </button>
+
+                        <button
+                          onClick={() => handleReorder(task.id, 'down')}
+                          className={`text-teal-500 hover:text-teal-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          disabled={index === tasksInCurrentColumn.length - 1}
+                        >
+                          <ArrowDownFromLine size={20} />
+                        </button>
+                      </div>
+
+                      <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
                   </div>
                 )}
 
-                <div className="mt-2 flex justify-between items-center" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex space-x-6">
-                    {showTools && (
-                      <Link
-                        to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
-                        className="text-blue-500 hover:text-blue-700"
-                        onClick={() => handleEdit(task.id)}
-                      >
-                        <FilePenLine size={20} />
-                      </Link>
-                    )}
-
-                    {showTools && (
-                      <button
-                        onClick={() => handleMove(task.id, 'prev')}
-                        className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={currentBoardColumnIndex === 0}
-                      >
-                        <ArrowLeftFromLine size={20} />
-                      </button>
-                    )}
-
-                    {showTools && (
-                      <button
-                        onClick={() => handleMove(task.id, 'next')}
-                        className={`text-green-500 hover:text-green-700 ${currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={currentBoardColumnIndex === boardColumns.length - 1}
-                      >
-                        <ArrowRightFromLine size={20} />
-                      </button>
-                    )}
-
-                    {showTools && (
-                      <button
-                        onClick={() => handleReorder(task.id, 'up')}
-                        className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={index === 0}
-                      >
-                        <ArrowUpFromLine size={20} />
-                      </button>
-                    )}
-
-                    {showTools && (
-                      <button
-                        onClick={() => handleReorder(task.id, 'down')}
-                        className={`text-teal-500 hover:text-teal-700 ${index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        disabled={index === tasksInCurrentColumn.length - 1}
-                      >
-                        <ArrowDownFromLine size={20} />
-                      </button>
-                    )}
-                  </div>
-
-                  {showTools && (
-                    <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
-                      <Trash2 size={20} />
-                    </button>
-                  )}
-                </div>
                 {/* Spinner Overlay */}
                 {loadingTaskId === task.id && (
                   <div className="absolute inset-0 bg-gray-900 bg-opacity-65 flex justify-center items-center z-10">
