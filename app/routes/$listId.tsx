@@ -302,7 +302,10 @@ export default function ListView() {
                       <Link
                         to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
                         className="text-blue-500 hover:text-blue-700"
-                        onClick={() => handleEdit(task.id)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleEdit(task.id)
+                        }}
                       >
                         <FilePenLine size={20} />
                       </Link>
@@ -328,7 +331,10 @@ export default function ListView() {
                       </button>
 
                       <button
-                        onClick={() => handleReorder(task.id, 'up')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleReorder(task.id, 'up')
+                        }}
                         className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                         disabled={index === 0}
                       >
@@ -336,7 +342,10 @@ export default function ListView() {
                       </button>
 
                       <button
-                        onClick={() => handleReorder(task.id, 'down')}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleReorder(task.id, 'down')
+                        }}
                         className={`text-teal-500 hover:text-teal-700 ${
                           index === tasksInCurrentColumn.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
