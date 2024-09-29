@@ -1,6 +1,6 @@
 import { useNavigation } from '@remix-run/react'
 import { CirclePlus, CircleX } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Spinner from './Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
@@ -19,6 +19,8 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
 
   const [newLabelNames, setNewLabelNames] = useState<{ [key: string]: string }>({})
   const [newLabelColor, setNewLabelColor] = useState('')
+  const [isAddLabelEnabled, setIsAddLabelEnabled] = useState(true)
+
   const { t } = useTranslation()
 
   // Create a Map of labels for efficient lookup
@@ -49,6 +51,13 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
   const handleNewLabelColorChange = (value: string) => {
     setNewLabelColor(value)
   }
+
+  // Effect to check if all fields are filled
+  useEffect(() => {
+    const areAllNamesFilled = ALL_LANGUAGES.every((lang) => newLabelNames[lang] && newLabelNames[lang].trim() !== '')
+    const isColorFilled = newLabelColor.trim() !== ''
+    setIsAddLabelEnabled(areAllNamesFilled && isColorFilled)
+  }, [newLabelNames, newLabelColor])
 
   return (
     <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded my-4 pt-3 px-2">
@@ -147,10 +156,13 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
               type="submit"
               name="intent"
               value="addLabel"
-              className={`text-gray-100 border bg-green-600 hover:bg-green-800
-                border-green-600
-                mt-2 px-4 py-1 rounded`}
-              disabled={navigation.state === 'submitting'}
+              className={`mt-2 px-4 py-1 rounded border
+                ${
+                  !isAddLabelEnabled || navigation.state === 'submitting'
+                    ? 'text-gray-500 bg-gray-400 dark:bg-gray-700 border-gray-400 cursor-not-allowed' // Gray color when disabled
+                    : 'text-gray-100 bg-green-600 hover:bg-green-800 border-green-600'
+                }`} // Green color when enabled
+              disabled={!isAddLabelEnabled || navigation.state === 'submitting'} // Disable button if fields are empty or submitting
             >
               {navigation.state === 'submitting' ? <Spinner size={24} /> : t['add-new-label']}
             </button>
