@@ -75,13 +75,13 @@ export default function EditTaskView() {
     <div className="container mx-auto p-4">
       <Form method="post">
         <div className="flex justify-between mb-4">
-          <div className="text-2xl text-gray-900 dark:text-gray-100 font-semibold mb-4">{t['edit-task']}</div>
+          <div className="text-2xl text-gray-900 dark:text-gray-100 font-semibold">{t['edit-task']}</div>
 
           {/* Save and cancel buttons */}
           <div className="flex justify-end space-x-2">
             <button
               type="submit"
-              className="text-sm bg-blue-500 hover:bg-blue-700 text-gray-100 px-2 rounded"
+              className="text-sm bg-blue-500 hover:bg-blue-700 text-gray-100 px-4 rounded"
               disabled={navigation.state === 'submitting'}
             >
               {navigation.state === 'submitting' ? <Spinner size={24} lightModeColor="text-gray-100" /> : t['save']}

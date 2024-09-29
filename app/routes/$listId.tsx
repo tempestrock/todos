@@ -242,14 +242,16 @@ export default function ListView() {
       </div>
 
       {/* Task list */}
-      <div className="pt-20 p-4">
+      <div className="pt-20 px-4">
         <ul className="space-y-4">
+          {/* "Loop" over all tasks in the current column */}
           {tasksInCurrentColumn.map((task, index) => (
             <li
               key={task.id}
-              className="border p-4 rounded relative cursor-pointer text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 hover:dark:bg-gray-700 transition-colors duration-150"
+              className="border px-4 pt-2 rounded relative cursor-pointer text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 hover:dark:bg-gray-700 transition-colors duration-150"
               onClick={(e) => handleToggleTaskDetails(task.id, e)}
             >
+              {/* Title and chevron icon */}
               <div className="flex justify-between items-start mb-2">
                 <div className="font-bold">{task.title}</div>
                 <div className={`text-gray-600 dark:text-gray-300 ${task.details === '' ? 'opacity-30' : ''}`}>
@@ -258,26 +260,29 @@ export default function ListView() {
               </div>
 
               {/* Labels of the task */}
-              <div className="mb-2">
-                {task.labelIds.map((labelId) => {
-                  const label = labelsMap.get(labelId)
-                  if (!label) return null
-                  return (
-                    <span
-                      key={label.id}
-                      className="px-2 py-1 mr-2 rounded text-xs text-gray-100"
-                      style={{ backgroundColor: label.color }}
-                    >
-                      {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
-                    </span>
-                  )
-                })}
-              </div>
+              {task.labelIds.length > 0 && (
+                <div className="mb-3">
+                  {task.labelIds.map((labelId) => {
+                    const label = labelsMap.get(labelId)
+                    if (!label) return null
+                    return (
+                      <span
+                        key={label.id}
+                        className="px-2 py-1 mr-2 rounded text-xs text-gray-100"
+                        style={{ backgroundColor: label.color }}
+                      >
+                        {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
+                      </span>
+                    )
+                  })}
+                </div>
+              )}
 
-              {/* Details and Tools for Task */}
+              {/* Details and tools for task */}
               {visibleTaskDetails[task.id] && (
                 <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 flex gap-4">
+                  {/* Creation date and update date */}
+                  <div className="text-xs -mt-2 text-gray-600 dark:text-gray-400 flex gap-4">
                     <div>
                       {t['created']}: {getNiceDateTime(task.createdAt, lang)}
                     </div>
@@ -286,6 +291,7 @@ export default function ListView() {
                     </div>
                   </div>
 
+                {/* Task details */}
                   <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
                     <ReactMarkdown
                       components={{
@@ -297,7 +303,7 @@ export default function ListView() {
                   </div>
 
                   {/* Task Tools (Edit, Move, Reorder, Delete) */}
-                  <div className="mt-2 flex justify-between items-center">
+                  <div className="mt-4 mb-3 flex justify-between items-center">
                     <div className="flex space-x-6">
                       <Link
                         to={`/editTask?listId=${listId}&taskId=${task.id}&boardColumn=${currentBoardColumn}`}
