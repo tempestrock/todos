@@ -60,7 +60,31 @@ export default function AddTaskView() {
   return (
     <div className="container mx-auto p-4">
       <Form method="post">
-        <h2 className="text-xl text-gray-900 dark:text-gray-100 font-semibold mb-4">{t['add-new-task']}</h2>
+        <div className="flex justify-between mb-4">
+          <div className="text-2xl text-gray-900 dark:text-gray-100 font-semibold">{t['edit-task']}</div>
+
+          {/* Save and cancel buttons */}
+          <div className="flex justify-end space-x-2">
+            <button
+              type="submit"
+              className="text-sm bg-blue-500 hover:bg-blue-700 text-gray-100 px-4 rounded"
+              disabled={navigation.state === 'submitting'}
+            >
+              {navigation.state === 'submitting' ? <Spinner size={24} lightModeColor="text-gray-100" /> : t['save']}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate(`/${listId}`)}
+              className={`text-sm text-gray-500 hover:text-gray-700 dark:text-gray-100 dark:hover:text-gray-700
+              hover:bg-gray-200 dark:hover:bg-gray-300
+              border border-gray-500 hover:border-gray-700 dark:border-gray-100
+              px-2 rounded`}
+            >
+              {t['cancel']}
+            </button>
+          </div>
+        </div>
 
         <input type="hidden" name="listId" value={listId} />
         <input type="hidden" name="boardColumn" value={currentBoardColumn} />
@@ -87,29 +111,6 @@ export default function AddTaskView() {
 
         {/* Label Manager */}
         <LabelManager taskLabels={taskLabels} setTaskLabels={setTaskLabels} labels={labels} lang={lang} />
-
-        <div className="flex justify-end space-x-2">
-          <button
-            type="submit"
-            name="intent"
-            value="saveTask"
-            className="bg-blue-500 hover:bg-blue-700 text-gray-100 px-4 py-2 rounded"
-            disabled={navigation.state === 'submitting'}
-          >
-            {navigation.state === 'submitting' ? <Spinner size={24} lightModeColor="text-gray-100" /> : t['save']}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate(`/${listId}`)}
-            className={`text-gray-500 hover:text-gray-700 dark:text-gray-100 dark:hover:text-gray-700
-                  hover:bg-gray-200 dark:hover:bg-gray-300
-                  border border-gray-500 hover:border-gray-700 dark:border-gray-100
-                  px-4 py-2 rounded`}
-          >
-            {t['cancel']}
-          </button>
-        </div>
       </Form>
     </div>
   )
