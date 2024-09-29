@@ -159,9 +159,9 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
               className={`mt-2 px-4 py-1 rounded border
                 ${
                   !isAddLabelEnabled || navigation.state === 'submitting'
-                    ? 'text-gray-500 bg-gray-400 dark:bg-gray-700 border-gray-400 cursor-not-allowed' // Gray color when disabled
-                    : 'text-gray-100 bg-green-600 hover:bg-green-800 border-green-600'
-                }`} // Green color when enabled
+                    ? 'text-gray-500 bg-gray-400 dark:bg-gray-700 border-gray-400 cursor-not-allowed' // gray color when disabled
+                    : 'text-gray-100 bg-green-600 hover:bg-green-800 border-green-600' // green color when enabled
+                }`}
               disabled={!isAddLabelEnabled || navigation.state === 'submitting'} // Disable button if fields are empty or submitting
             >
               {navigation.state === 'submitting' ? <Spinner size={24} /> : t['add-new-label']}

@@ -226,7 +226,7 @@ export default function ListView() {
                   borderColor: listColor,
                 }}
               >
-                {capitalizeFirstLetter(t[column])}
+                {capitalizeFirstLetter(t[column])} ({tasks.filter((task) => task.boardColumn === boardColumns[index]).length})
               </button>
             ))}
           </div>
