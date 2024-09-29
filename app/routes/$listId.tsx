@@ -85,7 +85,7 @@ export default function ListView() {
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
 
   const { t } = useTranslation()
-  const lang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
+  const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
   // Use the store
   const tasks = useTaskStore((state) => state.tasks)
@@ -226,7 +226,8 @@ export default function ListView() {
                   borderColor: listColor,
                 }}
               >
-                {capitalizeFirstLetter(t[column])} ({tasks.filter((task) => task.boardColumn === boardColumns[index]).length})
+                {capitalizeFirstLetter(t[column])} (
+                {tasks.filter((task) => task.boardColumn === boardColumns[index]).length})
               </button>
             ))}
           </div>
@@ -262,19 +263,21 @@ export default function ListView() {
               {/* Labels of the task */}
               {task.labelIds.length > 0 && (
                 <div className="mb-3">
-                  {task.labelIds.map((labelId) => {
-                    const label = labelsMap.get(labelId)
-                    if (!label) return null
-                    return (
-                      <span
-                        key={label.id}
-                        className="px-2 py-1 mr-2 rounded text-xs text-gray-100"
-                        style={{ backgroundColor: label.color }}
-                      >
-                        {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
-                      </span>
-                    )
-                  })}
+                  {task.labelIds
+                    .map((labelId) => labelsMap.get(labelId))
+                    .filter((label) => label !== undefined)
+                    .sort((a, b) => a?.displayName[currentLang].localeCompare(b?.displayName[currentLang]))
+                    .map((label) => {
+                      return (
+                        <span
+                          key={label.id}
+                          className="px-2 py-1 mr-2 rounded text-xs text-gray-100"
+                          style={{ backgroundColor: label.color }}
+                        >
+                          {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
+                        </span>
+                      )
+                    })}
                 </div>
               )}
 
@@ -284,14 +287,14 @@ export default function ListView() {
                   {/* Creation date and update date */}
                   <div className="text-xs -mt-2 text-gray-600 dark:text-gray-400 flex gap-4">
                     <div>
-                      {t['created']}: {getNiceDateTime(task.createdAt, lang)}
+                      {t['created']}: {getNiceDateTime(task.createdAt, currentLang)}
                     </div>
                     <div>
-                      {t['updated']}: {getNiceDateTime(task.updatedAt, lang)}
+                      {t['updated']}: {getNiceDateTime(task.updatedAt, currentLang)}
                     </div>
                   </div>
 
-                {/* Task details */}
+                  {/* Task details */}
                   <div className="mt-2 text-gray-900 dark:text-gray-100 dark:prose-dark prose">
                     <ReactMarkdown
                       components={{

@@ -8,19 +8,20 @@ import { Label } from '~/types/dataTypes'
 import { ALL_LANGUAGES, LANG_DEFAULT } from '~/utils/language'
 
 type LabelManagerProps = {
-  taskLabels: string[]
-  setTaskLabels: React.Dispatch<React.SetStateAction<string[]>>
+  taskLabelIds: string[]
+  setTaskLabelIds: React.Dispatch<React.SetStateAction<string[]>>
   labels: Label[]
   lang: string
 }
 
-export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }: LabelManagerProps) {
+export default function LabelManager({ taskLabelIds, setTaskLabelIds, labels, lang }: LabelManagerProps) {
   const navigation = useNavigation()
 
   const [newLabelNames, setNewLabelNames] = useState<{ [key: string]: string }>({})
   const [newLabelColor, setNewLabelColor] = useState('')
   const [isAddLabelEnabled, setIsAddLabelEnabled] = useState(true)
 
+  const [currentLang, setCurrentLang] = useState(lang) // Default language on the server
   const { t } = useTranslation()
 
   // Create a Map of labels for efficient lookup
@@ -28,12 +29,11 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
   labels.forEach((label) => labelsMap.set(label.id, label))
 
   const handleRemoveLabel = (labelId: string) => {
-    setTaskLabels((prevLabels) => prevLabels.filter((id) => id !== labelId))
+    setTaskLabelIds((prevLabels) => prevLabels.filter((id) => id !== labelId))
   }
 
   const handleAddLabel = (labelId: string) => {
-    console.log('Adding label with id:', labelId)
-    setTaskLabels((prevLabels) => {
+    setTaskLabelIds((prevLabels) => {
       if (!prevLabels.includes(labelId)) {
         return [...prevLabels, labelId]
       }
@@ -41,7 +41,7 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
     })
   }
 
-  const availableLabels = labels.filter((label) => !taskLabels.includes(label.id))
+  const availableLabels = labels.filter((label) => !taskLabelIds.includes(label.id))
 
   // Handle input changes for new label creation
   const handleNewLabelNameChange = (langCode: string, value: string) => {
@@ -52,7 +52,14 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
     setNewLabelColor(value)
   }
 
-  // Effect to check if all fields are filled
+  // Handle client-side language switching after hydration in order to avoid error of the form
+  // `Text content did not match. Server: "Nice Label" Client: "Tolles Label"` in the browser console.
+  useEffect(() => {
+    const clientLang = localStorage.getItem('lang') || LANG_DEFAULT
+    setCurrentLang(clientLang)
+  }, [])
+
+  // Effect to check if all fields are filled in the "add new label" form
   useEffect(() => {
     const areAllNamesFilled = ALL_LANGUAGES.every((lang) => newLabelNames[lang] && newLabelNames[lang].trim() !== '')
     const isColorFilled = newLabelColor.trim() !== ''
@@ -61,34 +68,38 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
 
   return (
     <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded my-4 pt-3 px-2">
-      {taskLabels.length > 0 && (
+      {taskLabelIds.length > 0 && (
         <div>
+          {/* Assigned labels */}
           <div className="text-xl text-gray-900 dark:text-gray-100 ml-2 mb-3">{t['labels-assigned']}</div>
           <ul className="space-y-2">
-            {taskLabels.map((labelId) => {
-              const label = labelsMap.get(labelId)
-              if (!label) return null
-              return (
-                <li key={label.id} className="flex items-center space-x-2">
-                  <span className="ml-4 px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
-                    {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveLabel(label.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <CircleX size={20} />
-                  </button>
-                </li>
-              )
-            })}
+            {taskLabelIds
+              .map((labelId) => labelsMap.get(labelId))
+              .filter((label) => label !== undefined)
+              .sort((a, b) => a?.displayName[currentLang].localeCompare(b?.displayName[currentLang]))
+              .map((label) => {
+                return (
+                  <li key={label.id} className="flex items-center space-x-2">
+                    <span className="ml-4 px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
+                      {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveLabel(label.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <CircleX size={20} />
+                    </button>
+                  </li>
+                )
+              })}
           </ul>
 
           <hr className="mt-6 mb-4 mx-2 border-gray-300 dark:border-blue-700" />
         </div>
       )}
 
+      {/* Add existing label */}
       <div className="text-xl text-gray-900 dark:text-gray-100 flex items-center gap-2">{t['new-labels']}</div>
 
       <div className="mb-4">
@@ -97,27 +108,29 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
             <div className="text-gray-900 dark:text-gray-100 font-semibold ml-2 mb-2">{t['add']}:</div>
 
             <ul className="space-y-2">
-              {availableLabels.map((label) => (
-                <li key={label.id} className="flex items-center space-x-2">
-                  <span className="ml-4 px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
-                    {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleAddLabel(label.id)}
-                    className="text-green-500 hover:text-green-700"
-                  >
-                    <CirclePlus size={20} />
-                  </button>
-                </li>
-              ))}
+              {availableLabels
+                .sort((a, b) => a?.displayName[currentLang].localeCompare(b?.displayName[currentLang]))
+                .map((label) => (
+                  <li key={label.id} className="flex items-center space-x-2">
+                    <span className="ml-4 px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
+                      {label.displayName[lang] || label.displayName[LANG_DEFAULT]}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleAddLabel(label.id)}
+                      className="text-green-500 hover:text-green-700"
+                    >
+                      <CirclePlus size={20} />
+                    </button>
+                  </li>
+                ))}
             </ul>
 
             <hr className="mt-6 mb-4 ml-2 w-1/4 border-gray-300 dark:border-blue-700" />
           </div>
         )}
 
-        {/* Create New Label Section */}
+        {/* Create new label */}
         <div>
           <div className="text-gray-900 dark:text-gray-100 font-semibold ml-2 mb-2">{t['create']}:</div>
 
@@ -171,7 +184,7 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
       </div>
 
       {/* Include hidden inputs for labelIds */}
-      {taskLabels.map((labelId) => (
+      {taskLabelIds.map((labelId) => (
         <input type="hidden" name="labelIds" value={labelId} key={labelId} />
       ))}
     </div>

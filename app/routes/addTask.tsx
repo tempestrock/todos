@@ -36,7 +36,7 @@ export default function AddTaskView() {
   const [searchParams] = useSearchParams()
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDetails, setTaskDetails] = useState('')
-  const [taskLabels, setTaskLabels] = useState<string[]>([])
+  const [taskLabelIds, setTaskLabelIds] = useState<string[]>([])
   const navigation = useNavigation()
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -111,7 +111,7 @@ export default function AddTaskView() {
         </div>
 
         {/* Label Manager */}
-        <LabelManager taskLabels={taskLabels} setTaskLabels={setTaskLabels} labels={labels} lang={lang} />
+        <LabelManager taskLabelIds={taskLabelIds} setTaskLabelIds={setTaskLabelIds} labels={labels} lang={lang} />
       </Form>
     </div>
   )

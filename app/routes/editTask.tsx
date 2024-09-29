@@ -44,7 +44,7 @@ export default function EditTaskView() {
   const navigate = useNavigate()
   const [taskTitle, setTaskTitle] = useState(task?.title || '')
   const [taskDetails, setTaskDetails] = useState(task?.details || '')
-  const [taskLabels, setTaskLabels] = useState<string[]>([...new Set(task?.labelIds || [])])
+  const [taskLabelIds, setTaskLabelIds] = useState<string[]>([...new Set(task?.labelIds || [])])
   const [searchParams] = useSearchParams()
   const currentBoardColumn = searchParams.get('boardColumn') as BoardColumn
   const listId = searchParams.get('listId')
@@ -63,7 +63,7 @@ export default function EditTaskView() {
     if (task) {
       setTaskTitle(task.title)
       setTaskDetails(task.details)
-      setTaskLabels(task.labelIds || [])
+      setTaskLabelIds(task.labelIds || [])
     }
   }, [task])
 
@@ -131,7 +131,7 @@ export default function EditTaskView() {
         </div>
 
         {/* Label Manager */}
-        <LabelManager taskLabels={taskLabels} setTaskLabels={setTaskLabels} labels={labels} lang={lang} />
+        <LabelManager taskLabelIds={taskLabelIds} setTaskLabelIds={setTaskLabelIds} labels={labels} lang={lang} />
       </Form>
     </div>
   )
