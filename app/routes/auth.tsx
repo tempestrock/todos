@@ -132,7 +132,7 @@ export default function Auth() {
                   type="submit"
                 >
                   {navigation.state === 'submitting' ? (
-                    <Spinner size={24} lightModeColor="text-gray-100" />
+                    <Spinner size={24} lightModeColor="#2E5CEE" />
                   ) : (
                     t['sign-in']
                   )}
