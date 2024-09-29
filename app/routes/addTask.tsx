@@ -1,34 +1,47 @@
+// AddTaskView.tsx
 import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } from '@remix-run/node'
-import { Form, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
+import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 
+import LabelManager from '~/components/LabelManager' // Import the LabelManager component
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
-import { BoardColumn, Task } from '~/types/dataTypes'
+import { BoardColumn, Task, Label } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
+import { loadAllLabels } from '~/utils/database/loadAllLabels'
 import { saveTask } from '~/utils/database/saveAndUpdateData'
+import { saveLabel } from '~/utils/database/saveLabel'
 import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
+import { LANG_DEFAULT } from '~/utils/language'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { printObject } from '~/utils/printObject'
 
-export type LoaderData = unknown
+type LoaderData = {
+  labels: Label[]
+}
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
   console.log('[addTask.loader] starting')
 
   await requireAuth(request)
 
-  return json<LoaderData>({})
+  // Load all labels
+  const labels = await loadAllLabels()
+
+  return json<LoaderData>({ labels })
 }
 
 export default function AddTaskView() {
+  const { labels } = useLoaderData<LoaderData>()
   const [searchParams] = useSearchParams()
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDetails, setTaskDetails] = useState('')
+  const [taskLabels, setTaskLabels] = useState<string[]>([])
   const navigation = useNavigation()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const lang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
   const listId = searchParams.get('listId')
   if (!listId) throw new Error('[addTask.component] No list ID provided')
@@ -46,33 +59,40 @@ export default function AddTaskView() {
 
   return (
     <div className="container mx-auto p-4">
-      <h2 className="text-xl text-gray-900 dark:text-gray-100 font-semibold mb-4">{t['add-new-task']}</h2>
-
       <Form method="post">
+        <h2 className="text-xl text-gray-900 dark:text-gray-100 font-semibold mb-4">{t['add-new-task']}</h2>
+
         <input type="hidden" name="listId" value={listId} />
         <input type="hidden" name="boardColumn" value={currentBoardColumn} />
 
-        <input
-          ref={titleInputRef}
-          type="text"
-          name="taskTitle"
-          placeholder="Task Title"
-          className="w-full p-2 border rounded mb-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
-          value={taskTitle}
-          onChange={(e) => setTaskTitle(e.target.value)}
-        />
+        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded mb-4 pt-4 px-2">
+          <input
+            ref={titleInputRef}
+            type="text"
+            name="taskTitle"
+            placeholder="Task Title"
+            className="w-full p-2 border rounded mb-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+            value={taskTitle}
+            onChange={(e) => setTaskTitle(e.target.value)}
+          />
 
-        <textarea
-          name="taskDetails"
-          placeholder="Task Details"
-          className="w-full p-2 border rounded mb-4 h-48 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
-          value={taskDetails}
-          onChange={(e) => setTaskDetails(e.target.value)}
-        />
+          <textarea
+            name="taskDetails"
+            placeholder="Task Details"
+            className="w-full p-2 border rounded mb-4 h-48 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+            value={taskDetails}
+            onChange={(e) => setTaskDetails(e.target.value)}
+          />
+        </div>
+
+        {/* Label Manager */}
+        <LabelManager taskLabels={taskLabels} setTaskLabels={setTaskLabels} labels={labels} lang={lang} />
 
         <div className="flex justify-end space-x-2">
           <button
             type="submit"
+            name="intent"
+            value="saveTask"
             className="bg-blue-500 hover:bg-blue-700 text-gray-100 px-4 py-2 rounded"
             disabled={navigation.state === 'submitting'}
           >
@@ -83,9 +103,9 @@ export default function AddTaskView() {
             type="button"
             onClick={() => navigate(`/${listId}`)}
             className={`text-gray-500 hover:text-gray-700 dark:text-gray-100 dark:hover:text-gray-700
-              hover:bg-gray-200 dark:hover:bg-gray-300
-              border border-gray-500 hover:border-gray-700 dark:border-gray-100
-              px-4 py-2 rounded`}
+                  hover:bg-gray-200 dark:hover:bg-gray-300
+                  border border-gray-500 hover:border-gray-700 dark:border-gray-100
+                  px-4 py-2 rounded`}
           >
             {t['cancel']}
           </button>
@@ -98,35 +118,66 @@ export default function AddTaskView() {
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
 
+  const intent = formData.get('intent') as string
   const listId = formData.get('listId') as string
   if (!listId) throw new Error(`[addTask.action] listId not found.`)
 
-  const taskTitle = formData.get('taskTitle') as string
-  const taskDetails = formData.get('taskDetails') as string
-  const boardColumn = formData.get('boardColumn') as BoardColumn
-  const nowStr = getNow()
+  switch (intent) {
+    case 'addLabel': {
+      // Handle new label creation
+      const newLabelNames = formData.get('newLabelNames') as string | null
+      const newLabelColor = formData.get('newLabelColor') as string | null
 
-  // Build the updated task object.
-  const taskToAdd: Task = {
-    id: getUid(),
-    title: taskTitle,
-    details: taskDetails,
-    position: 0, // Put the new task at the top of the list.
-    boardColumn,
-    listId,
-    createdAt: nowStr,
-    updatedAt: nowStr,
-    labelIds: [],
+      if (newLabelNames && newLabelColor) {
+        const newLabelId = getUid()
+        const newLabel: Label = {
+          id: newLabelId,
+          displayName: JSON.parse(newLabelNames),
+          color: newLabelColor,
+        }
+
+        // Save the new label to the database
+        await saveLabel(newLabel)
+      }
+
+      return redirect(`/addTask?listId=${listId}&boardColumn=${formData.get('boardColumn')}`)
+    }
+
+    case 'saveTask': {
+      const taskTitle = formData.get('taskTitle') as string
+      const taskDetails = formData.get('taskDetails') as string
+      const boardColumn = formData.get('boardColumn') as BoardColumn
+      const nowStr = getNow()
+
+      // Get labelIds from formData
+      const labelIds = formData.getAll('labelIds') as string[]
+
+      // Build the new task object.
+      const taskToAdd: Task = {
+        id: getUid(),
+        title: taskTitle,
+        details: taskDetails,
+        position: 0, // Put the new task at the top of the list.
+        boardColumn,
+        listId,
+        createdAt: nowStr,
+        updatedAt: nowStr,
+        labelIds,
+      }
+
+      console.log(`[addTask.action] listId: '${listId}'`)
+      printObject(taskToAdd, `[addTask.action] new task`)
+
+      // Push all tasks in the list down one position by incrementing their `position` values.
+      await pushTasksDown(listId, boardColumn)
+
+      // Save the new task.
+      await saveTask(taskToAdd)
+
+      return redirect(`/${listId}`)
+    }
+
+    default:
+      throw new Error(`[addTask.action] Unknown intent: ${intent}`)
   }
-
-  console.log(`[addTask.action] listId: '${listId}'`)
-  printObject(taskToAdd, `[addTask.action] new task`)
-
-  // Push all tasks in the list down one position by incrementing their `position` values.
-  await pushTasksDown(listId, boardColumn)
-
-  // Save the new task.
-  await saveTask(taskToAdd)
-
-  return redirect(`/${listId}`)
 }
