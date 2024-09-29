@@ -81,6 +81,8 @@ export default function EditTaskView() {
           <div className="flex justify-end space-x-2">
             <button
               type="submit"
+              name="intent"
+              value="saveTask"
               className="text-sm bg-blue-500 hover:bg-blue-700 text-gray-100 px-4 rounded"
               disabled={navigation.state === 'submitting'}
             >
@@ -137,61 +139,75 @@ export default function EditTaskView() {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
+  const intent = formData.get('intent') as string
+
   const listId = formData.get('listId') as string
-  const taskId = formData.get('taskId') as string
-  const taskTitle = formData.get('taskTitle') as string
-  const taskDetails = formData.get('taskDetails') as string
-  const boardColumn = formData.get('boardColumn') as BoardColumn
-  const createdAt = formData.get('createdAt') as DateTimeString
-
-  const positionAsString = formData.get('position') as string | null
-  if (!positionAsString) throw new Error('[editTask.action] No position provided')
-  const position = parseInt(positionAsString)
-
   if (!listId) throw new Error('[editTask.action] No list ID provided')
+
+  const taskId = formData.get('taskId') as string
   if (!taskId) throw new Error('[editTask.action] No task ID provided')
 
-  // Get labelIds from formData
-  const labelIds = formData.getAll('labelIds') as string[]
-  printObject(labelIds, `[editTask.action] labelIds`)
+  const boardColumn = formData.get('boardColumn') as BoardColumn
+  if (!boardColumn) throw new Error(`[editTask.action] boardColumn not found.`)
 
-  // Check if new label data exists
-  const newLabelNames = formData.get('newLabelNames') as string | null
-  const newLabelColor = formData.get('newLabelColor') as string | null
+  switch (intent) {
+    case 'addLabel': {
+      // Handle new label creation
+      const newLabelNames = formData.get('newLabelNames') as string | null
+      const newLabelColor = formData.get('newLabelColor') as string | null
 
-  if (newLabelNames && newLabelColor) {
-    // Handle new label creation
-    const newLabelId = getUid()
-    const newLabel: Label = {
-      id: newLabelId,
-      displayName: JSON.parse(newLabelNames),
-      color: newLabelColor,
+      if (newLabelNames && newLabelColor) {
+        const newLabelId = getUid()
+        const newLabel: Label = {
+          id: newLabelId,
+          displayName: JSON.parse(newLabelNames),
+          color: newLabelColor,
+        }
+
+        // Save the new label to the database
+        await saveLabel(newLabel)
+      }
+
+      return redirect(`/editTask?listId=${listId}&taskId=${taskId}&boardColumn=${boardColumn}`)
     }
 
-    // Save the new label to the database
-    await saveLabel(newLabel)
+    case 'saveTask': {
+      console.log('[editTask.action] saveTask')
 
-    // Add the new label to the task
-    labelIds.push(newLabelId)
+      const taskTitle = formData.get('taskTitle') as string
+      const taskDetails = formData.get('taskDetails') as string
+      const boardColumn = formData.get('boardColumn') as BoardColumn
+      const createdAt = formData.get('createdAt') as DateTimeString
+
+      const positionAsString = formData.get('position') as string | null
+      if (!positionAsString) throw new Error('[editTask.action] No position provided')
+      const position = parseInt(positionAsString)
+
+      // Get labelIds from formData
+      const labelIds = formData.getAll('labelIds') as string[]
+
+      // Build up the updated task object.
+      const task: Task = {
+        id: taskId,
+        title: taskTitle,
+        details: taskDetails,
+        position,
+        boardColumn,
+        listId,
+        createdAt,
+        updatedAt: getNow(),
+        labelIds,
+      }
+
+      console.log(`[editTask.action] listId: '${listId}'`)
+      printObject(task, `[editTask.action] updated task`)
+
+      await saveTask(task)
+
+      return redirect(`/${listId}?boardColumn=${boardColumn}`)
+    }
+
+    default:
+      throw new Error(`[editTask.action] Unknown intent: ${intent}`)
   }
-
-  // Build up the updated task object.
-  const task: Task = {
-    id: taskId,
-    title: taskTitle,
-    details: taskDetails,
-    position,
-    boardColumn,
-    listId,
-    createdAt,
-    updatedAt: getNow(),
-    labelIds,
-  }
-
-  console.log(`[editTask.action] listId: '${listId}'`)
-  printObject(task, `[editTask.action] updated task`)
-
-  await saveTask(task)
-
-  return redirect(`/${listId}`)
 }

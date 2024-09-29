@@ -147,7 +147,9 @@ export default function LabelManager({ taskLabels, setTaskLabels, labels, lang }
               type="submit"
               name="intent"
               value="addLabel"
-              className="mt-2 text-green-500 hover:text-green-700"
+              className={`text-gray-100 border bg-green-600 hover:bg-green-800
+                border-green-600
+                mt-2 px-4 py-1 rounded`}
               disabled={navigation.state === 'submitting'}
             >
               {navigation.state === 'submitting' ? <Spinner size={24} /> : t['add-new-label']}

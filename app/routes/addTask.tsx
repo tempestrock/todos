@@ -1,4 +1,3 @@
-// AddTaskView.tsx
 import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } from '@remix-run/node'
 import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
@@ -61,12 +60,14 @@ export default function AddTaskView() {
     <div className="container mx-auto p-4">
       <Form method="post">
         <div className="flex justify-between mb-4">
-          <div className="text-2xl text-gray-900 dark:text-gray-100 font-semibold">{t['edit-task']}</div>
+          <div className="text-2xl text-gray-900 dark:text-gray-100 font-semibold">{t['add']}</div>
 
           {/* Save and cancel buttons */}
           <div className="flex justify-end space-x-2">
             <button
               type="submit"
+              name="intent"
+              value="saveTask"
               className="text-sm bg-blue-500 hover:bg-blue-700 text-gray-100 px-4 rounded"
               disabled={navigation.state === 'submitting'}
             >
@@ -118,10 +119,13 @@ export default function AddTaskView() {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData()
-
   const intent = formData.get('intent') as string
+
   const listId = formData.get('listId') as string
   if (!listId) throw new Error(`[addTask.action] listId not found.`)
+
+  const boardColumn = formData.get('boardColumn') as BoardColumn
+  if (!boardColumn) throw new Error(`[addTask.action] boardColumn not found.`)
 
   switch (intent) {
     case 'addLabel': {
@@ -141,10 +145,13 @@ export const action: ActionFunction = async ({ request }) => {
         await saveLabel(newLabel)
       }
 
-      return redirect(`/addTask?listId=${listId}&boardColumn=${formData.get('boardColumn')}`)
+      return redirect(`/addTask?listId=${listId}&boardColumn=${boardColumn}`)
     }
 
     case 'saveTask': {
+      console.log('[addTask.action] saveTask')
+
+      const taskId = getUid()
       const taskTitle = formData.get('taskTitle') as string
       const taskDetails = formData.get('taskDetails') as string
       const boardColumn = formData.get('boardColumn') as BoardColumn
@@ -155,7 +162,7 @@ export const action: ActionFunction = async ({ request }) => {
 
       // Build the new task object.
       const taskToAdd: Task = {
-        id: getUid(),
+        id: taskId,
         title: taskTitle,
         details: taskDetails,
         position: 0, // Put the new task at the top of the list.
@@ -175,7 +182,7 @@ export const action: ActionFunction = async ({ request }) => {
       // Save the new task.
       await saveTask(taskToAdd)
 
-      return redirect(`/${listId}`)
+      return redirect(`/${listId}?boardColumn=${boardColumn}`)
     }
 
     default:
