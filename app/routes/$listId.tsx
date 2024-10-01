@@ -1,4 +1,3 @@
-// ListView.tsx
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import { Link, Outlet, useLoaderData, useNavigation, useSubmit } from '@remix-run/react'
 import {
@@ -79,7 +78,7 @@ export default function ListView() {
   const listId = taskList.id
   const listColor = taskList.color
   const boardColumns = Object.values(BoardColumn)
-  const navigation = useNavigation() // hook to track the navigation state
+  const navigation = useNavigation()
 
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
@@ -95,6 +94,9 @@ export default function ListView() {
 
   const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null)
   const [loadingHome, setLoadingHome] = useState<boolean>(false)
+
+  // State for selected labels
+  const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([])
 
   // Create a map of labels for efficient lookup
   const labelsMap = useMemo(() => {
@@ -199,9 +201,27 @@ export default function ListView() {
     )
   }
 
+  // Function to handle label selection
+  const handleLabelFilterChange = (labelId: string) => {
+    setSelectedLabelIds((prevSelected) => {
+      if (prevSelected.includes(labelId)) {
+        return prevSelected.filter((id) => id !== labelId)
+      } else {
+        return [...prevSelected, labelId]
+      }
+    })
+  }
+
   const tasksInCurrentColumn = useMemo(() => {
-    return tasks.filter((task) => task.boardColumn === currentBoardColumn).sort((a, b) => a.position - b.position)
-  }, [tasks, currentBoardColumn])
+    return tasks
+      .filter((task) => {
+        if (task.boardColumn !== currentBoardColumn) return false
+        if (selectedLabelIds.length === 0) return true
+        // Include tasks that have all selected labels
+        return selectedLabelIds.every((labelId) => task.labelIds.includes(labelId))
+      })
+      .sort((a, b) => a.position - b.position)
+  }, [tasks, currentBoardColumn, selectedLabelIds])
 
   return (
     <div className="container mx-auto">
@@ -234,13 +254,28 @@ export default function ListView() {
 
           {/* 'More' Menu */}
           <MoreMenu hasAddButton={true} listId={listId} currentBoardColumn={currentBoardColumn} />
+        </div>
+      </div>
 
-          {/* <Link
-            to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
-            className="text-green-500 hover:text-green-700"
-          >
-            <CirclePlus size={24} />
-          </Link> */}
+      {/* Label Filter */}
+      <div className="px-4 pt-20">
+        <div className="flex flex-wrap gap-2 mb-4">
+          {labels
+            .sort((a, b) => a?.displayName[currentLang].localeCompare(b?.displayName[currentLang]))
+            .map((label) => (
+              <button
+                key={label.id}
+                onClick={() => handleLabelFilterChange(label.id)}
+                className={`px-2 py-1 rounded text-xs text-gray-100 transition-opacity duration-150 ${
+                  selectedLabelIds.includes(label.id) ? 'opacity-100' : 'opacity-50'
+                }`}
+                style={{
+                  backgroundColor: label.color,
+                }}
+              >
+                {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
+              </button>
+            ))}
         </div>
       </div>
 
