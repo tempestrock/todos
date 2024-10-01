@@ -55,7 +55,7 @@ export default function HomeView() {
           </h1>
 
           {/* 'More' Menu */}
-          <MoreMenu />
+          <MoreMenu hasSignOutButton={true} />
         </div>
 
         {/* List of todo list buttons. Lists get the defined colors. When clicking a list, it changes to gray. */}

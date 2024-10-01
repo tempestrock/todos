@@ -8,7 +8,6 @@ import {
   ArrowUpFromLine,
   ChevronDown,
   ChevronUp,
-  CirclePlus,
   FilePenLine,
   Home,
   Trash2,
@@ -16,6 +15,7 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
+import MoreMenu from '~/components/MoreMenu'
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, TaskList, BoardColumn, Task } from '~/types/dataTypes'
@@ -232,13 +232,15 @@ export default function ListView() {
             ))}
           </div>
 
-          {/* Add Button */}
-          <Link
+          {/* 'More' Menu */}
+          <MoreMenu hasAddButton={true} listId={listId} currentBoardColumn={currentBoardColumn} />
+
+          {/* <Link
             to={`/addTask?listId=${listId}&boardColumn=${currentBoardColumn}`}
             className="text-green-500 hover:text-green-700"
           >
             <CirclePlus size={24} />
-          </Link>
+          </Link> */}
         </div>
       </div>
 
