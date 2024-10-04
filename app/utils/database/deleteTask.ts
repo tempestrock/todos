@@ -28,8 +28,6 @@ export async function deleteTask(listId: string, taskId: string): Promise<void> 
       throw new Error(`Task with ID ${taskId} in list ${listId} does not exist.`)
     }
 
-    log(`[deleteTask] Deleting task ${taskId} from list ${listId}.`)
-
     const deleteParams = {
       TableName: getTableName(TABLE_NAME_TASKS),
       Key: {
@@ -38,7 +36,6 @@ export async function deleteTask(listId: string, taskId: string): Promise<void> 
     }
 
     await dbClient().send(new DeleteCommand(deleteParams))
-    log('[deleteTask] Task deleted successfully.')
   } catch (error) {
     log('[deleteTask]', error)
     throw error

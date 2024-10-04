@@ -27,8 +27,6 @@ export async function saveTask(task: Task): Promise<void> {
 
     if (Item) {
       // The task already exists in the database. => Update it.
-      log('[saveTask] Task exists. => Updating it.')
-
       const updateParams = {
         TableName: getTableName(TABLE_NAME_TASKS),
         Key: {
@@ -51,18 +49,14 @@ export async function saveTask(task: Task): Promise<void> {
       }
 
       await dbClient().send(new UpdateCommand(updateParams))
-      log('[saveTask] Task updated successfully.')
     } else {
       // The task doesn't exist in the database, yet. => Create it.
-      log('[saveTask] Task is new. => Creating it.')
-
       const putParams = {
         TableName: getTableName(TABLE_NAME_TASKS),
         Item: task,
       }
 
       await dbClient().send(new PutCommand(putParams))
-      log('[saveTask] Task created successfully.')
     }
   } catch (error) {
     log('[saveTask]', error)
@@ -92,8 +86,6 @@ export async function updateBoardColumn(task: Task): Promise<void> {
 
     if (!Item) throw new Error(`Could not update column of task '${task.title}' (${task.id}).`)
 
-    log('[updateColumn] Task exists. => Updating it.')
-
     const updateParams = {
       TableName: getTableName(TABLE_NAME_TASKS),
       Key: {
@@ -111,7 +103,6 @@ export async function updateBoardColumn(task: Task): Promise<void> {
     }
 
     await dbClient().send(new UpdateCommand(updateParams))
-    log('[updateColumn] Updated successfully.')
   } catch (error) {
     log('[updateColumn]', error)
     throw error

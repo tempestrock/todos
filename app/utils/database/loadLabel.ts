@@ -6,8 +6,6 @@ import { getTableName, TABLE_NAME_LABELS } from '~/utils/database/dbConsts'
 import { log } from '~/utils/log'
 
 export async function loadLabel(labelId: string): Promise<Label | undefined> {
-  log(`Starting loadLabel(${labelId}).`)
-
   try {
     // Fetch the label directly by its unique ID
     const getParams = {

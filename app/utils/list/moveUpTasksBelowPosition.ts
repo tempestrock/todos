@@ -1,7 +1,6 @@
 import { BoardColumn } from '~/types/dataTypes'
 import { loadTaskList } from '~/utils/database/loadTaskList'
 import { saveTask } from '~/utils/database/saveAndUpdateData'
-import { log } from '~/utils/log'
 
 /**
  * Moves tasks in the given board column up by one position, starting from the specified position + 1.
@@ -21,13 +20,9 @@ export const moveUpTasksBelowPosition = async (
   const tasksInColumnBelowPosition = taskList.tasks.filter(
     (task) => task.boardColumn === boardColumn && task.position > position
   )
-  log(
-    `[moveUpTasksBelowPosition] ${tasksInColumnBelowPosition.length} tasks to move up in list '${taskList.displayName}', colum '${boardColumn}'.`
-  )
 
   // Reduce the position of the found tasks by one.
   for (const task of tasksInColumnBelowPosition) {
-    log(`[moveUpTasksBelowPosition] moving up task '${task.title}'`)
     task.position--
     await saveTask(task)
   }

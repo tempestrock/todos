@@ -1,4 +1,4 @@
-import { getNow } from './dateAndTime'
+import { getNow } from '~/utils/dateAndTime'
 
 /**
  * Logs the provided arguments to the console with a timestamp.

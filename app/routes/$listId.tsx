@@ -44,8 +44,6 @@ type LoaderData = {
 }
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  log('[$listId.loader] starting')
-
   await requireAuth(request)
 
   try {
@@ -442,7 +440,6 @@ export const action = async ({ request }: { request: Request }) => {
       case 'reorder': {
         const targetTaskId = formData.get('targetTaskId') as string
 
-        log(`[$listId.action] Swapping tasks ${listId}, ${taskId}, ${targetTaskId}`)
         await swapTasks(taskId, targetTaskId)
 
         return json({ success: true, message: 'Task reordered successfully' })

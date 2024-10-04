@@ -8,6 +8,12 @@
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
+    "lint:check": "eslint --max-warnings 0 .",
+    "lint:fix": "eslint --fix .",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "outdated:check": "./scripts/check-outdated.sh",
+    "outdated:fix": "./scripts/fix-outdated.sh",
     "typecheck": "tsc"
   },
   "dependencies": {

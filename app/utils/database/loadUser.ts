@@ -12,7 +12,7 @@ import { log } from '~/utils/log'
  * @return {Promise<User>} The user's data.
  */
 export const loadUser = async (userId: string): Promise<User> => {
-  log(`Starting loadUser(${userId}).`)
+  log(`[loadUser] Starting (${userId}).`)
 
   try {
     const getParams = {
@@ -26,7 +26,7 @@ export const loadUser = async (userId: string): Promise<User> => {
     const response = await dbClient().send(command)
 
     if (!response.Item) {
-      throw new Error(`User with id ${userId} not found`)
+      throw new Error(`[loadUser] User with id ${userId} not found`)
     }
 
     return response.Item as User

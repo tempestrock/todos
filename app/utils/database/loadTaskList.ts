@@ -6,8 +6,6 @@ import { getTableName, TABLE_NAME_TASKLIST_METADATA, TABLE_NAME_TASKS } from '~/
 import { log } from '~/utils/log'
 
 export async function loadTaskList(listId: string): Promise<TaskList> {
-  log(`Starting loadTaskList(${listId}).`)
-
   // Get the metadata of the one task list that has the given list ID.
   const taskList = await loadMetadataOfTaskList(listId)
 

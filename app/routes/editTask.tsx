@@ -14,7 +14,6 @@ import { saveLabel } from '~/utils/database/saveLabel'
 import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
-import { log } from '~/utils/log'
 
 type LoaderData = {
   task: Task
@@ -22,7 +21,6 @@ type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  log('[editTask.loader] starting')
   await requireAuth(request)
   const url = new URL(request.url)
   const taskId = url.searchParams.get('taskId')
@@ -172,8 +170,6 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     case 'saveTask': {
-      log('[editTask.action] saveTask')
-
       const taskTitle = formData.get('taskTitle') as string
       const taskDetails = formData.get('taskDetails') as string
       const boardColumn = formData.get('boardColumn') as BoardColumn

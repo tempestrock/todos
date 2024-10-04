@@ -6,8 +6,6 @@ import { getTableName, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
 import { log } from '~/utils/log'
 
 export async function loadTask(taskId: string): Promise<Task | undefined> {
-  log(`Starting loadTask(${taskId}).`)
-
   try {
     // Fetch the task directly by its unique ID
     const getParams = {

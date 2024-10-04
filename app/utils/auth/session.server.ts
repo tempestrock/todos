@@ -3,12 +3,16 @@ import { PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { createSessionStorage, redirect } from '@remix-run/node'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 
-import { generateSessionId } from './utils'
+import { ENV_PROD, USER_DEV } from '~/types/consts'
+import { generateSessionId } from '~/utils/auth/utils'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_SESSIONS } from '~/utils/database/dbConsts'
+import { isDevEnv } from '~/utils/isDevEnv'
 import { log } from '~/utils/log'
 
 export const requireAuth = async (request: Request): Promise<string> => {
+  if (isDevEnv()) return USER_DEV
+
   const session = await getSession(request.headers.get('Cookie'))
   const accessToken = session.get('accessToken')
 
@@ -35,7 +39,7 @@ export const requireAuth = async (request: Request): Promise<string> => {
 export const sessionStorage = createSessionStorage({
   cookie: {
     name: 'session',
-    secure: process.env.NODE_ENV === 'production' ? true : false,
+    secure: process.env.NODE_ENV === ENV_PROD ? true : false,
     secrets: [process.env.SESSION_SECRET!],
     sameSite: 'lax',
     path: '/',

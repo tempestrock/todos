@@ -2,10 +2,10 @@ import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 
-import { UNDEF } from './types/dataTypes'
-import { LANG_DEFAULT } from './utils/language'
 import { TranslationProvider } from '~/contexts/TranslationContext'
 import styles from '~/styles/tailwind.css?url'
+import { UNDEF } from '~/types/dataTypes'
+import { LANG_DEFAULT } from '~/utils/language'
 
 /**
  * Returns an array of links for the HTML document.
