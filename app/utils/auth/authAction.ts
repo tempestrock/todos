@@ -1,4 +1,4 @@
-import { ActionFunction, json, redirect } from '@remix-run/node'
+import { ActionFunction, ActionFunctionArgs, json, redirect } from '@remix-run/node'
 
 import { signIn, completeNewPassword } from '~/utils/auth/auth'
 import { getSession, commitSession, destroySession } from '~/utils/auth/session.server'
@@ -9,7 +9,7 @@ export type ActionData = {
   action?: 'signin' | 'signout' | 'completeNewPassword'
 }
 
-export const authAction: ActionFunction = async ({ request }) => {
+export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
   const action = formData.get('action')
   const username = formData.get('username') as string
