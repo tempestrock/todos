@@ -8,6 +8,7 @@ import { User } from '~/types/dataTypes'
 import { authAction, ActionData } from '~/utils/auth/authAction'
 import { getSession } from '~/utils/auth/session.server'
 import { requireAuth } from '~/utils/auth/session.server'
+import { log } from '~/utils/log'
 
 /**
  * Displays the authentication page.
@@ -28,7 +29,7 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
   } else {
     try {
       await requireAuth(request)
-      console.log(`[auth.loader] Authentication done. Redirecting to '/'.`)
+      log(`[auth.loader] Authentication done. Redirecting to '/'.`)
       // If the user is authenticated, redirect to the home page.
       return redirect('/')
     } catch {

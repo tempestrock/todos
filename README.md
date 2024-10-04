@@ -33,7 +33,7 @@ In DynamoDB, there are the following tables:
  | ------------------ | ------------- | -------- | --------------------------------------------------------------------------------- |
  | `TaskListMetadata` | `id`          | `name`   | `color`                                                                           |
  | `Tasks`            | `id`          | (none)   | `title`, `details`, `boardColumn`, `position`, `createdAt`, `updatedAt`, `labels` |
- | `Users`            | `id`          | (none)   | `displayName`, `taskListIds`                                                      |
+ | `Users`            | `id`          | (none)   | `displayName`, `taskListIds` (list of strings)                                                     |
 
 They exist three times with an additional postfix `-dev`, `-uat`, and `-prod`,
 respectively. You have to create all of them manually (which means that you only

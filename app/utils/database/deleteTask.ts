@@ -2,6 +2,7 @@ import { DeleteCommand, GetCommand } from '@aws-sdk/lib-dynamodb'
 
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
+import { log } from '~/utils/log'
 
 /**
  * Deletes a task from the database.
@@ -27,7 +28,7 @@ export async function deleteTask(listId: string, taskId: string): Promise<void> 
       throw new Error(`Task with ID ${taskId} in list ${listId} does not exist.`)
     }
 
-    console.log(`[deleteTask] Deleting task ${taskId} from list ${listId}.`)
+    log(`[deleteTask] Deleting task ${taskId} from list ${listId}.`)
 
     const deleteParams = {
       TableName: getTableName(TABLE_NAME_TASKS),
@@ -37,7 +38,7 @@ export async function deleteTask(listId: string, taskId: string): Promise<void> 
     }
 
     await dbClient().send(new DeleteCommand(deleteParams))
-    console.log('[deleteTask] Task deleted successfully.')
+    log('[deleteTask] Task deleted successfully.')
   } catch (error) {
     console.error('[deleteTask]', error)
     throw error

@@ -14,6 +14,7 @@ import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
+import { log } from '~/utils/log'
 import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
@@ -21,7 +22,7 @@ type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  console.log('[addTask.loader] starting')
+  log('[addTask.loader] starting')
 
   await requireAuth(request)
 
@@ -149,7 +150,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     case 'saveTask': {
-      console.log('[addTask.action] saveTask')
+      log('[addTask.action] saveTask')
 
       const taskId = getUid()
       const taskTitle = formData.get('taskTitle') as string
@@ -173,7 +174,7 @@ export const action: ActionFunction = async ({ request }) => {
         labelIds,
       }
 
-      console.log(`[addTask.action] listId: '${listId}'`)
+      log(`[addTask.action] listId: '${listId}'`)
       printObject(taskToAdd, `[addTask.action] new task`)
 
       // Push all tasks in the list down one position by incrementing their `position` values.

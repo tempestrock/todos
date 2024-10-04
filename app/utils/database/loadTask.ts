@@ -4,9 +4,10 @@ import { printObject } from '../printObject'
 import { Task } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
+import { log } from '~/utils/log'
 
 export async function loadTask(taskId: string): Promise<Task | undefined> {
-  console.log(`Starting loadTask(${taskId}).`)
+  log(`Starting loadTask(${taskId}).`)
 
   try {
     // Fetch the task directly by its unique ID

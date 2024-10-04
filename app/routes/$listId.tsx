@@ -30,6 +30,7 @@ import { LANG_DEFAULT } from '~/utils/language'
 import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
+import { log } from '~/utils/log'
 import { useTaskStore } from '~/utils/store/useTaskStore'
 import { capitalizeFirstLetter } from '~/utils/stringHandling'
 
@@ -43,7 +44,7 @@ type LoaderData = {
 }
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  console.log('[$listId.loader] starting')
+  log('[$listId.loader] starting')
 
   await requireAuth(request)
 
@@ -441,7 +442,7 @@ export const action = async ({ request }: { request: Request }) => {
       case 'reorder': {
         const targetTaskId = formData.get('targetTaskId') as string
 
-        console.log(`[$listId.action] Swapping tasks ${listId}, ${taskId}, ${targetTaskId}`)
+        log(`[$listId.action] Swapping tasks ${listId}, ${taskId}, ${targetTaskId}`)
         await swapTasks(taskId, targetTaskId)
 
         return json({ success: true, message: 'Task reordered successfully' })

@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-catch */
 import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
@@ -6,6 +5,8 @@ import {
   RespondToAuthChallengeCommand,
   RespondToAuthChallengeCommandInput,
 } from '@aws-sdk/client-cognito-identity-provider'
+
+import { printObject } from '../printObject'
 
 const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION })
 
@@ -19,13 +20,10 @@ export const signIn = async (username: string, password: string) => {
     },
   }
 
-  try {
-    const command = new InitiateAuthCommand(params)
-    const response = await cognitoClient.send(command)
-    return response // Contains tokens or challenge
-  } catch (error) {
-    throw error
-  }
+  const command = new InitiateAuthCommand(params)
+  const response = await cognitoClient.send(command)
+  printObject(response, '[signIn] response')
+  return response // Contains tokens or challenge
 }
 
 export const completeNewPassword = async (username: string, newPassword: string, sessionToken: string) => {
@@ -39,11 +37,7 @@ export const completeNewPassword = async (username: string, newPassword: string,
     Session: sessionToken,
   }
 
-  try {
-    const command = new RespondToAuthChallengeCommand(params)
-    const response = await cognitoClient.send(command)
-    return response // Contains tokens
-  } catch (error) {
-    throw error
-  }
+  const command = new RespondToAuthChallengeCommand(params)
+  const response = await cognitoClient.send(command)
+  return response // Contains tokens
 }

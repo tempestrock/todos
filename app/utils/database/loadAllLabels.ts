@@ -3,9 +3,10 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { Label } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_LABELS } from '~/utils/database/dbConsts'
+import { log } from '~/utils/log'
 
 export async function loadAllLabels(): Promise<Label[]> {
-  console.log('Starting loadAllLabels.')
+  log('Starting loadAllLabels.')
 
   try {
     const scanParams = {
@@ -17,7 +18,7 @@ export async function loadAllLabels(): Promise<Label[]> {
 
     const labels = (response.Items as Label[]) || []
 
-    console.log(`[loadAllLabels] Total labels fetched: ${labels.length}`)
+    log(`[loadAllLabels] Total labels fetched: ${labels.length}`)
     return labels
   } catch (error) {
     console.error('[loadAllLabels]', error)

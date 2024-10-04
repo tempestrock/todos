@@ -14,6 +14,7 @@ import { saveLabel } from '~/utils/database/saveLabel'
 import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
+import { log } from '~/utils/log'
 import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
@@ -22,7 +23,7 @@ type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  console.log('[editTask.loader] starting')
+  log('[editTask.loader] starting')
   await requireAuth(request)
   const url = new URL(request.url)
   const taskId = url.searchParams.get('taskId')
@@ -172,7 +173,7 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     case 'saveTask': {
-      console.log('[editTask.action] saveTask')
+      log('[editTask.action] saveTask')
 
       const taskTitle = formData.get('taskTitle') as string
       const taskDetails = formData.get('taskDetails') as string
@@ -199,7 +200,7 @@ export const action: ActionFunction = async ({ request }) => {
         labelIds,
       }
 
-      console.log(`[editTask.action] listId: '${listId}'`)
+      log(`[editTask.action] listId: '${listId}'`)
       printObject(task, `[editTask.action] updated task`)
 
       await saveTask(task)

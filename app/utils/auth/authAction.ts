@@ -1,5 +1,6 @@
 import { ActionFunction, ActionFunctionArgs, json, redirect } from '@remix-run/node'
 
+import { printObject } from '../printObject'
 import { signIn, completeNewPassword } from '~/utils/auth/auth'
 import { getSession, commitSession, destroySession } from '~/utils/auth/session.server'
 
@@ -26,6 +27,7 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
           session.set('challengeName', result.ChallengeName)
           session.set('sessionToken', result.Session)
           session.set('username', username)
+          session.set('email', 'dummy@example.com')
 
           return redirect('/auth', {
             headers: {
@@ -33,6 +35,7 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
             },
           })
         } else if (result.AuthenticationResult) {
+          printObject(result.AuthenticationResult, '[authAction.signin] result.AuthenticationResult')
           session.set('accessToken', result.AuthenticationResult.AccessToken)
           session.set('idToken', result.AuthenticationResult.IdToken)
           session.set('refreshToken', result.AuthenticationResult.RefreshToken)
