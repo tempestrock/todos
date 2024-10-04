@@ -11,12 +11,13 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "3.664.0",
     "@aws-sdk/client-dynamodb": "3.656.0",
     "@aws-sdk/lib-dynamodb": "3.656.0",
     "@remix-run/node": "2.12.1",
     "@remix-run/react": "2.12.1",
     "@remix-run/serve": "2.12.1",
-    "amazon-cognito-identity-js": "6.3.12",
+    "aws-jwt-verify": "4.0.1",
     "aws-sdk": "2.1691.0",
     "isbot": "5.1.17",
     "lucide-react": "0.445.0",

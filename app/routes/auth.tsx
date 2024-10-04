@@ -5,9 +5,9 @@ import { useEffect, useRef } from 'react'
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { User } from '~/types/dataTypes'
-import { getCurrentUser } from '~/utils/auth/auth'
 import { authAction, ActionData } from '~/utils/auth/authAction'
 import { getSession } from '~/utils/auth/session.server'
+import { requireAuth } from '~/utils/auth/session.server'
 
 /**
  * Displays the authentication page.
@@ -20,8 +20,6 @@ export type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  console.log('[auth.loader] starting')
-
   const session = await getSession(request.headers.get('Cookie'))
   const challengeName = session.get('challengeName')
 
@@ -29,12 +27,9 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
     return json({ success: true, challengeName: 'NEW_PASSWORD_REQUIRED' })
   } else {
     try {
-      const user = await getCurrentUser()
-      if (user) {
-        // If the user is authenticated, redirect to the home page.
-        return redirect('/')
-      }
-      return json({ success: true })
+      await requireAuth(request)
+      // If the user is authenticated, redirect to the home page.
+      return redirect('/')
     } catch {
       return json({ success: false })
     }
@@ -131,11 +126,7 @@ export default function Auth() {
                   className="text-base text-blue-500 border border-blue-700 hover:border-blue-900 hover:bg-blue-900 hover:text-white rounded mt-6 pt-1 px-2 pb-1"
                   type="submit"
                 >
-                  {navigation.state === 'submitting' ? (
-                    <Spinner size={24} lightModeColor="#2E5CEE" />
-                  ) : (
-                    t['sign-in']
-                  )}
+                  {navigation.state === 'submitting' ? <Spinner size={24} lightModeColor="#2E5CEE" /> : t['sign-in']}
                 </button>
               </div>
             </Form>

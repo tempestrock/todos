@@ -1,18 +1,30 @@
+/* eslint-disable @typescript-eslint/only-throw-error */
 import { redirect, createCookieSessionStorage } from '@remix-run/node'
+import { CognitoJwtVerifier } from 'aws-jwt-verify'
 
-import { getCurrentUser } from '~/utils/auth/auth'
+export const requireAuth = async (request: Request): Promise<string> => {
+  const session = await getSession(request.headers.get('Cookie'))
+  const accessToken = session.get('accessToken')
 
-export const requireAuth = async (_request: Request): Promise<string> => {
+  if (!accessToken) {
+    throw redirect('/auth')
+  }
+
+  const verifier = CognitoJwtVerifier.create({
+    userPoolId: process.env.COGNITO_USER_POOL_ID!,
+    tokenUse: 'access',
+    clientId: process.env.COGNITO_CLIENT_ID!,
+  })
+
   try {
-    const user = await getCurrentUser()
-    return user.cognitoUser.username
-  } catch (_error: any) {
-    // eslint-disable-next-line @typescript-eslint/only-throw-error
+    const payload = await verifier.verify(accessToken)
+    return payload.username
+  } catch (_err) {
+    // Token is invalid or expired
     throw redirect('/auth')
   }
 }
 
-// Necessary for the handling of 'new password required'.
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: 'session',
