@@ -28,6 +28,7 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
   } else {
     try {
       await requireAuth(request)
+      console.log(`[auth.loader] Authentication done. Redirecting to '/'.`)
       // If the user is authenticated, redirect to the home page.
       return redirect('/')
     } catch {

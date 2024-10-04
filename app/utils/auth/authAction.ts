@@ -23,7 +23,6 @@ export const authAction: ActionFunction = async ({ request }) => {
         const result = await signIn(username, password)
 
         if (result.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
-          // Store challenge details in the session
           session.set('challengeName', result.ChallengeName)
           session.set('sessionToken', result.Session)
           session.set('username', username)
@@ -34,7 +33,6 @@ export const authAction: ActionFunction = async ({ request }) => {
             },
           })
         } else if (result.AuthenticationResult) {
-          // Successful login, store tokens in session
           session.set('accessToken', result.AuthenticationResult.AccessToken)
           session.set('idToken', result.AuthenticationResult.IdToken)
           session.set('refreshToken', result.AuthenticationResult.RefreshToken)
@@ -61,7 +59,6 @@ export const authAction: ActionFunction = async ({ request }) => {
         const result = await completeNewPassword(storedUsername, newPassword, sessionToken)
 
         if (result.AuthenticationResult) {
-          // Successful password update, store new tokens
           session.set('accessToken', result.AuthenticationResult.AccessToken)
           session.set('idToken', result.AuthenticationResult.IdToken)
           session.set('refreshToken', result.AuthenticationResult.RefreshToken)
@@ -82,9 +79,10 @@ export const authAction: ActionFunction = async ({ request }) => {
       }
 
       case 'signout':
+        await destroySession(session)
         return redirect('/auth', {
           headers: {
-            'Set-Cookie': await destroySession(session),
+            'Set-Cookie': await commitSession(session),
           },
         })
 
