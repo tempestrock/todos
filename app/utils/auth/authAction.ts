@@ -1,8 +1,8 @@
 import { ActionFunction, ActionFunctionArgs, json, redirect } from '@remix-run/node'
 
-import { printObject } from '../printObject'
 import { signIn, completeNewPassword } from '~/utils/auth/auth'
 import { getSession, commitSession, destroySession } from '~/utils/auth/session.server'
+import { log } from '~/utils/log'
 
 export type ActionData = {
   success: boolean
@@ -35,7 +35,6 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
             },
           })
         } else if (result.AuthenticationResult) {
-          printObject(result.AuthenticationResult, '[authAction.signin] result.AuthenticationResult')
           session.set('accessToken', result.AuthenticationResult.AccessToken)
           session.set('idToken', result.AuthenticationResult.IdToken)
           session.set('refreshToken', result.AuthenticationResult.RefreshToken)
@@ -92,7 +91,7 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
         return json<ActionData>({ success: false, error: 'Invalid action' })
     }
   } catch (error) {
-    console.error('[authAction]', error)
+    log('[authAction]', error)
     return json<ActionData>({
       success: false,
       error: error instanceof Error ? error.message : 'An unknown error occurred',

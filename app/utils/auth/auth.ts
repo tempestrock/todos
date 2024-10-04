@@ -6,8 +6,6 @@ import {
   RespondToAuthChallengeCommandInput,
 } from '@aws-sdk/client-cognito-identity-provider'
 
-import { printObject } from '../printObject'
-
 const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AWS_REGION })
 
 export const signIn = async (username: string, password: string) => {
@@ -22,7 +20,6 @@ export const signIn = async (username: string, password: string) => {
 
   const command = new InitiateAuthCommand(params)
   const response = await cognitoClient.send(command)
-  printObject(response, '[signIn] response')
   return response // Contains tokens or challenge
 }
 

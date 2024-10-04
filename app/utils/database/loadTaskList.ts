@@ -38,7 +38,7 @@ export async function loadTaskList(listId: string): Promise<TaskList> {
 
     return taskList
   } catch (error) {
-    console.error('[loadTaskList]', error)
+    log('[loadTaskList]', error)
     throw error
   }
 }
@@ -78,7 +78,7 @@ async function loadMetadataOfTaskList(listId: string): Promise<TaskList> {
 
     return taskList
   } catch (error) {
-    console.error('[loadMetadataOfTaskList]', error)
+    log('[loadMetadataOfTaskList]', error)
     throw error
   }
 }

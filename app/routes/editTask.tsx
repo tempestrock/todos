@@ -15,7 +15,6 @@ import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
 import { log } from '~/utils/log'
-import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
   task: Task
@@ -199,9 +198,6 @@ export const action: ActionFunction = async ({ request }) => {
         updatedAt: getNow(),
         labelIds,
       }
-
-      log(`[editTask.action] listId: '${listId}'`)
-      printObject(task, `[editTask.action] updated task`)
 
       await saveTask(task)
 

@@ -19,7 +19,7 @@ export async function saveLabel(label: Label): Promise<void> {
 
     log(`[saveLabel] Label with id ${label.id} saved successfully`)
   } catch (error) {
-    console.error('[saveLabel] Error saving label:', error)
+    log('[saveLabel] Error saving label:', error)
     throw error
   }
 }

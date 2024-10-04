@@ -40,7 +40,7 @@ export async function deleteTask(listId: string, taskId: string): Promise<void> 
     await dbClient().send(new DeleteCommand(deleteParams))
     log('[deleteTask] Task deleted successfully.')
   } catch (error) {
-    console.error('[deleteTask]', error)
+    log('[deleteTask]', error)
     throw error
   }
 }

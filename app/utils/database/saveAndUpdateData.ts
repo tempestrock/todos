@@ -65,7 +65,7 @@ export async function saveTask(task: Task): Promise<void> {
       log('[saveTask] Task created successfully.')
     }
   } catch (error) {
-    console.error('[saveTask]', error)
+    log('[saveTask]', error)
     throw error
   }
 }
@@ -113,7 +113,7 @@ export async function updateBoardColumn(task: Task): Promise<void> {
     await dbClient().send(new UpdateCommand(updateParams))
     log('[updateColumn] Updated successfully.')
   } catch (error) {
-    console.error('[updateColumn]', error)
+    log('[updateColumn]', error)
     throw error
   }
 }

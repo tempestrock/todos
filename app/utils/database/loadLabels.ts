@@ -46,7 +46,7 @@ export async function loadLabels(labelIds: string[]): Promise<Label[]> {
     log(`[loadLabels] Total labels fetched: ${labels.length}`)
     return labels
   } catch (error) {
-    console.error('[loadLabels] Error fetching labels:', error)
+    log('[loadLabels] Error fetching labels:', error)
     throw error
   }
 }

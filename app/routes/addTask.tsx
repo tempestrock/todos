@@ -15,7 +15,6 @@ import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { log } from '~/utils/log'
-import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
   labels: Label[]
@@ -173,9 +172,6 @@ export const action: ActionFunction = async ({ request }) => {
         updatedAt: nowStr,
         labelIds,
       }
-
-      log(`[addTask.action] listId: '${listId}'`)
-      printObject(taskToAdd, `[addTask.action] new task`)
 
       // Push all tasks in the list down one position by incrementing their `position` values.
       await pushTasksDown(listId, boardColumn)

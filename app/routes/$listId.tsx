@@ -68,7 +68,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
     return json<LoaderData>({ taskList, labels })
   } catch (error) {
-    console.error('[$listId.loader] Error loading tasks:', error)
+    log('[$listId.loader] Error loading tasks:', error)
     return json({ error: '[$listId.loader] Failed to load tasks' }, { status: 500 })
   }
 }
@@ -452,7 +452,7 @@ export const action = async ({ request }: { request: Request }) => {
         return json({ error: 'Invalid action' }, { status: 400 })
     }
   } catch (error) {
-    console.error('[$listId.action]', error)
+    log('[$listId.action]', error)
     return json({ error: '[$listId.action] Failed to process action' }, { status: 500 })
   }
 }

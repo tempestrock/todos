@@ -4,7 +4,6 @@ import { User } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_USERS } from '~/utils/database/dbConsts'
 import { log } from '~/utils/log'
-import { printObject } from '~/utils/printObject'
 
 /**
  * Loads the data for the user with the given ID.
@@ -30,11 +29,9 @@ export const loadUser = async (userId: string): Promise<User> => {
       throw new Error(`User with id ${userId} not found`)
     }
 
-    printObject(response.Item, '[loadUser] response.Item')
-
     return response.Item as User
   } catch (error) {
-    console.error('[loadUser]', error)
+    log('[loadUser]', error)
     throw error
   }
 }

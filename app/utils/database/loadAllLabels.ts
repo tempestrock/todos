@@ -21,7 +21,7 @@ export async function loadAllLabels(): Promise<Label[]> {
     log(`[loadAllLabels] Total labels fetched: ${labels.length}`)
     return labels
   } catch (error) {
-    console.error('[loadAllLabels]', error)
+    log('[loadAllLabels]', error)
     throw error
   }
 }

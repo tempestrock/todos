@@ -6,6 +6,7 @@ import { CognitoJwtVerifier } from 'aws-jwt-verify'
 import { generateSessionId } from './utils'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_SESSIONS } from '~/utils/database/dbConsts'
+import { log } from '~/utils/log'
 
 export const requireAuth = async (request: Request): Promise<string> => {
   const session = await getSession(request.headers.get('Cookie'))
@@ -26,7 +27,7 @@ export const requireAuth = async (request: Request): Promise<string> => {
     const payload = await verifier.verify(accessToken)
     return payload.username
   } catch (err) {
-    console.error('[requireAuth] Token verification failed:', err)
+    log('[requireAuth] Token verification failed:', err)
     throw redirect('/auth')
   }
 }
