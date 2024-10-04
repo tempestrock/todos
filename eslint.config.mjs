@@ -39,7 +39,7 @@ export default tseslint.config(
 
   // Switch off linting for specific files.
   {
-    ignores: ['assets/*.js'],
+    ignores: ['assets/*.js', 'build/**', 'eslint.config.mjs', '.eslintrc.cjs'],
   },
 
   // Define custom rules.

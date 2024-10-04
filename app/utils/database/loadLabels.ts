@@ -3,10 +3,9 @@ import { BatchGetCommand } from '@aws-sdk/lib-dynamodb'
 import { Label } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_LABELS } from '~/utils/database/dbConsts'
+import { log } from '~/utils/log'
 
 export async function loadLabels(labelIds: string[]): Promise<Label[]> {
-  console.log(`Starting loadLabels for labelIds: ${labelIds.join(', ')}`)
-
   if (labelIds.length === 0) {
     return [] // Return an empty array if there are no label IDs to fetch
   }
@@ -38,14 +37,11 @@ export async function loadLabels(labelIds: string[]): Promise<Label[]> {
 
       const fetchedLabels = (response.Responses?.[getTableName(TABLE_NAME_LABELS)] as Label[]) || []
       labels.push(...fetchedLabels)
-
-      console.log(`[loadLabels] Fetched ${fetchedLabels.length} labels in this batch`)
     }
 
-    console.log(`[loadLabels] Total labels fetched: ${labels.length}`)
     return labels
   } catch (error) {
-    console.error('[loadLabels] Error fetching labels:', error)
+    log('[loadLabels] Error fetching labels:', error)
     throw error
   }
 }

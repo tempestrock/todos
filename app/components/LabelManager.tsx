@@ -2,7 +2,7 @@ import { useNavigation } from '@remix-run/react'
 import { CirclePlus, CircleX } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-import Spinner from './Spinner'
+import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label } from '~/types/dataTypes'
 import { ALL_LANGUAGES, LANG_DEFAULT } from '~/utils/language'

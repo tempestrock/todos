@@ -3,6 +3,7 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { TaskList, TaskListMetadata } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_TASKLIST_METADATA } from '~/utils/database/dbConsts'
+import { log } from '~/utils/log'
 
 /**
  * Loads task list metadata from the database without the actual tasks.
@@ -43,7 +44,7 @@ export async function loadListMetadata(allowedListIds: string[]): Promise<TaskLi
 
     return taskLists
   } catch (error) {
-    console.error('Error in loadListMetadata:', error)
+    log('Error in loadListMetadata:', error)
     throw error
   }
 }

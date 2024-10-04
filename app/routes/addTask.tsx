@@ -14,15 +14,12 @@ import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
-import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
   labels: Label[]
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  console.log('[addTask.loader] starting')
-
   await requireAuth(request)
 
   // Load all labels
@@ -149,8 +146,6 @@ export const action: ActionFunction = async ({ request }) => {
     }
 
     case 'saveTask': {
-      console.log('[addTask.action] saveTask')
-
       const taskId = getUid()
       const taskTitle = formData.get('taskTitle') as string
       const taskDetails = formData.get('taskDetails') as string
@@ -172,9 +167,6 @@ export const action: ActionFunction = async ({ request }) => {
         updatedAt: nowStr,
         labelIds,
       }
-
-      console.log(`[addTask.action] listId: '${listId}'`)
-      printObject(taskToAdd, `[addTask.action] new task`)
 
       // Push all tasks in the list down one position by incrementing their `position` values.
       await pushTasksDown(listId, boardColumn)

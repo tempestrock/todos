@@ -10,6 +10,7 @@ import { authAction } from '~/utils/auth/authAction'
 import { requireAuth } from '~/utils/auth/session.server'
 import { loadListMetadata } from '~/utils/database/loadListMetadata'
 import { loadUser } from '~/utils/database/loadUser'
+import { log } from '~/utils/log'
 
 export type LoaderData = {
   user?: User
@@ -30,7 +31,7 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
 
     return json<LoaderData>({ success: true, todoLists, user, labels: [] })
   } catch (error) {
-    console.error('[_index.loader] Error loading tasks:', error)
+    log('[_index.loader] Error loading tasks:', error)
     return json<LoaderData>({ success: false, todoLists: [], user: undefined, labels: [] })
   }
 }

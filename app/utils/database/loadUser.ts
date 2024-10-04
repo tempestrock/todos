@@ -3,7 +3,7 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb'
 import { User } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_USERS } from '~/utils/database/dbConsts'
-import { printObject } from '~/utils/printObject'
+import { log } from '~/utils/log'
 
 /**
  * Loads the data for the user with the given ID.
@@ -12,7 +12,7 @@ import { printObject } from '~/utils/printObject'
  * @return {Promise<User>} The user's data.
  */
 export const loadUser = async (userId: string): Promise<User> => {
-  console.log(`Starting loadUser(${userId}).`)
+  log(`[loadUser] Starting (${userId}).`)
 
   try {
     const getParams = {
@@ -26,14 +26,12 @@ export const loadUser = async (userId: string): Promise<User> => {
     const response = await dbClient().send(command)
 
     if (!response.Item) {
-      throw new Error(`User with id ${userId} not found`)
+      throw new Error(`[loadUser] User with id ${userId} not found`)
     }
-
-    printObject(response.Item, '[loadUser] response.Item')
 
     return response.Item as User
   } catch (error) {
-    console.error('[loadUser]', error)
+    log('[loadUser]', error)
     throw error
   }
 }

@@ -14,12 +14,8 @@ export const pushTasksDown = async (listId: string, boardColumn: BoardColumn): P
   // Push all tasks in the list down one position by incrementing their `position` values.
   const taskList = await loadTaskList(listId)
   const tasksInColumn = taskList.tasks.filter((task) => task.boardColumn === boardColumn)
-  console.log(
-    `[pushTasksDown] ${tasksInColumn.length} tasks to push down in list '${taskList.displayName}', colum '${boardColumn}'.`
-  )
 
   for (const task of tasksInColumn) {
-    console.log(`[pushTasksDown] pushing down task '${task.title}'`)
     task.position++
     await saveTask(task)
   }

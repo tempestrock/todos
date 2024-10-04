@@ -1,7 +1,8 @@
-import { json, ActionFunction, redirect, ActionFunctionArgs } from '@remix-run/node'
+import { ActionFunction, ActionFunctionArgs, json, redirect } from '@remix-run/node'
 
-import { signIn, signOut, completeNewPassword } from '~/utils/auth/auth'
-import { getSession, commitSession } from '~/utils/auth/session.server'
+import { signIn, completeNewPassword } from '~/utils/auth/auth'
+import { getSession, commitSession, destroySession } from '~/utils/auth/session.server'
+import { log } from '~/utils/log'
 
 export type ActionData = {
   success: boolean
@@ -15,68 +16,86 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
   const username = formData.get('username') as string
   const password = formData.get('password') as string
 
-  console.log(`[authAction] Handling ${action?.toString()} action`)
-
   const session = await getSession(request.headers.get('Cookie'))
 
   try {
     switch (action) {
       case 'signin': {
-        const signInResult = await signIn(username, password)
-        if (signInResult.challengeName === 'NEW_PASSWORD_REQUIRED') {
-          session.set('challengeName', 'NEW_PASSWORD_REQUIRED')
+        const result = await signIn(username, password)
+
+        if (result.ChallengeName === 'NEW_PASSWORD_REQUIRED') {
+          session.set('challengeName', result.ChallengeName)
+          session.set('sessionToken', result.Session)
           session.set('username', username)
-          session.set('password', password) // Be cautious with storing passwords
+
           return redirect('/auth', {
             headers: {
               'Set-Cookie': await commitSession(session),
             },
           })
+        } else if (result.AuthenticationResult) {
+          session.set('accessToken', result.AuthenticationResult.AccessToken)
+          session.set('idToken', result.AuthenticationResult.IdToken)
+          session.set('refreshToken', result.AuthenticationResult.RefreshToken)
+
+          return redirect('/', {
+            headers: {
+              'Set-Cookie': await commitSession(session),
+            },
+          })
         } else {
-          // Successful sign-in
-          return redirect('/')
+          throw new Error('Unexpected response from Cognito')
         }
       }
 
       case 'completeNewPassword': {
         const newPassword = formData.get('newPassword') as string
         const storedUsername = session.get('username')
-        const storedPassword = session.get('password')
-        if (!storedUsername || !storedPassword) {
+        const sessionToken = session.get('sessionToken')
+
+        if (!storedUsername || !sessionToken) {
           return json<ActionData>({ success: false, error: 'Session expired. Please sign in again.' })
         }
-        await completeNewPassword(storedUsername, storedPassword, newPassword)
-        // Clear session data
-        session.unset('challengeName')
-        session.unset('username')
-        session.unset('password')
-        return redirect('/', {
-          headers: {
-            'Set-Cookie': await commitSession(session),
-          },
-        })
+
+        const result = await completeNewPassword(storedUsername, newPassword, sessionToken)
+
+        if (result.AuthenticationResult) {
+          session.set('accessToken', result.AuthenticationResult.AccessToken)
+          session.set('idToken', result.AuthenticationResult.IdToken)
+          session.set('refreshToken', result.AuthenticationResult.RefreshToken)
+
+          // Clear challenge data from session
+          session.unset('challengeName')
+          session.unset('sessionToken')
+          session.unset('username')
+
+          return redirect('/', {
+            headers: {
+              'Set-Cookie': await commitSession(session),
+            },
+          })
+        } else {
+          throw new Error('Unexpected response from Cognito')
+        }
       }
 
       case 'signout':
-        signOut()
-        session.unset('challengeName')
-        session.unset('username')
-        session.unset('password')
-        console.log('[authAction] signOut completed')
         return redirect('/auth', {
           headers: {
-            'Set-Cookie': await commitSession(session),
+            'Set-Cookie': await destroySession(session),
           },
         })
 
       default:
         return json<ActionData>({ success: false, error: 'Invalid action' })
     }
-  } catch (error) {
-    console.error('[authAction]', error)
-    return json<ActionData>({
-      success: false,
-      error: error instanceof Error ? error.message : 'An unknown error occurred',
-    })
+  } catch (error: any) {
+    if (error.name === 'NotAuthorizedException') {
+      log(`[authAction] Failed login attempt with user '${username}' and password '${password}'.`)
+      return json<ActionData>({ success: false, error: 'Incorrect username or password.' })
+    } else {
+      log('[authAction] An unexpected error occurred:', error)
+      return json<ActionData>({ success: false, error: 'An unexpected error occurred.' })
+    }
   }
 }

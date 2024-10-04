@@ -3,10 +3,9 @@ import { ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { Task, TaskList, TaskListMetadata, TaskListUndefined } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_TASKLIST_METADATA, TABLE_NAME_TASKS } from '~/utils/database/dbConsts'
+import { log } from '~/utils/log'
 
 export async function loadTaskList(listId: string): Promise<TaskList> {
-  console.log(`Starting loadTaskList(${listId}).`)
-
   // Get the metadata of the one task list that has the given list ID.
   const taskList = await loadMetadataOfTaskList(listId)
 
@@ -37,7 +36,7 @@ export async function loadTaskList(listId: string): Promise<TaskList> {
 
     return taskList
   } catch (error) {
-    console.error('[loadTaskList]', error)
+    log('[loadTaskList]', error)
     throw error
   }
 }
@@ -77,7 +76,7 @@ async function loadMetadataOfTaskList(listId: string): Promise<TaskList> {
 
     return taskList
   } catch (error) {
-    console.error('[loadMetadataOfTaskList]', error)
+    log('[loadMetadataOfTaskList]', error)
     throw error
   }
 }

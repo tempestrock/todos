@@ -20,13 +20,9 @@ export const moveUpTasksBelowPosition = async (
   const tasksInColumnBelowPosition = taskList.tasks.filter(
     (task) => task.boardColumn === boardColumn && task.position > position
   )
-  console.log(
-    `[moveUpTasksBelowPosition] ${tasksInColumnBelowPosition.length} tasks to move up in list '${taskList.displayName}', colum '${boardColumn}'.`
-  )
 
   // Reduce the position of the found tasks by one.
   for (const task of tasksInColumnBelowPosition) {
-    console.log(`[moveUpTasksBelowPosition] moving up task '${task.title}'`)
     task.position--
     await saveTask(task)
   }

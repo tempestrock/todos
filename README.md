@@ -29,11 +29,11 @@ reside in the `.env` file in the respective directories on `vpn-client-1`.
 
 In DynamoDB, there are the following tables:
 
- | Table name         | Partition Key | Sort Key | Other Fields                                                                      |
- | ------------------ | ------------- | -------- | --------------------------------------------------------------------------------- |
- | `TaskListMetadata` | `id`          | `name`   | `color`                                                                           |
- | `Tasks`            | `id`          | (none)   | `title`, `details`, `boardColumn`, `position`, `createdAt`, `updatedAt`, `labels` |
- | `Users`            | `id`          | (none)   | `displayName`, `taskListIds`                                                      |
+| Table name         | Partition Key | Sort Key | Other Fields                                                                      |
+| ------------------ | ------------- | -------- | --------------------------------------------------------------------------------- |
+| `TaskListMetadata` | `id`          | `name`   | `color`                                                                           |
+| `Tasks`            | `id`          | (none)   | `title`, `details`, `boardColumn`, `position`, `createdAt`, `updatedAt`, `labels` |
+| `Users`            | `id`          | (none)   | `displayName`, `taskListIds` (list of strings)                                    |
 
 They exist three times with an additional postfix `-dev`, `-uat`, and `-prod`,
 respectively. You have to create all of them manually (which means that you only
@@ -43,6 +43,7 @@ The tables `TaskListMetadata` and `Users` even have to get manual entries. It
 is possible to export and import from one environment to the other, though.
 
 A user has the following structure (in DynamoDB JSON view) e.g.:
+
 ```json
 {
   "id": {

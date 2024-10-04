@@ -20,9 +20,26 @@ create_table() {
   echo "${table_name} created successfully."
 }
 
+
+enable_ttl_on_table() {
+  local table_name="$1-${DB_POSTFIX}"
+
+  echo "Enabling TTL on table: $table_name"
+
+  aws dynamodb update-time-to-live \
+    --table-name "${table_name}" \
+    --time-to-live-specification "Enabled=true, AttributeName=expiresAt" \
+    --region "${REGION}"
+
+  echo "TTL enabled on ${table_name} with expiresAt attribute."  
+}
+
 # create_table "TaskListMetadata"
 # create_table "Tasks"
 # create_table "Users"
-create_table "Labels"
+# create_table "Labels"
+create_table "Sessions"
+
+enable_ttl_on_table "Sessions"
 
 echo "All tables created successfully."

@@ -1,5 +1,5 @@
-import { LANG_DE } from './language'
 import { DateTimeString } from '~/types/dataTypes'
+import { LANG_DE } from '~/utils/language'
 
 export const getNow = (): DateTimeString => {
   const now = new Date()

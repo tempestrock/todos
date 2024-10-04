@@ -29,6 +29,7 @@ import { LANG_DEFAULT } from '~/utils/language'
 import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
+import { log } from '~/utils/log'
 import { useTaskStore } from '~/utils/store/useTaskStore'
 import { capitalizeFirstLetter } from '~/utils/stringHandling'
 
@@ -42,8 +43,6 @@ type LoaderData = {
 }
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  console.log('[$listId.loader] starting')
-
   await requireAuth(request)
 
   try {
@@ -66,7 +65,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
     return json<LoaderData>({ taskList, labels })
   } catch (error) {
-    console.error('[$listId.loader] Error loading tasks:', error)
+    log('[$listId.loader] Error loading tasks:', error)
     return json({ error: '[$listId.loader] Failed to load tasks' }, { status: 500 })
   }
 }
@@ -476,7 +475,6 @@ export const action = async ({ request }: { request: Request }) => {
       case 'reorder': {
         const targetTaskId = formData.get('targetTaskId') as string
 
-        console.log(`[$listId.action] Swapping tasks ${listId}, ${taskId}, ${targetTaskId}`)
         await swapTasks(taskId, targetTaskId)
 
         return json({ success: true, message: 'Task reordered successfully' })
@@ -486,7 +484,7 @@ export const action = async ({ request }: { request: Request }) => {
         return json({ error: 'Invalid action' }, { status: 400 })
     }
   } catch (error) {
-    console.error('[$listId.action]', error)
+    log('[$listId.action]', error)
     return json({ error: '[$listId.action] Failed to process action' }, { status: 500 })
   }
 }
