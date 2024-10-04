@@ -27,7 +27,6 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
           session.set('challengeName', result.ChallengeName)
           session.set('sessionToken', result.Session)
           session.set('username', username)
-          session.set('email', 'dummy@example.com')
 
           return redirect('/auth', {
             headers: {
@@ -90,11 +89,13 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
       default:
         return json<ActionData>({ success: false, error: 'Invalid action' })
     }
-  } catch (error) {
-    log('[authAction]', error)
-    return json<ActionData>({
-      success: false,
-      error: error instanceof Error ? error.message : 'An unknown error occurred',
-    })
+  } catch (error: any) {
+    if (error.name === 'NotAuthorizedException') {
+      log(`[authAction] Failed login attempt with user '${username}' and password '${password}'.`)
+      return json<ActionData>({ success: false, error: 'Incorrect username or password.' })
+    } else {
+      log('[authAction] An unexpected error occurred:', error)
+      return json<ActionData>({ success: false, error: 'An unexpected error occurred.' })
+    }
   }
 }
