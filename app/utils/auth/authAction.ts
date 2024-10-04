@@ -79,10 +79,9 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
       }
 
       case 'signout':
-        await destroySession(session)
         return redirect('/auth', {
           headers: {
-            'Set-Cookie': await commitSession(session),
+            'Set-Cookie': await destroySession(session),
           },
         })
 
