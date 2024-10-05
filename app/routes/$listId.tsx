@@ -304,10 +304,10 @@ export default function ListView() {
                 <button
                   key={label.id}
                   onClick={() => handleLabelFilterChange(label.id)}
-                  className={`px-2 py-1 rounded text-xs text-gray-100 transition-opacity duration-150 ${
+                  className={`px-2 py-1 border rounded text-xs text-gray-100 transition-opacity duration-150 ${
                     selectedLabelIds.includes(label.id)
                       ? 'opacity-100 border-2 border-gray-900 dark:border-gray-100'
-                      : 'opacity-50'
+                      : 'opacity-50 hover:opacity-80 hover:border-gray-900 dark:hover:border-gray-100'
                   }`}
                   style={{
                     backgroundColor: label.color,
