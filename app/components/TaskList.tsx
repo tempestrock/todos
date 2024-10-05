@@ -175,7 +175,13 @@ export default function TaskList({
                   </button>
                 </div>
 
-                <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDelete(task.id)
+                  }}
+                  className="text-red-500 hover:text-red-700"
+                >
                   <Trash2 size={20} />
                 </button>
               </div>

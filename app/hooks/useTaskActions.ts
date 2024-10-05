@@ -22,8 +22,9 @@ export const useTaskActions = ({ listId, currentBoardColumn, boardColumns }: Use
   }
 
   const handleDelete = (taskId: string) => {
-    setLoadingTaskId(taskId)
     if (confirm(t['confirm-deletion'])) {
+      setLoadingTaskId(taskId)
+
       // Call the action to delete the task in the database.
       submit({ intent: 'delete', listId, taskId }, { method: 'post' })
     }
