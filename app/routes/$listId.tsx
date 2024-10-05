@@ -53,14 +53,14 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     // Sort tasks by position.
     taskList.tasks.sort((a, b) => a.position - b.position)
 
-    // Collect all label IDs from tasks
+    // Collect all label IDs from tasks.
     const labelIdsSet = new Set<string>()
     taskList.tasks.forEach((task) => {
       task.labelIds.forEach((labelId) => labelIdsSet.add(labelId))
     })
     const labelIds = Array.from(labelIdsSet)
 
-    // Load labels from the database
+    // Load labels from the database.
     const labels = await loadLabels(labelIds)
 
     return json<LoaderData>({ taskList, labels })
@@ -81,6 +81,8 @@ export default function ListView() {
 
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
+
+  const [labelFilterVisible, setLabelFilterVisible] = useState(false)
 
   const { t } = useTranslation()
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
@@ -150,6 +152,8 @@ export default function ListView() {
     submit({ intent: 'move', listId, taskId, targetColumn }, { method: 'post' })
   }
 
+  const toggleLabelFilterVisibility = () => setLabelFilterVisible(!labelFilterVisible)
+
   const handleReorder = (taskId: string, direction: 'up' | 'down') => {
     setLoadingTaskId(taskId)
 
@@ -216,17 +220,18 @@ export default function ListView() {
       .filter((task) => {
         if (task.boardColumn !== currentBoardColumn) return false
         if (selectedLabelIds.length === 0) return true
-        // Include tasks that have all selected labels
+        if (!labelFilterVisible) return true
+        // Include tasks that have all selected labels.
         return selectedLabelIds.every((labelId) => task.labelIds.includes(labelId))
       })
       .sort((a, b) => a.position - b.position)
-  }, [tasks, currentBoardColumn, selectedLabelIds])
+  }, [tasks, currentBoardColumn, selectedLabelIds, labelFilterVisible])
 
   return (
     <div className="container mx-auto">
       {/* Fixed Title bar */}
       <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-10 shadow-md">
-        <div className="container mx-auto p-4 flex justify-between items-center">
+        <div className="container mx-auto pt-4 px-4 flex justify-between items-center">
           {/* Home Button */}
           <Link to="/" className="text-xs text-blue-500 hover:text-blue-700" onClick={handleHomeClick}>
             {loadingHome ? <Spinner size={24} lightModeColor="text-blue-500" /> : <Home size={24} />}
@@ -254,32 +259,47 @@ export default function ListView() {
           {/* 'More' Menu */}
           <MoreMenu hasAddButton={true} listId={listId} currentBoardColumn={currentBoardColumn} />
         </div>
-      </div>
 
-      {/* Label Filter */}
-      <div className="px-4 pt-20">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {labels
-            .sort((a, b) => a?.displayName[currentLang].localeCompare(b?.displayName[currentLang]))
-            .map((label) => (
-              <button
-                key={label.id}
-                onClick={() => handleLabelFilterChange(label.id)}
-                className={`px-2 py-1 rounded text-xs text-gray-100 transition-opacity duration-150 ${
-                  selectedLabelIds.includes(label.id) ? 'opacity-100' : 'opacity-50'
-                }`}
-                style={{
-                  backgroundColor: label.color,
-                }}
-              >
-                {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
-              </button>
-            ))}
+        {/* Label Filter display toggle */}
+        <div className="-mb-3">
+          <div className="relative">
+            <div className="border-t border-blue-700 absolute top-1/2 left-0 right-0"></div>
+            <button
+              onClick={() => toggleLabelFilterVisibility()}
+              className="relative z-10 mx-auto w-12 flex justify-center items-center bg-white"
+            >
+              {labelFilterVisible ? <ChevronDown /> : <ChevronUp />}
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Label Filter */}
+      {labelFilterVisible && (
+        <div className="px-4 pt-20">
+          <div className="flex flex-wrap gap-2">
+            {labels
+              .sort((a, b) => a?.displayName[currentLang].localeCompare(b?.displayName[currentLang]))
+              .map((label) => (
+                <button
+                  key={label.id}
+                  onClick={() => handleLabelFilterChange(label.id)}
+                  className={`px-2 py-1 rounded text-xs text-gray-100 transition-opacity duration-150 ${
+                    selectedLabelIds.includes(label.id) ? 'opacity-100 border-2 border-gray-900' : 'opacity-50'
+                  }`}
+                  style={{
+                    backgroundColor: label.color,
+                  }}
+                >
+                  {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
+                </button>
+              ))}
+          </div>
+        </div>
+      )}
+
       {/* Task list */}
-      <div className="pt-20 px-4">
+      <div className={`${labelFilterVisible ? 'pt-4' : 'pt-20'} px-4`}>
         <ul className="space-y-4">
           {/* "Loop" over all tasks in the current column */}
           {tasksInCurrentColumn.map((task, index) => (
