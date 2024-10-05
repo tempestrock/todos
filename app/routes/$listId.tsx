@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { Link, Outlet, useLoaderData, useNavigation, useSubmit } from '@remix-run/react'
+import { Link, Outlet, useLoaderData, useNavigation, useSearchParams, useSubmit } from '@remix-run/react'
 import {
   ArrowDownFromLine,
   ArrowLeftFromLine,
@@ -73,14 +73,20 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export default function ListView() {
   const { taskList, labels } = useLoaderData<LoaderData>()
   const submit = useSubmit()
+  const [searchParams] = useSearchParams()
 
   const listId = taskList.id
   const listColor = taskList.color
-  const boardColumns = Object.values(BoardColumn)
-  const navigation = useNavigation()
 
-  const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(0)
+  // Get the boardColumn parameter from the URL.
+  const boardColumns = Object.values(BoardColumn)
+  const initialBoardColumn = searchParams.get('boardColumn') as BoardColumn | undefined
+  const initialBoardColumnIndex = initialBoardColumn ? boardColumns.indexOf(initialBoardColumn) : 0
+  const validatedBoardColumnIndex = initialBoardColumnIndex >= 0 ? initialBoardColumnIndex : 0
+  const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(validatedBoardColumnIndex)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
+
+  const navigation = useNavigation()
 
   const [labelFilterVisible, setLabelFilterVisible] = useState(false)
 
