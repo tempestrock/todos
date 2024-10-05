@@ -14,7 +14,8 @@
     "format:fix": "prettier --write .",
     "outdated:check": "./scripts/check-outdated.sh",
     "outdated:fix": "./scripts/fix-outdated.sh",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "3.664.0",
