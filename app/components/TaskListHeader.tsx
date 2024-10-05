@@ -1,14 +1,14 @@
-// components/Header.tsx
 import { Link } from '@remix-run/react'
 import { ChevronDown, ChevronUp, Home } from 'lucide-react'
 
-import MoreMenu from './MoreMenu'
-import Spinner from './Spinner'
+import MoreMenu from '~/components/MoreMenu'
+import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
-import { BoardColumn } from '~/types/dataTypes'
+import { BoardColumn, Task } from '~/types/dataTypes'
 import { capitalizeFirstLetter } from '~/utils/stringHandling'
 
 type HeaderProps = {
+  tasks: Task[]
   listId: string
   listColor: string
   boardColumns: BoardColumn[]
@@ -22,6 +22,7 @@ type HeaderProps = {
 }
 
 export default function TaskListHeader({
+  tasks,
   listId,
   listColor,
   boardColumns,
@@ -56,7 +57,8 @@ export default function TaskListHeader({
                 borderColor: listColor,
               }}
             >
-              {capitalizeFirstLetter(t[column])}
+              {capitalizeFirstLetter(t[column])} (
+              {tasks.filter((task) => task.boardColumn === boardColumns[index]).length})
             </button>
           ))}
         </div>
@@ -64,6 +66,7 @@ export default function TaskListHeader({
         {/* 'More' Menu */}
         <MoreMenu hasAddButton={true} listId={listId} currentBoardColumn={currentBoardColumn} />
       </div>
+
       {/* Label Filter display toggle */}
       <div className="-mb-3">
         <div className="relative">

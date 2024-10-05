@@ -33,7 +33,7 @@ export default function LabelFilter({
 
   return (
     <>
-      {/* Label Filter with Transition */}
+      {/* Label Filter */}
       <div
         className={`transition-all duration-100 ease-in-out overflow-hidden ${
           labelFilterVisible ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'

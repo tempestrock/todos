@@ -64,19 +64,18 @@ export default function ListView() {
 
   // Get the boardColumn parameter from the URL.
   const boardColumns = Object.values(BoardColumn)
-  const navigation = useNavigation()
-
-  const initialBoardColumn = searchParams.get('boardColumn') as BoardColumn | null
+  const initialBoardColumn = searchParams.get('boardColumn') as BoardColumn | undefined
   const initialBoardColumnIndex = initialBoardColumn ? boardColumns.indexOf(initialBoardColumn) : 0
   const validatedBoardColumnIndex = initialBoardColumnIndex >= 0 ? initialBoardColumnIndex : 0
-
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(validatedBoardColumnIndex)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
+
+  const navigation = useNavigation()
 
   const { t } = useTranslation()
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
-  // Use the store
+  // Use the store.
   const tasks = useTaskStore((state) => state.tasks)
   const setTasks = useTaskStore((state) => state.setTasks)
 
@@ -87,19 +86,19 @@ export default function ListView() {
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([])
   const [labelFilterVisible, setLabelFilterVisible] = useState(false)
 
-  // Create a map of labels for efficient lookup
+  // Create a map of labels for efficient lookup.
   const labelsMap = useMemo(() => {
     const map = new Map<string, Label>()
     labels.forEach((label) => map.set(label.id, label))
     return map
   }, [labels])
 
-  // Initialize tasks in the store
+  // Initialize tasks in the store.
   useEffect(() => {
     setTasks(taskList.tasks)
   }, [taskList.tasks, setTasks])
 
-  // Reset loading state when navigation is idle
+  // Reset loading state when navigation is idle.
   useEffect(() => {
     if (navigation.state === 'idle') {
       // Reset spinner once the navigation completes. This is necessary for
@@ -112,12 +111,7 @@ export default function ListView() {
     setLoadingHome(true)
   }
 
-  const handleColumnChange = (index: number) => {
-    setCurrentBoardColumnIndex(index)
-    // const newBoardColumn = boardColumns[index]
-    // Optionally update the URL
-    // navigate(`/${listId}?boardColumn=${newBoardColumn}`, { replace: true })
-  }
+  const handleColumnChange = (index: number) => setCurrentBoardColumnIndex(index)
 
   const handleEdit = (taskId: string) => {
     setLoadingTaskId(taskId)
@@ -136,6 +130,7 @@ export default function ListView() {
     const currentIndex = boardColumns.indexOf(currentBoardColumn)
     const targetColumn = direction === 'prev' ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
 
+    // Call the action to save the new board column.
     submit({ intent: 'move', listId, taskId, targetColumn }, { method: 'post' })
   }
 
@@ -210,6 +205,7 @@ export default function ListView() {
     <div className="container mx-auto">
       {/* TaskListHeader */}
       <TaskListHeader
+        tasks={tasks}
         listId={listId}
         listColor={listColor}
         boardColumns={boardColumns}
@@ -235,7 +231,7 @@ export default function ListView() {
       {/* Task List */}
       <div className={`${labelFilterVisible ? 'pt-4' : 'pt-20'} px-4`}>
         {tasksInCurrentColumn.length === 0 ? (
-          <div className="text-center text-gray-600 dark:text-gray-400">{t['no-tasks-match-selected-labels']}</div>
+          <div className="text-center text-gray-600 dark:text-gray-400">{t['no-tasks']}</div>
         ) : (
           <TaskList
             tasks={tasksInCurrentColumn}

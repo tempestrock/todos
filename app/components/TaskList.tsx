@@ -1,4 +1,3 @@
-// components/TaskList.tsx
 import { Link } from '@remix-run/react'
 import {
   ArrowDownFromLine,
@@ -54,6 +53,7 @@ export default function TaskList({
 
   return (
     <ul className="space-y-4">
+      {/* "Loop" over all tasks in the current column */}
       {tasks.map((task, index) => (
         <li
           key={task.id}
@@ -131,10 +131,7 @@ export default function TaskList({
                   </Link>
 
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleMove(task.id, 'prev')
-                    }}
+                    onClick={() => handleMove(task.id, 'prev')}
                     className={`text-green-500 hover:text-green-700 ${
                       currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
@@ -144,10 +141,7 @@ export default function TaskList({
                   </button>
 
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleMove(task.id, 'next')
-                    }}
+                    onClick={() => handleMove(task.id, 'next')}
                     className={`text-green-500 hover:text-green-700 ${
                       currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
@@ -181,13 +175,7 @@ export default function TaskList({
                   </button>
                 </div>
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleDelete(task.id)
-                  }}
-                  className="text-red-500 hover:text-red-700"
-                >
+                <button onClick={() => handleDelete(task.id)} className="text-red-500 hover:text-red-700">
                   <Trash2 size={20} />
                 </button>
               </div>
