@@ -154,6 +154,15 @@ export default function ListView() {
 
   const toggleLabelFilterVisibility = () => setLabelFilterVisible(!labelFilterVisible)
 
+  /**
+   * Clears all currently selected label filters.
+   */
+  const clearLabelFilters = () => {
+    for (const labelId of selectedLabelIds) {
+      setSelectedLabelIds((prev) => prev.filter((id) => id !== labelId))
+    }
+  }
+
   const handleReorder = (taskId: string, direction: 'up' | 'down') => {
     setLoadingTaskId(taskId)
 
@@ -266,7 +275,7 @@ export default function ListView() {
             <div className="border-t border-blue-700 absolute top-1/2 left-0 right-0"></div>
             <button
               onClick={() => toggleLabelFilterVisibility()}
-              className="relative z-10 mx-auto w-12 flex justify-center items-center bg-white"
+              className="relative z-10 mx-auto w-12 flex justify-center items-center text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900"
             >
               {labelFilterVisible ? <ChevronDown /> : <ChevronUp />}
             </button>
@@ -274,10 +283,21 @@ export default function ListView() {
         </div>
       </div>
 
-      {/* Label Filter */}
-      {labelFilterVisible && (
+      {/* Label Filter with Transition */}
+      <div
+        className={`transition-all duration-100 ease-in-out overflow-hidden ${
+          labelFilterVisible ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
         <div className="px-4 pt-20">
           <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => clearLabelFilters()}
+              className={`px-2 py-1 rounded text-xs bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-100 dark:text-gray-100 hover:text-gray-100 dark:hover:text-gray-700 hover:bg-gray-500 text-gray-700 border-1 border-gray-900 dark:border-gray-100`}
+            >
+              {t['clear-filter']}
+            </button>
+
             {labels
               .sort((a, b) => a?.displayName[currentLang].localeCompare(b?.displayName[currentLang]))
               .map((label) => (
@@ -285,7 +305,9 @@ export default function ListView() {
                   key={label.id}
                   onClick={() => handleLabelFilterChange(label.id)}
                   className={`px-2 py-1 rounded text-xs text-gray-100 transition-opacity duration-150 ${
-                    selectedLabelIds.includes(label.id) ? 'opacity-100 border-2 border-gray-900' : 'opacity-50'
+                    selectedLabelIds.includes(label.id)
+                      ? 'opacity-100 border-2 border-gray-900 dark:border-gray-100'
+                      : 'opacity-50'
                   }`}
                   style={{
                     backgroundColor: label.color,
@@ -296,7 +318,7 @@ export default function ListView() {
               ))}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Task list */}
       <div className={`${labelFilterVisible ? 'pt-4' : 'pt-20'} px-4`}>
@@ -311,7 +333,7 @@ export default function ListView() {
               {/* Title and chevron icon */}
               <div className="flex justify-between items-start mb-2">
                 <div className="font-bold">{task.title}</div>
-                <div className={`text-gray-600 dark:text-gray-300 ${task.details === '' ? 'opacity-30' : ''}`}>
+                <div className={`text-gray-700 dark:text-gray-300 ${task.details === '' ? 'opacity-30' : ''}`}>
                   {visibleTaskDetails[task.id] ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                 </div>
               </div>
