@@ -1,11 +1,12 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { Outlet, useLoaderData, useNavigation, useSubmit, useSearchParams } from '@remix-run/react'
+import { Outlet, useLoaderData, useNavigation, useSearchParams } from '@remix-run/react'
 import { useEffect, useMemo, useState } from 'react'
 
 import TaskList from '~/components/TaskList'
 import TaskListHeader from '~/components/TaskListHeader'
 import TaskListLabelFilter from '~/components/TaskListLabelFilter'
 import { useTranslation } from '~/contexts/TranslationContext'
+import { useTaskActions } from '~/hooks/useTaskActions'
 import { Label, TaskList as TaskListType, BoardColumn, Task } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
 import { deleteTask } from '~/utils/database/deleteTask'
@@ -56,7 +57,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export default function ListView() {
   const { taskList, labels } = useLoaderData<LoaderData>()
-  const submit = useSubmit()
   const [searchParams] = useSearchParams()
 
   const listId = taskList.id
@@ -79,7 +79,6 @@ export default function ListView() {
   const tasks = useTaskStore((state) => state.tasks)
   const setTasks = useTaskStore((state) => state.setTasks)
 
-  const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null)
   const [loadingHome, setLoadingHome] = useState<boolean>(false)
 
   // State for selected labels
@@ -107,82 +106,17 @@ export default function ListView() {
     }
   }, [navigation.state])
 
+  const { handleEdit, handleDelete, handleMove, handleReorder, loadingTaskId, setLoadingTaskId } = useTaskActions({
+    listId,
+    currentBoardColumn,
+    boardColumns,
+  })
+
   const handleHomeClick = () => {
     setLoadingHome(true)
   }
 
   const handleColumnChange = (index: number) => setCurrentBoardColumnIndex(index)
-
-  const handleEdit = (taskId: string) => {
-    setLoadingTaskId(taskId)
-  }
-
-  const handleDelete = (taskId: string) => {
-    setLoadingTaskId(taskId)
-    if (confirm('Are you sure you want to delete this task?')) {
-      // Call the action to delete the task in the database.
-      submit({ intent: 'delete', listId, taskId }, { method: 'post' })
-    }
-  }
-
-  const handleMove = (taskId: string, direction: 'prev' | 'next') => {
-    setLoadingTaskId(taskId)
-    const currentIndex = boardColumns.indexOf(currentBoardColumn)
-    const targetColumn = direction === 'prev' ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
-
-    // Call the action to save the new board column.
-    submit({ intent: 'move', listId, taskId, targetColumn }, { method: 'post' })
-  }
-
-  const handleReorder = (taskId: string, direction: 'up' | 'down') => {
-    setLoadingTaskId(taskId)
-
-    // Get the current tasks from the store
-    const currentTasks = useTaskStore.getState().tasks
-
-    // Find tasks in the current column
-    const tasksInCurrentColumn = currentTasks.filter((task) => task.boardColumn === currentBoardColumn)
-
-    const currentTaskIndex = tasksInCurrentColumn.findIndex((task) => task.id === taskId)
-    if (currentTaskIndex === -1) {
-      setLoadingTaskId(null)
-      return
-    }
-
-    const targetTaskIndex = direction === 'up' ? currentTaskIndex - 1 : currentTaskIndex + 1
-
-    if (targetTaskIndex < 0 || targetTaskIndex >= tasksInCurrentColumn.length) {
-      setLoadingTaskId(null)
-      return
-    }
-
-    const currentTask = tasksInCurrentColumn[currentTaskIndex]
-    const targetTask = tasksInCurrentColumn[targetTaskIndex]
-
-    // Update positions
-    const updatedTasks = currentTasks.map((task) => {
-      if (task.id === currentTask.id) {
-        return { ...task, position: targetTask.position }
-      }
-      if (task.id === targetTask.id) {
-        return { ...task, position: currentTask.position }
-      }
-      return task
-    })
-
-    // Update tasks in the store
-    setTasks(updatedTasks)
-
-    submit(
-      {
-        intent: 'reorder',
-        listId,
-        taskId: currentTask.id,
-        targetTaskId: targetTask.id,
-      },
-      { method: 'post' }
-    )
-  }
 
   const toggleLabelFilterVisibility = () => setLabelFilterVisible(!labelFilterVisible)
 
