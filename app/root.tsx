@@ -12,7 +12,11 @@ import { LANG_DEFAULT } from '~/utils/language'
  *
  * @return An array of link tags.
  */
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }]
+export const links: LinksFunction = () => [
+  { rel: 'icon', href: '/favicon.ico' },
+  { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+  { rel: 'stylesheet', href: styles },
+]
 
 /**
  * Returns an array of meta tags for the HTML document.
