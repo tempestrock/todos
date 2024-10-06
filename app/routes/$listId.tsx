@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { Outlet, useLoaderData, useNavigation, useSearchParams } from '@remix-run/react'
+import { Outlet, useLoaderData, useNavigate, useNavigation, useSearchParams } from '@remix-run/react'
 import { useEffect, useMemo, useState } from 'react'
 
 import TaskList from '~/components/TaskList'
@@ -70,6 +70,7 @@ export default function ListView() {
   const [currentBoardColumnIndex, setCurrentBoardColumnIndex] = useState(validatedBoardColumnIndex)
   const currentBoardColumn = boardColumns[currentBoardColumnIndex]
 
+  const navigate = useNavigate()
   const navigation = useNavigation()
 
   const { t } = useTranslation()
@@ -116,7 +117,17 @@ export default function ListView() {
     setLoadingHome(true)
   }
 
-  const handleColumnChange = (index: number) => setCurrentBoardColumnIndex(index)
+  /**
+   * Updates the board column based on the provided index and navigates to the corresponding URL.
+   *
+   * @param {number} index - The index of the board column to set
+   */
+  const handleColumnChange = (index: number) => {
+    setCurrentBoardColumnIndex(index)
+
+    // Update the URL query parameter to reflect the current board column
+    navigate(`/${listId}?boardColumn=${boardColumns[index]}`, { replace: true })
+  }
 
   const toggleLabelFilterVisibility = () => setLabelFilterVisible(!labelFilterVisible)
 
