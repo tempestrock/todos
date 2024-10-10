@@ -65,6 +65,13 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
                 </Link>
               )}
 
+              {/* Label management button */}
+              <div className="pl-6 pr-4 py-2 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-900">
+                <Link className="" to="/label-management">
+                  {t['label-management']}
+                </Link>
+              </div>
+
               {/* Language switcher */}
               <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900">
                 <LanguageSwitcher />
