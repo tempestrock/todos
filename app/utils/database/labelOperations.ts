@@ -52,6 +52,7 @@ export const loadLabel = async (labelId: string): Promise<Label | undefined> => 
 
     const label = response.Item as Label | undefined
 
+    // Verify that the label exists and belongs to the specified listId.
     if (label) {
       return label
     } else {
@@ -69,7 +70,7 @@ export const loadLabel = async (labelId: string): Promise<Label | undefined> => 
  */
 export const loadLabels = async (labelIds: string[]): Promise<Label[]> => {
   if (labelIds.length === 0) {
-    return []
+    return [] // Return an empty array if there are no label IDs to fetch
   }
 
   try {
@@ -127,6 +128,27 @@ export const createLabel = async (data: { displayName: { [key: string]: string }
     await dbClient().send(command)
   } catch (error) {
     log('[createLabel]', error)
+    throw error
+  }
+}
+
+/**
+ * Saves a label to the database.
+ *
+ * @param {Label} label - The label to be saved.
+ * @return {Promise<void>} A promise that resolves when the label is saved.
+ */
+export async function saveLabel(label: Label): Promise<void> {
+  try {
+    const putParams = {
+      TableName: getTableName(TABLE_NAME_LABELS),
+      Item: label,
+    }
+
+    const command = new PutCommand(putParams)
+    await dbClient().send(command)
+  } catch (error) {
+    log('[saveLabel] Error saving label:', error)
     throw error
   }
 }
