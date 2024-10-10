@@ -14,6 +14,8 @@ import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
+import { log } from '~/utils/log'
+import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
   labels: Label[]
@@ -115,8 +117,11 @@ export default function AddTaskView() {
 }
 
 export const action: ActionFunction = async ({ request }) => {
+  log(`[addTask.action] starting`)
+
   const formData = await request.formData()
   const intent = formData.get('intent') as string
+  log(`[addTask.action] intent: ${intent}`)
 
   const listId = formData.get('listId') as string
   if (!listId) throw new Error(`[addTask.action] listId not found.`)
@@ -127,16 +132,20 @@ export const action: ActionFunction = async ({ request }) => {
   switch (intent) {
     case 'addLabel': {
       // Handle new label creation
-      const newLabelNames = formData.get('newLabelNames') as string | null
-      const newLabelColor = formData.get('newLabelColor') as string | null
+      const labelNames = formData.get('labelNames') as string | null
+      const labelColor = formData.get('labelColor') as string | null
+      printObject(labelNames, '[addTask.action] labelNames')
+      printObject(labelColor, '[addTask.action] labelColor')
 
-      if (newLabelNames && newLabelColor) {
+      if (labelNames && labelColor) {
         const newLabelId = getUid()
         const newLabel: Label = {
           id: newLabelId,
-          displayName: JSON.parse(newLabelNames),
-          color: newLabelColor,
+          displayName: JSON.parse(labelNames),
+          color: labelColor,
         }
+
+        printObject(newLabel, '[addTask.action] newLabel')
 
         // Save the new label to the database
         await saveLabel(newLabel)

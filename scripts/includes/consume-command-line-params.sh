@@ -27,7 +27,6 @@ print_usage() {
 #   $@: the list of all command line arguments
 # Output:
 #   Param_env_name: the name of the environment to be deployed
-#   Param_reset: "true" if the Shopify configuration shall be reset or "false" otherwise
 #
 consume_command_line_params() {
   local positional_params=() # arguments without a '-x something' parameter
