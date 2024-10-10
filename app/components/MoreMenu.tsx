@@ -8,8 +8,8 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn } from '~/types/dataTypes'
 
 /**
- * Component to show the 'more' menu on the top right of the home screen.
- * @returns The MoreMenu component.
+ * Component to show the 'more' menu on the top right of the home screen and
+ * the list view.
  */
 
 type MoreMenuProps = {

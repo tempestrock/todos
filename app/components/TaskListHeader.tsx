@@ -7,6 +7,10 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn, Task } from '~/types/dataTypes'
 import { capitalizeFirstLetter } from '~/utils/stringHandling'
 
+/**
+ * The header of the list view, showing - among others - the board column names.
+ */
+
 type HeaderProps = {
   tasks: Task[]
   listId: string

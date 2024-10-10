@@ -7,6 +7,11 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { Label } from '~/types/dataTypes'
 import { LANG_DEFAULT } from '~/utils/language'
 
+/**
+ * Handles adding and removing labels from tasks.
+ * Also contains the possibility to create a completely new label.
+ */
+
 type LabelManagerProps = {
   taskLabelIds: string[]
   setTaskLabelIds: React.Dispatch<React.SetStateAction<string[]>>

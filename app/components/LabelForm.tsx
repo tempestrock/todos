@@ -4,6 +4,10 @@ import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { ALL_LANGUAGES } from '~/utils/language'
 
+/**
+ * A form to create a completely new label.
+ */
+
 type LabelFormProps = {
   initialData?: {
     displayName: { [key: string]: string }

@@ -18,6 +18,10 @@ import { getNiceDateTime } from '~/utils/dateAndTime'
 import { LANG_DEFAULT } from '~/utils/language'
 import { useTaskStore } from '~/utils/store/useTaskStore'
 
+/**
+ * The list of tasks that is shown in the list view.
+ */
+
 type TaskListProps = {
   tasks: Task[]
   labelsMap: Map<string, Label>

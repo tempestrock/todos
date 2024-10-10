@@ -1,6 +1,10 @@
 import { useTranslation } from '~/contexts/TranslationContext'
 import { LANG_DE, LANG_EN } from '~/utils/language'
 
+/**
+ * The toggle to switch between languages.
+ */
+
 export const LanguageSwitcher = () => {
   const { language, setLanguage } = useTranslation()
 

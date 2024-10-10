@@ -2,6 +2,10 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { Label } from '~/types/dataTypes'
 import { LANG_DEFAULT } from '~/utils/language'
 
+/**
+ * The label filter of the list view.
+ */
+
 type LabelFilterProps = {
   labels: Label[]
   selectedLabelIds: string[]

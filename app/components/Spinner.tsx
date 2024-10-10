@@ -1,5 +1,9 @@
 import { LoaderCircle } from 'lucide-react'
 
+/**
+ * A generic spinner component.
+ */
+
 type SpinnerProps = {
   size?: number // Optional size prop
   lightModeColor?: string // Text color for light mode
