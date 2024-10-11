@@ -19,7 +19,7 @@ type LabelManagerProps = {
   lang: string
 }
 
-export default function LabelManager({ taskLabelIds, setTaskLabelIds, labels, lang }: LabelManagerProps) {
+export default function LabelHandlingOnTaskPage({ taskLabelIds, setTaskLabelIds, labels, lang }: LabelManagerProps) {
   const navigation = useNavigation()
   const { t } = useTranslation()
   const [currentLang, setCurrentLang] = useState(lang)

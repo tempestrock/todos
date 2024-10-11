@@ -2,7 +2,7 @@ import { ActionFunction, LoaderFunction, LoaderFunctionArgs, json, redirect } fr
 import { Form, useLoaderData, useNavigation, useNavigate, useSearchParams } from '@remix-run/react'
 import { useEffect, useRef, useState } from 'react'
 
-import LabelManager from '~/components/LabelManager' // Import the LabelManager component
+import LabelHandlingOnTaskPage from '~/components/LabelHandlingOnTaskPage'
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn, Task, Label } from '~/types/dataTypes'
@@ -109,7 +109,12 @@ export default function AddTaskView() {
         </div>
 
         {/* Label Manager */}
-        <LabelManager taskLabelIds={taskLabelIds} setTaskLabelIds={setTaskLabelIds} labels={labels} lang={lang} />
+        <LabelHandlingOnTaskPage
+          taskLabelIds={taskLabelIds}
+          setTaskLabelIds={setTaskLabelIds}
+          labels={labels}
+          lang={lang}
+        />
       </Form>
     </div>
   )
