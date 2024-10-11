@@ -74,8 +74,6 @@ export default function ListView() {
 
   const tasks = taskList.tasks
 
-  const [loadingHome, setLoadingHome] = useState<boolean>(false)
-
   // State for selected labels
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([])
   const [labelFilterVisible, setLabelFilterVisible] = useState(false)
@@ -102,10 +100,6 @@ export default function ListView() {
     currentBoardColumn,
     boardColumns,
   })
-
-  const handleHomeClick = () => {
-    setLoadingHome(true)
-  }
 
   /**
    * Updates the board column based on the provided index and navigates to the corresponding URL.
@@ -145,11 +139,9 @@ export default function ListView() {
         listColor={listColor}
         boardColumns={boardColumns}
         currentBoardColumnIndex={currentBoardColumnIndex}
-        handleHomeClick={handleHomeClick}
         handleColumnChange={handleColumnChange}
         toggleLabelFilterVisibility={toggleLabelFilterVisibility}
         labelFilterVisible={labelFilterVisible}
-        loadingHome={loadingHome}
         currentBoardColumn={currentBoardColumn}
       />
 

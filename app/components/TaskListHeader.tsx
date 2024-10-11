@@ -16,11 +16,9 @@ type HeaderProps = {
   listColor: string
   boardColumns: BoardColumn[]
   currentBoardColumnIndex: number
-  handleHomeClick: () => void
   handleColumnChange: (index: number) => void
   toggleLabelFilterVisibility: () => void
   labelFilterVisible: boolean
-  loadingHome: boolean
   currentBoardColumn: BoardColumn
 }
 
@@ -30,11 +28,9 @@ export default function TaskListHeader({
   listColor,
   boardColumns,
   currentBoardColumnIndex,
-  handleHomeClick,
   handleColumnChange,
   toggleLabelFilterVisibility,
   labelFilterVisible,
-  loadingHome,
   currentBoardColumn,
 }: HeaderProps) {
   const { t } = useTranslation()
@@ -43,7 +39,7 @@ export default function TaskListHeader({
     <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-10 shadow-md">
       <div className="container mx-auto pt-4 px-4 flex justify-between items-center">
         {/* Home Button */}
-        <HomeButton loadingHome={loadingHome} handleHomeClick={handleHomeClick} />
+        <HomeButton />
 
         {/* Board Column Buttons */}
         <div className="flex space-x-1">
