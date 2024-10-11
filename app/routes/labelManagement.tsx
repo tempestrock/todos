@@ -1,5 +1,6 @@
 import { json, redirect, type LoaderFunctionArgs, type ActionFunctionArgs } from '@remix-run/node'
 import { useLoaderData, Form, useNavigation, useFetcher } from '@remix-run/react'
+import { FilePenLine, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import LabelForm from '~/components/LabelForm'
@@ -7,7 +8,7 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { Label } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
 import { loadAllLabels, createLabel, updateLabel, deleteLabel } from '~/utils/database/labelOperations'
-import { getTaskCountsByLabelIds } from '~/utils/database/taskOperations'
+import { getTaskCountByLabelId, getTaskCountsByLabelIds } from '~/utils/database/taskOperations'
 import { LANG_DEFAULT } from '~/utils/language'
 
 type LoaderData = {
@@ -30,7 +31,6 @@ export default function LabelManagement() {
   const fetcher = useFetcher()
   const { t } = useTranslation()
   const [editingLabel, setEditingLabel] = useState<Label | null>(null)
-  // const tasks = useTaskStore((state) => state.tasks)
 
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
@@ -44,49 +44,77 @@ export default function LabelManagement() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">{t['label-management']}</h1>
+      <h1 className="text-2xl text-gray-900 dark:text-gray-100 font-bold mb-4">{t['labelManagement']}</h1>
 
       {/* Existing Labels */}
       <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">{t['existing-labels']}</h2>
-        <ul className="space-y-2">
-          {labels
-            .sort((a, b) =>
-              a && b && a.displayName[currentLang]
-                ? a.displayName[currentLang].localeCompare(b.displayName[currentLang])
-                : -1
-            )
-            .map((label) => (
-              <li key={label.id} className="flex items-center space-x-4">
-                {/* Label name and color */}
-                <span className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
-                  {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
-                </span>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t['existing-labels']}</h2>
 
-                {/* Edit button */}
-                <button
-                  type="button"
-                  onClick={() => setEditingLabel(label)}
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  {t['edit-label']}
-                </button>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white dark:bg-gray-800">
+            <thead>
+              <tr>
+                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['label']}</th>
+                <th className="px-4 py-2 flex justify-center text-gray-900 dark:text-gray-100">
+                  {t['label-num-tasks']}
+                </th>
+                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['edit-label']}</th>
+                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['delete-label']}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {labels
+                .sort((a, b) =>
+                  a && b && a.displayName[currentLang]
+                    ? a.displayName[currentLang].localeCompare(b.displayName[currentLang])
+                    : -1
+                )
+                .map((label) => (
+                  <tr key={label.id} className="border-b border-gray-200 dark:border-gray-700">
+                    {/* Label name and color */}
+                    <td className="px-4 py-2">
+                      <div className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
+                        {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
+                      </div>
+                    </td>
 
-                {/* Delete button */}
-                <button
-                  type="button"
-                  onClick={() => handleDeleteLabel(label.id)}
-                  className={`text-red-500 hover:text-red-700 ${
-                    labelCounts[label.id] > 0 ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                  disabled={labelCounts[label.id] > 0}
-                  title={labelCounts[label.id] > 0 ? t['label-assigned-to-task'] : undefined}
-                >
-                  {t['delete-label']}
-                </button>
-              </li>
-            ))}
-        </ul>
+                    {/* Number of tasks */}
+                    <td className="px-4 py-2">
+                      <div className="ml-2 text-sm text-gray-900 dark:text-gray-100 flex justify-center">
+                        {labelCounts[label.id] || 0} {t['tasks']}
+                      </div>
+                    </td>
+
+                    {/* Edit button */}
+                    <td className="px-4 pt-4 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={() => setEditingLabel(label)}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        <FilePenLine size={18} />
+                      </button>
+                    </td>
+
+                    {/* Delete button */}
+                    <td className="px-4 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteLabel(label.id)}
+                        className={`text-red-500 hover:text-red-700 ${
+                          labelCounts[label.id] > 0 ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        disabled={labelCounts[label.id] > 0}
+                        title={labelCounts[label.id] > 0 ? t['label-assigned-to-task'] : undefined}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Add New Label */}
@@ -132,7 +160,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
       const color = formData.get('color') as string
       await createLabel({ displayName, color })
-      return redirect('/label-management')
+      return redirect('/labelManagement')
     }
     case 'editLabel': {
       const labelId = formData.get('labelId') as string
@@ -145,12 +173,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
       const color = formData.get('color') as string
       await updateLabel(labelId, { displayName, color })
-      return redirect('/label-management')
+      return redirect('/labelManagement')
     }
     case 'deleteLabel': {
       const labelId = formData.get('labelId') as string
+      // Enforce server-side check to prevent deletion if label is assigned to tasks
+      const taskCount = await getTaskCountByLabelId(labelId)
+      if (taskCount > 0) {
+        return json({ error: 'Cannot delete a label that is assigned to tasks.' }, { status: 400 })
+      }
       await deleteLabel(labelId)
-      return redirect('/label-management')
+      return redirect('/labelManagement')
     }
     default:
       return null

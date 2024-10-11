@@ -67,7 +67,7 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
 
               {/* Label management button */}
               <div className="pl-6 pr-4 py-2 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-900">
-                <Link className="" to="/label-management">
+                <Link className="" to="/labelManagement">
                   {t['label-management']}
                 </Link>
               </div>
