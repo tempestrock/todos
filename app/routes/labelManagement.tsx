@@ -1,6 +1,6 @@
 import { json, redirect, type LoaderFunctionArgs, type ActionFunctionArgs } from '@remix-run/node'
 import { useLoaderData, Form, useNavigation, useFetcher, Link } from '@remix-run/react'
-import { FilePenLine, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 
 import HomeButton from '~/components/HomeButton'
 import LabelForm from '~/components/LabelForm'
@@ -57,10 +57,11 @@ export default function LabelManagement() {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto pt-16 px-4">
+        {/* Title */}
         <div className="pt-2">
-          {/* Title */}
           <h1 className="pl-2 text-2xl text-gray-900 dark:text-gray-100 font-bold mb-4">{t['label-management']}</h1>
         </div>
+
         {/* Existing Labels */}
         <div className="mb-8">
           <h2 className="ml-4 text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{t['existing-labels']}</h2>
@@ -73,7 +74,6 @@ export default function LabelManagement() {
                   <th className="px-4 py-2 flex justify-center text-gray-900 dark:text-gray-100">
                     {t['label-num-tasks']}
                   </th>
-                  <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['edit']}</th>
                   <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['delete']}</th>
                 </tr>
               </thead>
@@ -87,24 +87,22 @@ export default function LabelManagement() {
                   .map((label) => (
                     <tr key={label.id} className="border-b border-gray-200 dark:border-gray-700">
                       {/* Label name and color */}
-                      <td className="px-4 py-2">
-                        <div className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
-                          {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
-                        </div>
-                      </td>
+                      <Link to={`/editLabel/${label.id}`}>
+                        <td className="px-4 py-2">
+                          <div
+                            className={`px-2 py-1 rounded text-white hover:opacity-50`}
+                            style={{ backgroundColor: label.color }}
+                          >
+                            {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
+                          </div>
+                        </td>
+                      </Link>
 
                       {/* Number of tasks */}
                       <td className="px-4 py-2">
                         <div className="ml-2 text-sm text-gray-900 dark:text-gray-100 flex justify-center">
                           {labelCounts[label.id] || 0} {t['tasks']}
                         </div>
-                      </td>
-
-                      {/* Edit button */}
-                      <td className="px-4 pt-4 flex justify-center">
-                        <Link to={`/editLabel/${label.id}`} className="text-blue-500 hover:text-blue-700">
-                          <FilePenLine size={18} />
-                        </Link>
                       </td>
 
                       {/* Delete button */}
