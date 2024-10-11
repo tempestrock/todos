@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+import { log } from '../log'
+import { printObject } from '../printObject'
 import { Task } from '~/types/dataTypes'
 
 type TaskStore = {
@@ -14,18 +16,25 @@ export const useTaskStore = create<TaskStore>((set) => ({
   tasks: [],
   visibleTaskDetails: {},
 
-  setTasks: (tasks) => set({ tasks }),
+  setTasks: (tasks) => {
+    log(`[useTaskStore.setTasks] tasks: ${tasks.length}`)
+    return set({ tasks })
+  },
 
-  updateTask: (updatedTask) =>
-    set((state) => ({
+  updateTask: (updatedTask) => {
+    printObject(updatedTask, '[useTaskStore.updateTask] updatedTask')
+    return set((state) => ({
       tasks: state.tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
-    })),
+    }))
+  },
 
-  toggleTaskDetails: (taskId) =>
-    set((state) => ({
+  toggleTaskDetails: (taskId) => {
+    printObject(taskId, '[useTaskStore.toggleTaskDetails] taskId')
+    return set((state) => ({
       visibleTaskDetails: {
         ...state.visibleTaskDetails,
         [taskId]: !state.visibleTaskDetails[taskId],
       },
-    })),
+    }))
+  },
 }))

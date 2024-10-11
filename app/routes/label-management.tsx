@@ -32,6 +32,8 @@ export default function LabelManagement() {
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
   const handleDeleteLabel = (labelId: string) => {
+    if (isLabelAssignedToTask(labelId)) return // Do nothing if the label is assigned to any task.
+
     if (confirm(t['confirm-label-deletion'])) {
       fetcher.submit({ intent: 'deleteLabel', labelId }, { method: 'post' })
     }

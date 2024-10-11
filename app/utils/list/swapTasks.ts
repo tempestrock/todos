@@ -1,5 +1,4 @@
-import { loadTask } from '~/utils/database/loadTask'
-import { saveTask } from '~/utils/database/saveAndUpdateData'
+import { loadTask, saveTask } from '~/utils/database/taskOperations'
 
 /**
  * Swaps the order of two tasks in a list.
