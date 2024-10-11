@@ -70,7 +70,7 @@ export default function LabelForm({ initialData, isSubmitting, action }: LabelFo
       <input type="hidden" name="labelNames" value={JSON.stringify(labelNames)} />
       <input type="hidden" name="labelColor" value={labelColor} />
 
-      <div className="ml-4 flex items-center space-x-4">
+      <div className="ml-2 flex items-center space-x-4">
         <button
           type="submit"
           name="intent"
