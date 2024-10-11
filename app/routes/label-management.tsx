@@ -7,21 +7,25 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { Label } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
 import { loadAllLabels, createLabel, updateLabel, deleteLabel } from '~/utils/database/labelOperations'
+import { getTaskCountsByLabelIds } from '~/utils/database/taskOperations'
 import { LANG_DEFAULT } from '~/utils/language'
 
 type LoaderData = {
   labels: Label[]
+  labelCounts: { [labelId: string]: number }
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await requireAuth(request)
   const labels = await loadAllLabels()
+  const labelIds = labels.map((label) => label.id)
+  const labelCounts = await getTaskCountsByLabelIds(labelIds)
 
-  return json<LoaderData>({ labels })
+  return json<LoaderData>({ labels, labelCounts })
 }
 
 export default function LabelManagement() {
-  const { labels } = useLoaderData<LoaderData>()
+  const { labels, labelCounts } = useLoaderData<LoaderData>()
   const navigation = useNavigation()
   const fetcher = useFetcher()
   const { t } = useTranslation()
@@ -31,16 +35,11 @@ export default function LabelManagement() {
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
   const handleDeleteLabel = (labelId: string) => {
-    if (isLabelAssignedToTask(labelId)) return // Do nothing if the label is assigned to any task.
+    if (labelCounts[labelId] > 0) return // Do nothing if the label is assigned to any task.
 
     if (confirm(t['confirm-label-deletion'])) {
       fetcher.submit({ intent: 'deleteLabel', labelId }, { method: 'post' })
     }
-  }
-
-  const isLabelAssignedToTask = (_labelId: string) => {
-    return true
-    // return tasks.some((task) => task.labelIds && task.labelIds.includes(labelId))
   }
 
   return (
@@ -78,9 +77,10 @@ export default function LabelManagement() {
                   type="button"
                   onClick={() => handleDeleteLabel(label.id)}
                   className={`text-red-500 hover:text-red-700 ${
-                    isLabelAssignedToTask(label.id) ? 'opacity-50 cursor-not-allowed' : ''
+                    labelCounts[label.id] > 0 ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
-                  disabled={isLabelAssignedToTask(label.id)}
+                  disabled={labelCounts[label.id] > 0}
+                  title={labelCounts[label.id] > 0 ? t['label-assigned-to-task'] : undefined}
                 >
                   {t['delete-label']}
                 </button>

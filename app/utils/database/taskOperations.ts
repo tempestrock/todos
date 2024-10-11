@@ -1,4 +1,11 @@
-import { PutCommand, DeleteCommand, GetCommand, ScanCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb'
+import {
+  PutCommand,
+  DeleteCommand,
+  GetCommand,
+  ScanCommand,
+  UpdateCommand,
+  ScanCommandInput,
+} from '@aws-sdk/lib-dynamodb'
 
 import { Task, TaskList, TaskListMetadata, TaskListUndefined } from '~/types/dataTypes'
 import { dbClient } from '~/utils/database/dbClient'
@@ -123,6 +130,88 @@ async function loadMetadataOfTaskList(listId: string): Promise<TaskList> {
     return taskList
   } catch (error) {
     log('[loadMetadataOfTaskList]', error)
+    throw error
+  }
+}
+
+/**
+ * Gets the count of tasks that have the specified label ID in their labelIds array.
+ *
+ * @param {string} labelId - The label ID to search for in tasks.
+ * @return {Promise<number>} The count of tasks that have the label ID.
+ */
+export async function getTaskCountByLabelId(labelId: string): Promise<number> {
+  try {
+    let taskCount = 0
+    let lastEvaluatedKey: Record<string, any> | undefined
+
+    do {
+      const scanParams: ScanCommandInput = {
+        TableName: getTableName(TABLE_NAME_TASKS),
+        ExclusiveStartKey: lastEvaluatedKey,
+        FilterExpression: 'contains(labelIds, :labelId)',
+        ExpressionAttributeValues: {
+          ':labelId': labelId,
+        },
+        Select: 'COUNT',
+      }
+
+      const command = new ScanCommand(scanParams)
+      const response = await dbClient().send(command)
+
+      taskCount += response.Count || 0
+      lastEvaluatedKey = response.LastEvaluatedKey
+    } while (lastEvaluatedKey)
+
+    return taskCount
+  } catch (error) {
+    log('[getTaskCountByLabelId]', error)
+    throw error
+  }
+}
+
+/**
+ * Gets the counts of tasks for multiple label IDs.
+ *
+ * @param {string[]} labelIds - An array of label IDs to get counts for.
+ * @return {Promise<{ [labelId: string]: number }>} An object mapping label IDs to their respective task counts.
+ */
+export async function getTaskCountsByLabelIds(labelIds: string[]): Promise<{ [labelId: string]: number }> {
+  try {
+    const labelCounts: { [labelId: string]: number } = {}
+    labelIds.forEach((labelId) => (labelCounts[labelId] = 0))
+    let lastEvaluatedKey: Record<string, any> | undefined
+
+    do {
+      const scanParams = {
+        TableName: getTableName(TABLE_NAME_TASKS),
+        ExclusiveStartKey: lastEvaluatedKey,
+        ProjectionExpression: 'labelIds',
+      }
+
+      const command = new ScanCommand(scanParams)
+      const response = await dbClient().send(command)
+
+      if (response.Items) {
+        const tasks = response.Items as Task[]
+        tasks.forEach((task) => {
+          if (task.labelIds) {
+            task.labelIds.forEach((taskLabelId) => {
+              // eslint-disable-next-line no-prototype-builtins
+              if (labelCounts.hasOwnProperty(taskLabelId)) {
+                labelCounts[taskLabelId] += 1
+              }
+            })
+          }
+        })
+      }
+
+      lastEvaluatedKey = response.LastEvaluatedKey
+    } while (lastEvaluatedKey)
+
+    return labelCounts
+  } catch (error) {
+    log('[getTaskCountsByLabelIds]', error)
     throw error
   }
 }
