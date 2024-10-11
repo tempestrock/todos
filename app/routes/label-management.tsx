@@ -8,6 +8,7 @@ import { Label } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
 import { loadAllLabels, createLabel, updateLabel, deleteLabel } from '~/utils/database/labelOperations'
 import { LANG_DEFAULT } from '~/utils/language'
+import { useTaskStore } from '~/utils/store/useTaskStore'
 
 type LoaderData = {
   labels: Label[]
@@ -26,6 +27,7 @@ export default function LabelManagement() {
   const fetcher = useFetcher()
   const { t } = useTranslation()
   const [editingLabel, setEditingLabel] = useState<Label | null>(null)
+  const tasks = useTaskStore((state) => state.tasks)
 
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
@@ -33,6 +35,10 @@ export default function LabelManagement() {
     if (confirm(t['confirm-label-deletion'])) {
       fetcher.submit({ intent: 'deleteLabel', labelId }, { method: 'post' })
     }
+  }
+
+  const isLabelAssignedToTask = (labelId: string) => {
+    return tasks.some((task) => task.labelIds && task.labelIds.includes(labelId))
   }
 
   return (
@@ -51,9 +57,12 @@ export default function LabelManagement() {
             )
             .map((label) => (
               <li key={label.id} className="flex items-center space-x-4">
+                {/* Label name and color */}
                 <span className="px-2 py-1 rounded text-white" style={{ backgroundColor: label.color }}>
                   {label.displayName[currentLang] || label.displayName[LANG_DEFAULT]}
                 </span>
+
+                {/* Edit button */}
                 <button
                   type="button"
                   onClick={() => setEditingLabel(label)}
@@ -62,10 +71,14 @@ export default function LabelManagement() {
                   {t['edit-label']}
                 </button>
 
+                {/* Delete button */}
                 <button
                   type="button"
                   onClick={() => handleDeleteLabel(label.id)}
-                  className="text-red-500 hover:text-red-700"
+                  className={`text-red-500 hover:text-red-700 ${
+                    isLabelAssignedToTask(label.id) ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  disabled={isLabelAssignedToTask(label.id)}
                 >
                   {t['delete-label']}
                 </button>
