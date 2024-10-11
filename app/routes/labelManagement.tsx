@@ -1,7 +1,6 @@
 import { json, redirect, type LoaderFunctionArgs, type ActionFunctionArgs } from '@remix-run/node'
-import { useLoaderData, Form, useNavigation, useFetcher } from '@remix-run/react'
+import { useLoaderData, Form, useNavigation, useFetcher, Link } from '@remix-run/react'
 import { FilePenLine, Trash2 } from 'lucide-react'
-import { useState } from 'react'
 
 import HomeButton from '~/components/HomeButton'
 import LabelForm from '~/components/LabelForm'
@@ -9,7 +8,7 @@ import MoreMenu from '~/components/MoreMenu'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
-import { loadAllLabels, createLabel, updateLabel, deleteLabel } from '~/utils/database/labelOperations'
+import { loadAllLabels, createLabel, deleteLabel } from '~/utils/database/labelOperations'
 import { getTaskCountByLabelId, getTaskCountsByLabelIds } from '~/utils/database/taskOperations'
 import { LANG_DEFAULT } from '~/utils/language'
 
@@ -32,7 +31,6 @@ export default function LabelManagement() {
   const navigation = useNavigation()
   const fetcher = useFetcher()
   const { t } = useTranslation()
-  const [editingLabel, setEditingLabel] = useState<Label | null>(null)
 
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
@@ -104,13 +102,9 @@ export default function LabelManagement() {
 
                       {/* Edit button */}
                       <td className="px-4 pt-4 flex justify-center">
-                        <button
-                          type="button"
-                          onClick={() => setEditingLabel(label)}
-                          className="text-blue-500 hover:text-blue-700"
-                        >
+                        <Link to={`/editLabel/${label.id}`} className="text-blue-500 hover:text-blue-700">
                           <FilePenLine size={18} />
-                        </button>
+                        </Link>
                       </td>
 
                       {/* Delete button */}
@@ -142,25 +136,6 @@ export default function LabelManagement() {
             <LabelForm isSubmitting={navigation.state === 'submitting'} action="addLabel" />
           </Form>
         </div>
-
-        {/* Edit Label */}
-        {editingLabel && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-2">{t['edit-label']}</h2>
-            <Form method="post">
-              <input type="hidden" name="intent" value="editLabel" />
-              <input type="hidden" name="labelId" value={editingLabel.id} />
-              <LabelForm
-                initialData={editingLabel}
-                isSubmitting={navigation.state === 'submitting'}
-                action="editLabel"
-              />
-            </Form>
-            <button type="button" onClick={() => setEditingLabel(null)} className="mt-2 text-gray-500">
-              {t['cancel']}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   )
@@ -182,20 +157,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
       const color = formData.get('color') as string
       await createLabel({ displayName, color })
-      return redirect('/labelManagement')
-    }
-
-    case 'editLabel': {
-      const labelId = formData.get('labelId') as string
-      const displayName: { [key: string]: string } = {}
-      for (const lang of formData.keys()) {
-        if (lang.startsWith('displayName-')) {
-          const langCode = lang.split('-')[1]
-          displayName[langCode] = formData.get(lang) as string
-        }
-      }
-      const color = formData.get('color') as string
-      await updateLabel(labelId, { displayName, color })
       return redirect('/labelManagement')
     }
 

@@ -5,7 +5,7 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { ALL_LANGUAGES } from '~/utils/language'
 
 /**
- * A form to create a completely new label.
+ * A form to create a new label or edit an existing one.
  */
 
 type LabelFormProps = {
@@ -15,9 +15,10 @@ type LabelFormProps = {
   }
   isSubmitting: boolean
   action: 'addLabel' | 'editLabel'
+  onCancel?: () => void // Add onCancel prop
 }
 
-export default function LabelForm({ initialData, isSubmitting, action }: LabelFormProps) {
+export default function LabelForm({ initialData, isSubmitting, action, onCancel }: LabelFormProps) {
   const { t } = useTranslation()
   const [labelNames, setLabelNames] = useState<{ [key: string]: string }>(initialData?.displayName || {})
   const [labelColor, setLabelColor] = useState(initialData?.color || '')
@@ -70,21 +71,34 @@ export default function LabelForm({ initialData, isSubmitting, action }: LabelFo
       <input type="hidden" name="labelNames" value={JSON.stringify(labelNames)} />
       <input type="hidden" name="labelColor" value={labelColor} />
 
-      <div className="ml-2 flex items-center space-x-4">
+      {/* Action Buttons */}
+      <div className="ml-2 flex items-center space-x-4 mt-4">
+        {/* Submit Button */}
         <button
           type="submit"
           name="intent"
           value={action}
-          className={`mt-2 px-4 py-1 rounded border
+          className={`px-4 py-2 rounded border
             ${
               !isFormValid || isSubmitting
                 ? 'text-gray-500 bg-gray-400 dark:bg-gray-700 border-gray-400 cursor-not-allowed'
-                : 'text-gray-100 bg-green-600 hover:bg-green-800 border-green-600'
+                : 'text-white bg-green-600 hover:bg-green-800 border-green-600'
             }`}
           disabled={!isFormValid || isSubmitting}
         >
-          {isSubmitting ? <Spinner size={24} /> : t[action === 'addLabel' ? 'add-new-label' : 'edit-label']}
+          {isSubmitting ? <Spinner size={24} /> : t[action === 'addLabel' ? 'add-new-label' : 'save']}
         </button>
+
+        {/* Cancel Button (only for editing) */}
+        {action === 'editLabel' && onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+          >
+            {t['cancel']}
+          </button>
+        )}
       </div>
     </>
   )

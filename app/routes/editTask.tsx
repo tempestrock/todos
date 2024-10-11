@@ -154,15 +154,15 @@ export const action: ActionFunction = async ({ request }) => {
   switch (intent) {
     case 'addLabel': {
       // Handle new label creation
-      const newLabelNames = formData.get('newLabelNames') as string | null
-      const newLabelColor = formData.get('newLabelColor') as string | null
+      const labelNames = formData.get('labelNames') as string | null
+      const labelColor = formData.get('labelColor') as string | null
 
-      if (newLabelNames && newLabelColor) {
+      if (labelNames && labelColor) {
         const newLabelId = getUid()
         const newLabel: Label = {
           id: newLabelId,
-          displayName: JSON.parse(newLabelNames),
-          color: newLabelColor,
+          displayName: JSON.parse(labelNames),
+          color: labelColor,
         }
 
         // Save the new label to the database
