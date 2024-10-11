@@ -8,8 +8,8 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, TaskList, User } from '~/types/dataTypes'
 import { authAction } from '~/utils/auth/authAction'
 import { requireAuth } from '~/utils/auth/session.server'
-import { loadListMetadata } from '~/utils/database/loadListMetadata'
-import { loadUser } from '~/utils/database/loadUser'
+import { loadListMetadata } from '~/utils/database/taskListOperations'
+import { loadUser } from '~/utils/database/userOperations'
 import { log } from '~/utils/log'
 
 export type LoaderData = {
