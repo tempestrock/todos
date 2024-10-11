@@ -71,10 +71,8 @@ export default function LabelManagement() {
               <thead>
                 <tr>
                   <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['label']}</th>
-                  <th className="px-4 py-2 flex justify-center text-gray-900 dark:text-gray-100">
-                    {t['label-num-tasks']}
-                  </th>
-                  <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['delete']}</th>
+                  <th className="px-4 py-2 text-center text-gray-900 dark:text-gray-100">{t['label-num-tasks']}</th>
+                  <th className="px-4 py-2 text-center text-gray-900 dark:text-gray-100">{t['delete']}</th>
                 </tr>
               </thead>
               <tbody>
@@ -99,14 +97,14 @@ export default function LabelManagement() {
                       </Link>
 
                       {/* Number of tasks */}
-                      <td className="px-4 py-2">
-                        <div className="ml-2 text-sm text-gray-900 dark:text-gray-100 flex justify-center">
+                      <td className="px-4 py-2 text-center">
+                        <div className="ml-2 text-sm text-gray-900 dark:text-gray-100">
                           {labelCounts[label.id] || 0} {t['tasks']}
                         </div>
                       </td>
 
                       {/* Delete button */}
-                      <td className="px-4 pt-2">
+                      <td className="px-4 pt-2 text-center">
                         <button
                           type="button"
                           onClick={() => handleDeleteLabel(label.id)}
