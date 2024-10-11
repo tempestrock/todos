@@ -17,7 +17,7 @@ import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
 import { log } from '~/utils/log'
-import { useTaskStore } from '~/utils/store/useTaskStore'
+// import { useTaskStore } from '~/utils/store/useTaskStore'
 
 type LoaderData = {
   taskList: TaskListType
@@ -73,9 +73,7 @@ export default function ListView() {
   const { t } = useTranslation()
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
-  // Use the store.
-  const tasks = useTaskStore((state) => state.tasks)
-  const setTasks = useTaskStore((state) => state.setTasks)
+  const tasks = taskList.tasks
 
   const [loadingHome, setLoadingHome] = useState<boolean>(false)
 
@@ -90,10 +88,10 @@ export default function ListView() {
     return map
   }, [labels])
 
-  // Initialize tasks in the store.
-  useEffect(() => {
-    setTasks(taskList.tasks)
-  }, [taskList.tasks, setTasks])
+  // // Initialize tasks in the store.
+  // useEffect(() => {
+  //   setTasks(taskList.tasks)
+  // }, [taskList.tasks, setTasks])
 
   // Reset loading state when navigation is idle.
   useEffect(() => {
@@ -106,6 +104,7 @@ export default function ListView() {
 
   const { handleEdit, handleDelete, handleMove, handleReorder, loadingTaskId, setLoadingTaskId } = useTaskActions({
     listId,
+    tasks,
     currentBoardColumn,
     boardColumns,
   })

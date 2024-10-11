@@ -2,19 +2,18 @@ import { useSubmit } from '@remix-run/react'
 import { useState } from 'react'
 
 import { useTranslation } from '~/contexts/TranslationContext'
-import { BoardColumn } from '~/types/dataTypes'
-import { useTaskStore } from '~/utils/store/useTaskStore'
+import { BoardColumn, Task } from '~/types/dataTypes'
 
 type UseTaskActionsProps = {
   listId: string
+  tasks: Task[]
   currentBoardColumn: BoardColumn
   boardColumns: BoardColumn[]
 }
 
-export const useTaskActions = ({ listId, currentBoardColumn, boardColumns }: UseTaskActionsProps) => {
+export const useTaskActions = ({ listId, tasks, currentBoardColumn, boardColumns }: UseTaskActionsProps) => {
   const submit = useSubmit()
   const [loadingTaskId, setLoadingTaskId] = useState<string | null>(null)
-  const setTasks = useTaskStore((state) => state.setTasks)
   const { t } = useTranslation()
 
   const handleEdit = (taskId: string) => {
@@ -30,6 +29,12 @@ export const useTaskActions = ({ listId, currentBoardColumn, boardColumns }: Use
     }
   }
 
+  /**
+   * Handles a horizontal move of a task to a new board column based on the given taskId and direction.
+   *
+   * @param {string} taskId - The ID of the task to be moved.
+   * @param {'prev' | 'next'} direction - The direction in which to move the task.
+   */
   const handleMove = (taskId: string, direction: 'prev' | 'next') => {
     setLoadingTaskId(taskId)
     const currentIndex = boardColumns.indexOf(currentBoardColumn)
@@ -39,14 +44,17 @@ export const useTaskActions = ({ listId, currentBoardColumn, boardColumns }: Use
     submit({ intent: 'move', listId, taskId, targetColumn }, { method: 'post' })
   }
 
+  /**
+   * Handles a vertical reordering of tasks, i.e., in the same board column.
+   *
+   * @param {string} taskId - The ID of the task being reordered
+   * @param {'up' | 'down'} direction - The direction of the reorder action
+   */
   const handleReorder = (taskId: string, direction: 'up' | 'down') => {
     setLoadingTaskId(taskId)
 
-    // Get the current tasks from the store.
-    const currentTasks = useTaskStore.getState().tasks
-
     // Find tasks in the current column.
-    const tasksInCurrentColumn = currentTasks.filter((task) => task.boardColumn === currentBoardColumn)
+    const tasksInCurrentColumn = tasks.filter((task) => task.boardColumn === currentBoardColumn)
 
     const currentTaskIndex = tasksInCurrentColumn.findIndex((task) => task.id === taskId)
     if (currentTaskIndex === -1) {
@@ -64,19 +72,10 @@ export const useTaskActions = ({ listId, currentBoardColumn, boardColumns }: Use
     const currentTask = tasksInCurrentColumn[currentTaskIndex]
     const targetTask = tasksInCurrentColumn[targetTaskIndex]
 
-    // Update positions.
-    const updatedTasks = currentTasks.map((task) => {
-      if (task.id === currentTask.id) {
-        return { ...task, position: targetTask.position }
-      }
-      if (task.id === targetTask.id) {
-        return { ...task, position: currentTask.position }
-      }
-      return task
-    })
-
-    // Update tasks in the store.
-    setTasks(updatedTasks)
+    // Swap positions.
+    const targetPosition = targetTask.position
+    targetTask.position = currentTask.position
+    currentTask.position = targetPosition
 
     submit(
       {

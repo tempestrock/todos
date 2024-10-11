@@ -9,6 +9,7 @@ import {
   FilePenLine,
   Trash2,
 } from 'lucide-react'
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
 import Spinner from './Spinner'
@@ -16,7 +17,6 @@ import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, Task, BoardColumn } from '~/types/dataTypes'
 import { getNiceDateTime } from '~/utils/dateAndTime'
 import { LANG_DEFAULT } from '~/utils/language'
-import { useTaskStore } from '~/utils/store/useTaskStore'
 
 /**
  * The list of tasks that is shown in the list view.
@@ -52,8 +52,14 @@ export default function TaskList({
   boardColumns,
 }: TaskListProps) {
   const { t } = useTranslation()
-  const visibleTaskDetails = useTaskStore((state) => state.visibleTaskDetails)
-  const toggleTaskDetails = useTaskStore((state) => state.toggleTaskDetails)
+  const [visibleTaskDetails, setVisibleTaskDetails] = useState<{ [taskId: string]: boolean }>({})
+
+  const toggleTaskDetails = (taskId: string) => {
+    setVisibleTaskDetails((prevState) => ({
+      ...prevState,
+      [taskId]: !prevState[taskId],
+    }))
+  }
 
   return (
     <ul className="space-y-4">

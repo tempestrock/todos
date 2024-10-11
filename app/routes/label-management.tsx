@@ -8,7 +8,6 @@ import { Label } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
 import { loadAllLabels, createLabel, updateLabel, deleteLabel } from '~/utils/database/labelOperations'
 import { LANG_DEFAULT } from '~/utils/language'
-import { useTaskStore } from '~/utils/store/useTaskStore'
 
 type LoaderData = {
   labels: Label[]
@@ -27,7 +26,7 @@ export default function LabelManagement() {
   const fetcher = useFetcher()
   const { t } = useTranslation()
   const [editingLabel, setEditingLabel] = useState<Label | null>(null)
-  const tasks = useTaskStore((state) => state.tasks)
+  // const tasks = useTaskStore((state) => state.tasks)
 
   const currentLang = typeof window !== 'undefined' ? localStorage.getItem('lang') || LANG_DEFAULT : LANG_DEFAULT
 
@@ -39,8 +38,9 @@ export default function LabelManagement() {
     }
   }
 
-  const isLabelAssignedToTask = (labelId: string) => {
-    return tasks.some((task) => task.labelIds && task.labelIds.includes(labelId))
+  const isLabelAssignedToTask = (_labelId: string) => {
+    return true
+    // return tasks.some((task) => task.labelIds && task.labelIds.includes(labelId))
   }
 
   return (
