@@ -1,8 +1,7 @@
-import { Link } from '@remix-run/react'
-import { ChevronDown, ChevronUp, Home } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
+import HomeButton from './HomeButton'
 import MoreMenu from '~/components/MoreMenu'
-import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn, Task } from '~/types/dataTypes'
 import { capitalizeFirstLetter } from '~/utils/stringHandling'
@@ -44,9 +43,7 @@ export default function TaskListHeader({
     <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-10 shadow-md">
       <div className="container mx-auto pt-4 px-4 flex justify-between items-center">
         {/* Home Button */}
-        <Link to="/" className="text-xs text-blue-500 hover:text-blue-700" onClick={handleHomeClick}>
-          {loadingHome ? <Spinner size={24} lightModeColor="text-blue-500" /> : <Home size={24} />}
-        </Link>
+        <HomeButton loadingHome={loadingHome} handleHomeClick={handleHomeClick} />
 
         {/* Board Column Buttons */}
         <div className="flex space-x-1">

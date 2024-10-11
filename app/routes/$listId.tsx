@@ -17,7 +17,6 @@ import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
 import { log } from '~/utils/log'
-// import { useTaskStore } from '~/utils/store/useTaskStore'
 
 type LoaderData = {
   taskList: TaskListType
@@ -87,11 +86,6 @@ export default function ListView() {
     labels.forEach((label) => map.set(label.id, label))
     return map
   }, [labels])
-
-  // // Initialize tasks in the store.
-  // useEffect(() => {
-  //   setTasks(taskList.tasks)
-  // }, [taskList.tasks, setTasks])
 
   // Reset loading state when navigation is idle.
   useEffect(() => {

@@ -58,8 +58,8 @@ export default function LabelManagement() {
                 <th className="px-4 py-2 flex justify-center text-gray-900 dark:text-gray-100">
                   {t['label-num-tasks']}
                 </th>
-                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['edit-label']}</th>
-                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['delete-label']}</th>
+                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['edit']}</th>
+                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">{t['delete']}</th>
               </tr>
             </thead>
             <tbody>
