@@ -1,68 +1,68 @@
-# Peter's ToDo Lists
+# Todo Lists <!-- omit in toc -->
 
-## Development
+A small web-based application to manage todo lists.
 
-Run the dev server:
+## Table of Contents <!-- omit in toc -->
 
-```bash
-pnpm dev
-```
+- [What This Is](#what-this-is)
+  - [Features](#features)
+  - [Technical basis](#technical-basis)
+- [Architecture](#architecture)
+- [Initial Setup](#initial-setup)
+- [Development and Code Customization](#development-and-code-customization)
 
-## Deployment
+## What This Is
 
-Call
+This is my personal project to handle todo lists. I was unhappy with what was available for free
+to manage simple todo lists. So I decided to build my own app.
 
-```bash
-./scripts/deploy.sh -h
-```
+This comes without any warranty. But feel free to fork, copy, or use the source code in any way you want.  
+If you find any bugs, please let me know.
 
-to see the options on how to deploy the app to `uat`
-and/or `prod`.
+Please do not expect me to be able to give you any support or review any code as my time is quite limited
+for this project. Instead, I spent some time writing this documentation. I hope you find it useful.
 
-## AWS Access
+### Features
 
-In order for the service to access the DynamoDB, two users have been created in
-`AWS-04-services`: `todos-service-uat` and `todos-service-prod`. Their credentials
-reside in the `.env` file in the respective directories on `vpn-client-1`.
+- See also this little [gallery of screenshots](./docu/gallery.md).
+- Web-based, mobile-first.
+- An arbitrary number of todo lists can be used. Each list can carry any number of tasks.
+- A list has a number of (hard-coded) board columns. In my case, these are `backlog`, `in progress`, and `done`.
+  Tasks can be moved between the columns. The names and number of board columns should be easy to customize.
+- Tasks can be moved up and down in a column, thereby giving it a priority.
+- Tasks have a title and a detailed text. The detailed text can be written in markdown in order to give it
+  a nicer look and feel. Also links can be added in the text this way.
+- Localization: Currently, English and German are supported. Other languages should be easily addable by you.
+- Labels:
+  - Labels (e.g. something like `Bug`, `Size: S`, `Size: L`) can be created, edited, and deleted. They are
+    part of the localization.
+  - Tasks can be assigned labels and filtered according to their labels.
+- Users can be assigned todo lists. So different users can have different sets of lists.
+- Light and dark mode.
 
-## Data Model
+### Technical basis
 
-In DynamoDB, there are the following tables:
+- Remix application using Vite, TypeScript, Tailwind CSS, and pnpm.
+- AWS Cognito for user management.
+- AWS DynamoDB for data storage.
+- Possibility to develop locally (`dev`), test on a separate machine (`uat`), and run in "production" (`prod`).
 
-| Table name         | Partition Key | Sort Key | Other Fields                                                                      |
-| ------------------ | ------------- | -------- | --------------------------------------------------------------------------------- |
-| `TaskListMetadata` | `id`          | `name`   | `color`                                                                           |
-| `Tasks`            | `id`          | (none)   | `title`, `details`, `boardColumn`, `position`, `createdAt`, `updatedAt`, `labels` |
-| `Users`            | `id`          | (none)   | `displayName`, `taskListIds` (list of strings)                                    |
+The initial installation is not fully automated but I hope that this description tells you everything you need.
 
-They exist three times with an additional postfix `-dev`, `-uat`, and `-prod`,
-respectively. You have to create all of them manually (which means that you only
-have to define table name, partition key, and sort key).
+Some things need to be admninistered manually, e.g. the assignment of users to
+todo lists or the creation of new todo lists.
 
-The tables `TaskListMetadata` and `Users` even have to get manual entries. It
-is possible to export and import from one environment to the other, though.
+## Architecture
 
-A user has the following structure (in DynamoDB JSON view) e.g.:
+If you are interested in setting up the app on your own machines, the
+[architecture](./docu/architecure.md) is a good place to start.
 
-```json
-{
-  "id": {
-    "S": "peter"
-  },
-  "displayName": {
-    "S": "Peter"
-  },
-  "taskListIds": {
-    "L": [
-      {
-        "S": "todos"
-      },
-      {
-        "S": "lets-try"
-      }
-    ]
-  }
-}
-```
+## Initial Setup
 
-The `id` entry must be equal to the user name in AWS Cognito.
+If you are still interested in setting up the app on your own machines,
+refer to the [step-by-step walkthrough](./docu/initial-setup.md).
+
+## Development and Code Customization
+
+The source code is prepared to be tweaked in some areas. Find more information about
+it [here](./docu/code-customization.md).
