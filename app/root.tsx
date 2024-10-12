@@ -54,6 +54,9 @@ export const headers = (): object => {
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy':
       'accelerometer=(), autoplay=(), camera=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), usb=(), clipboard-read=(), clipboard-write=()',
+    'Cross-Origin-Embedder-Policy': 'require-corp',
+    'Cross-Origin-Opener-Policy': 'same-origin',
+    'Cross-Origin-Resource-Policy': 'same-origin',
   }
 }
 
