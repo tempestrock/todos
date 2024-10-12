@@ -2,10 +2,13 @@
 
 #
 # Performs all steps that are necessary to deploy the current version to the remote UAT or prod machine.
+# You need to be able to ssh to the remote machine. Please refer to the README for more info about
+# architecture and prerequisites.
 #
 
 main() {
   welcome app-deployment
+  check_for_available_commands "docker ssh zip"
   consume_command_line_params "${@}"
   set_constants
 
@@ -56,9 +59,13 @@ readonly Home_dir=$(pwd)/..
 
 readonly includes_dir=./includes
 . ${includes_dir}/basics.sh
+. ${includes_dir}/check-for-available-commands.sh
 . ${includes_dir}/consume-command-line-params.sh
 . ${includes_dir}/welcome.sh
 
+#
+# Constants
+#
 set_constants() {
   readonly Remote_machine="vpn-client-1"
   readonly Remote_user_and_machine="peter@${Remote_machine}"
