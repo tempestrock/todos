@@ -33,6 +33,31 @@ export const meta: MetaFunction = () => {
 }
 
 /**
+ * Returns a set of security headers for the application.
+ *
+ * @return {Object} The security headers object.
+ */
+export const headers = (): object => {
+  return {
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    'Content-Security-Policy':
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline'; " +
+      "style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data:; " +
+      "font-src 'self'; " +
+      "object-src 'none'; " +
+      "frame-ancestors 'none'; " +
+      "connect-src 'self'",
+    'X-Frame-Options': 'SAMEORIGIN',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy':
+      'accelerometer=(), autoplay=(), camera=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), usb=(), clipboard-read=(), clipboard-write=()',
+  }
+}
+
+/**
  * The main application component, responsible for rendering the HTML document structure.
  *
  * @return {JSX.Element} The JSX element representing the HTML document.
