@@ -12,8 +12,6 @@ import { log } from '~/utils/log'
  * @return {Promise<User>} The user's data.
  */
 export const loadUser = async (userId: string): Promise<User> => {
-  log(`[loadUser] Starting (${userId}).`)
-
   try {
     const getParams = {
       TableName: getTableName(TABLE_NAME_USERS),

@@ -11,7 +11,6 @@ import { requireAuth } from '~/utils/auth/session.server'
 import { loadListMetadata } from '~/utils/database/taskListOperations'
 import { loadUser } from '~/utils/database/userOperations'
 import { log } from '~/utils/log'
-import { printObject } from '~/utils/printObject'
 
 export type LoaderData = {
   user?: User
@@ -21,7 +20,6 @@ export type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  printObject(request, '[_index.loader] request')
   const userId = await requireAuth(request)
 
   try {
