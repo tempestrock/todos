@@ -14,12 +14,6 @@ export default function ErrorBoundary() {
   const error = useRouteError()
   const location = useLocation()
 
-  // Log the error on the server side.
-  if (typeof window === 'undefined') {
-    log(`[ErrorBoundary] path: '${location.pathname}${location.search}'`)
-    printObject(error, '[ErrorBoundary]')
-  }
-
   let title = 'Oops!'
   let statusText = ''
 
@@ -28,14 +22,22 @@ export default function ErrorBoundary() {
     if (error.status === 404) {
       // Custom 404 page
       statusText = 'This page decided to ghost you. But don’t take it personally!'
+
+      if (typeof window === 'undefined') log(`[ErrorBoundary] 404 for path '${location.pathname}${location.search}'`)
     } else {
       // Other HTTP errors
       title = `${error.status} ${error.statusText}`
       statusText = `It seems we dropped the ball. Or the server did. Either way, we'll pick it up!`
+
+      if (typeof window === 'undefined') {
+        log(`[ErrorBoundary] Path: '${location.pathname}${location.search}'`)
+        printObject(error, '[ErrorBoundary]')
+      }
     }
   } else {
     // Unexpected errors (e.g. exceptions)
     statusText = 'You hit an unexpected edge. Sorry for that!'
+    printObject(error, '[ErrorBoundary]')
   }
 
   return (

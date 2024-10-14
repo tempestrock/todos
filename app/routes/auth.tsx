@@ -8,8 +8,6 @@ import { User } from '~/types/dataTypes'
 import { authAction, ActionData } from '~/utils/auth/authAction'
 import { getSession } from '~/utils/auth/session.server'
 import { requireAuth } from '~/utils/auth/session.server'
-import { isProdEnv } from '~/utils/isDevEnv'
-import { log } from '~/utils/log'
 
 /**
  * Displays the authentication page.
@@ -22,7 +20,7 @@ export type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  if (isProdEnv()) log(`This is a prod environment.`)
+  // if (isProdEnv()) log(`This is a prod environment.`)
 
   const session = await getSession(request.headers.get('Cookie'))
   const challengeName = session.get('challengeName')

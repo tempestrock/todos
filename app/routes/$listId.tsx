@@ -31,11 +31,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const taskList = await loadTaskList(params.listId)
 
   // If the task list cannot be found, return a 404.
-  // This will be handled by the ErrorBoundary function in `root.tsx`.
-  if (taskList === TaskListUndefined) {
-    log(`[404] path: '${params.listId}'`)
-    throw new Response('Not Found', { status: 404 })
-  }
+  // This will be handled by the ErrorBoundary function.
+  if (taskList === TaskListUndefined) throw new Response('Not Found', { status: 404 })
 
   // Sort tasks by position.
   taskList.tasks.sort((a, b) => a.position - b.position)
