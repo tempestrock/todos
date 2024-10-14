@@ -1,23 +1,21 @@
-/* eslint-disable @typescript-eslint/only-throw-error */
 import { PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
 import { createSessionStorage, redirect } from '@remix-run/node'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
 
-import { ENV_PROD, USER_DEV } from '~/types/consts'
+import { ENV_PROD } from '~/types/consts'
 import { generateSessionId } from '~/utils/auth/utils'
 import { dbClient } from '~/utils/database/dbClient'
 import { getTableName, TABLE_NAME_SESSIONS } from '~/utils/database/dbConsts'
-import { isDevEnv } from '~/utils/isDevEnv'
 import { log } from '~/utils/log'
 
-export const requireAuth = async (request: Request): Promise<string> => {
-  if (isDevEnv()) return USER_DEV
+export const requireAuth = async (request: Request, path?: string): Promise<string> => {
+  // if (isDevEnv()) return USER_DEV // allow dev environment without login
 
   const session = await getSession(request.headers.get('Cookie'))
   const accessToken = session.get('accessToken')
 
   if (!accessToken) {
-    console.warn('[requireAuth] No access token found in session.')
+    if (path) log(`[requireAuth] Path without auth: '${path}'`)
     throw redirect('/auth')
   }
 

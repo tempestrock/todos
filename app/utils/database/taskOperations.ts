@@ -55,6 +55,7 @@ export async function loadTask(taskId: string): Promise<Task | undefined> {
 export async function loadTaskList(listId: string): Promise<TaskList> {
   // Get the metadata of the one task list that has the given list ID.
   const taskList = await loadMetadataOfTaskList(listId)
+  if (taskList === TaskListUndefined) return taskList
 
   // Read all tasks from a second table.
   let lastEvaluatedKey: Record<string, any> | undefined

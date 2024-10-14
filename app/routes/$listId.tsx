@@ -7,7 +7,7 @@ import TaskListHeader from '~/components/TaskListHeader'
 import TaskListLabelFilter from '~/components/TaskListLabelFilter'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { useTaskActions } from '~/hooks/useTaskActions'
-import { Label, TaskList as TaskListType, BoardColumn, Task } from '~/types/dataTypes'
+import { Label, TaskList as TaskListType, BoardColumn, Task, TaskListUndefined } from '~/types/dataTypes'
 import { requireAuth } from '~/utils/auth/session.server'
 import { loadLabels } from '~/utils/database/labelOperations'
 import { deleteTask, loadTask, loadTaskList, updateBoardColumn } from '~/utils/database/taskOperations'
@@ -24,31 +24,33 @@ type LoaderData = {
 }
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await requireAuth(request)
+  await requireAuth(request, params.listId)
 
-  try {
-    if (!params.listId) throw new Error('[$listId.loader] No list ID provided')
+  if (!params.listId) throw new Error('[$listId.loader] No list ID provided')
 
-    const taskList = await loadTaskList(params.listId)
+  const taskList = await loadTaskList(params.listId)
 
-    // Sort tasks by position.
-    taskList.tasks.sort((a, b) => a.position - b.position)
-
-    // Collect all label IDs from tasks.
-    const labelIdsSet = new Set<string>()
-    taskList.tasks.forEach((task) => {
-      task.labelIds.forEach((labelId) => labelIdsSet.add(labelId))
-    })
-    const labelIds = Array.from(labelIdsSet)
-
-    // Load labels from the database.
-    const labels = await loadLabels(labelIds)
-
-    return json<LoaderData>({ taskList, labels })
-  } catch (error) {
-    log('[$listId.loader] Error loading tasks:', error)
-    return json({ error: '[$listId.loader] Failed to load tasks' }, { status: 500 })
+  // If the task list cannot be found, return a 404.
+  // This will be handled by the ErrorBoundary function in `root.tsx`.
+  if (taskList === TaskListUndefined) {
+    log(`[404] path: '${params.listId}'`)
+    throw new Response('Not Found', { status: 404 })
   }
+
+  // Sort tasks by position.
+  taskList.tasks.sort((a, b) => a.position - b.position)
+
+  // Collect all label IDs from tasks.
+  const labelIdsSet = new Set<string>()
+  taskList.tasks.forEach((task) => {
+    task.labelIds.forEach((labelId) => labelIdsSet.add(labelId))
+  })
+  const labelIds = Array.from(labelIdsSet)
+
+  // Load labels from the database.
+  const labels = await loadLabels(labelIds)
+
+  return json<LoaderData>({ taskList, labels })
 }
 
 export default function ListView() {

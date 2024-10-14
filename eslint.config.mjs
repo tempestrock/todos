@@ -52,6 +52,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/only-throw-error': 'off',
       '@typescript-eslint/no-unused-vars': [
         // allow to use unused variables with an '_' prefix
         'error',

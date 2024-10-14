@@ -1,7 +1,19 @@
 import type { LinksFunction, MetaFunction } from '@remix-run/node'
-import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react'
+import {
+  isRouteErrorResponse,
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLocation,
+  useRouteError,
+} from '@remix-run/react'
 import { useEffect, useState } from 'react'
 
+import { log } from './utils/log'
+import { printObject } from './utils/printObject'
 import { TranslationProvider } from '~/contexts/TranslationContext'
 import styles from '~/styles/tailwind.css?url'
 import { UNDEF } from '~/types/dataTypes'
@@ -26,7 +38,7 @@ export const links: LinksFunction = () => [
 export const meta: MetaFunction = () => {
   return [
     { title: 'Todos' },
-    { name: 'description', content: 'My todo lists' },
+    { name: 'description', content: 'Todos' },
     { charset: 'utf-8' },
     { viewport: 'width=device-width,initial-scale=1' },
   ]
@@ -104,4 +116,86 @@ export default function App(): JSX.Element {
       </html>
     </TranslationProvider>
   )
+}
+
+function Document({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <Meta />
+        <Links />
+        {/* Include any global styles or scripts here */}
+      </head>
+      <body>
+        {children}
+        <ScrollRestoration />
+        <Scripts />
+        {process.env.NODE_ENV === 'development' && <LiveReload />}
+      </body>
+    </html>
+  )
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError()
+  const location = useLocation()
+
+  // Log the error on the server side
+  if (typeof window === 'undefined') {
+    log(`Error at location ${location.pathname}${location.search}`)
+    printObject(error, 'ErrorBoundary')
+  }
+
+  // Check if the error is a Response (caught response)
+  if (isRouteErrorResponse(error)) {
+    if (error.status === 404) {
+      // Custom 404 page
+      return (
+        <Document>
+          <main className="container mx-auto px-4 py-8">
+            <h1 className="text-3xl font-bold mb-4">Page Not Found</h1>
+            <p className="mb-4">The page you requested does not exist. It might have been moved or deleted.</p>
+            <p>
+              <a href="/" className="text-blue-500 hover:underline">
+                Return to the homepage
+              </a>
+            </p>
+          </main>
+        </Document>
+      )
+    } else {
+      // Other HTTP errors
+      return (
+        <Document>
+          <main className="container mx-auto px-4 py-8">
+            <h1 className="text-3xl font-bold mb-4">
+              {error.status} {error.statusText}
+            </h1>
+            <p className="mb-4">An error occurred while processing your request.</p>
+            <p>
+              <a href="/" className="text-blue-500 hover:underline">
+                Return to the homepage
+              </a>
+            </p>
+          </main>
+        </Document>
+      )
+    }
+  } else {
+    // Handle unexpected errors
+    return (
+      <Document>
+        <main className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-4">Application Error</h1>
+          <p className="mb-4">Sorry, an unexpected error has occurred.</p>
+          <pre className="bg-gray-100 p-4 rounded">{String(error)}</pre>
+          <p>
+            <a href="/" className="text-blue-500 hover:underline">
+              Return to the homepage
+            </a>
+          </p>
+        </main>
+      </Document>
+    )
+  }
 }

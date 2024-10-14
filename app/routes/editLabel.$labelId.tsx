@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/only-throw-error */
 import { json, redirect, type LoaderFunctionArgs, type ActionFunctionArgs } from '@remix-run/node'
 import { useLoaderData, Form, useNavigation, useNavigate } from '@remix-run/react'
 
