@@ -1,7 +1,7 @@
 import { ActionFunction, ActionFunctionArgs, json, redirect } from '@remix-run/node'
 
 import { signIn, completeNewPassword } from '~/utils/auth/auth'
-import { getSession, commitSession, destroySession } from '~/utils/auth/session.server'
+import { getSession, commitSession, destroySession } from '~/utils/auth/sessionStorage'
 import { log } from '~/utils/log'
 
 export type ActionData = {

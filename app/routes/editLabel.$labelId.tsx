@@ -4,7 +4,7 @@ import { useLoaderData, Form, useNavigation, useNavigate } from '@remix-run/reac
 import LabelForm from '~/components/LabelForm'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label } from '~/types/dataTypes'
-import { requireAuth } from '~/utils/auth/session.server'
+import { requireAuth } from '~/utils/auth/requireAuth'
 import { loadLabel, updateLabel } from '~/utils/database/labelOperations'
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
