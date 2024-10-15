@@ -67,8 +67,9 @@ readonly includes_dir=./includes
 # Constants
 #
 set_constants() {
-  readonly Remote_machine="vpn-client-1"
-  readonly Remote_user_and_machine="peter@${Remote_machine}"
+  readonly Remote_machine="vpn-client-1" # CUSTOMIZE_ME
+  readonly Remote_user="peter"           # CUSTOMIZE_ME
+  readonly Remote_user_and_machine="${Remote_user}@${Remote_machine}"
 
   readonly Image_file_name="image.tar"
   readonly Image_file_name_zipped="${Image_file_name}.zip"
@@ -77,7 +78,7 @@ set_constants() {
   declare -A env_ports=(["uat"]=8080 ["prod"]=8081)
   readonly -A env_ports
 
-  readonly Remote_home_dir="/home/peter/todos/${Param_env_name}"
+  readonly Remote_home_dir="/home/${Remote_user}/todos/${Param_env_name}"
   readonly Local_temp_dir=$(mktemp -d)
   readonly Remote_temp_dir="/tmp"
   info "Local temp dir: '${Local_temp_dir}'"

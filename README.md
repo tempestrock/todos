@@ -30,7 +30,8 @@ for this project. Instead, I spent some time writing this documentation. I hope 
 - A list has a number of (hard-coded) board columns. In my case, these are `backlog`, `in progress`, and `done`.
   Tasks can be moved between the columns. The names and number of board columns should be easy to customize.
 - Tasks can be moved up and down in a column, thereby giving it a priority.
-- Tasks have a title and a detailed text. The detailed text can be written in markdown in order to give it
+- Tasks have a title and a detailed text. The detailed text can be written in
+  basic [Markdown](https://www.markdownguide.org/cheat-sheet/) in order to give it
   a nicer look and feel. Also links can be added in the text this way.
 - Localization: Currently, English and German are supported. Other languages should be easily addable by you.
 - Labels:
