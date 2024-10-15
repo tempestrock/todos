@@ -6,8 +6,6 @@
   "scripts": {
     "build": "remix vite:build",
     "dev": "remix vite:dev",
-    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "remix-serve ./build/server/index.js",
     "lint:check": "eslint --max-warnings 0 .",
     "lint:fix": "eslint --fix .",
     "format:check": "prettier --check .",
@@ -16,43 +14,43 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "3.664.0",
-    "@aws-sdk/client-dynamodb": "3.656.0",
-    "@aws-sdk/lib-dynamodb": "3.656.0",
-    "@remix-run/node": "2.12.1",
-    "@remix-run/react": "2.12.1",
-    "@remix-run/serve": "2.12.1",
+    "@aws-sdk/client-cognito-identity-provider": "3.670.0",
+    "@aws-sdk/client-dynamodb": "3.670.0",
+    "@aws-sdk/lib-dynamodb": "3.670.0",
+    "@remix-run/node": "2.13.1",
+    "@remix-run/react": "2.13.1",
+    "@remix-run/serve": "2.13.1",
     "aws-jwt-verify": "4.0.1",
     "aws-sdk": "2.1691.0",
     "isbot": "5.1.17",
-    "lucide-react": "0.445.0",
+    "lucide-react": "0.453.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-markdown": "9.0.1"
   },
   "devDependencies": {
-    "@remix-run/dev": "2.12.1",
+    "@remix-run/dev": "2.13.1",
     "@tailwindcss/typography": "0.5.15",
-    "@types/react": "18.3.8",
-    "@types/react-dom": "18.3.0",
-    "@typescript-eslint/eslint-plugin": "8.6.0",
-    "@typescript-eslint/parser": "8.6.0",
+    "@types/react": "18.3.11",
+    "@types/react-dom": "18.3.1",
+    "@typescript-eslint/eslint-plugin": "8.9.0",
+    "@typescript-eslint/parser": "8.9.0",
     "autoprefixer": "10.4.20",
-    "eslint": "9.11.0",
+    "eslint": "9.12.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-import-resolver-typescript": "3.6.3",
-    "eslint-plugin-import": "2.30.0",
+    "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jsx-a11y": "6.10.0",
-    "eslint-plugin-react": "7.36.1",
+    "eslint-plugin-react": "7.37.1",
     "eslint-plugin-react-hooks": "4.6.2",
     "husky": "9.1.6",
     "lint-staged": "15.2.10",
     "postcss": "8.4.47",
     "prettier": "3.3.3",
-    "tailwindcss": "3.4.12",
-    "typescript": "5.6.2",
-    "typescript-eslint": "8.6.0",
-    "vite": "5.4.7",
+    "tailwindcss": "3.4.14",
+    "typescript": "5.6.3",
+    "typescript-eslint": "8.9.0",
+    "vite": "5.4.9",
     "vite-tsconfig-paths": "5.0.1"
   },
   "engines": {
@@ -71,7 +69,7 @@
   },
   "pnpm": {
     "overrides": {
-      "eslint": "9.11.0"
+      "eslint": "9.12.0"
     }
   }
 }

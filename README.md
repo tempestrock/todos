@@ -20,8 +20,8 @@ to manage simple todo lists. So I decided to build my own app.
 This comes without any warranty. But feel free to fork, copy, or use the source code in any way you want.  
 If you find any bugs, please let me know.
 
-Please do not expect me to be able to give you any support or review any code as my time is quite limited
-for this project. Instead, I spent some time writing this documentation. I hope you find it useful.
+I am happy to support you in the initial setup but please understand that I won't have a lot of time
+for code reviews and the like. Instead, I spent some time writing this documentation. I hope you find it useful.
 
 ### Features
 
@@ -36,10 +36,10 @@ for this project. Instead, I spent some time writing this documentation. I hope 
   a nicer look and feel. Also links can be added in the text this way.
 - Localization: Currently, English and German are supported. Other languages should be easily addable by you.
 - Labels:
-  - Labels (e.g. something like `Bug`, `Size: S`, `Size: L`) can be created, edited, and deleted. They are
-    part of the localization.
+  - Labels (e.g. something like `Bug`, `Size: S`, `Size: L`, `Learn`, `at home`, `in the garden`, etc.)
+    can be created, edited, and deleted. They are part of the localization.
   - Tasks can be assigned labels and filtered according to their labels.
-- Users can be assigned todo lists. So different users can have different sets of lists.
+- Users can be assigned todo lists. Different users can have different sets of lists.
 - Light and dark mode.
 
 ### Technical basis
@@ -55,7 +55,7 @@ Some things need to be admninistered manually, e.g. the assignment of users to
 todo lists or the creation of new todo lists.
 
 In the code, you will find some `CUSTOMIZE_ME` comments. These should be replaced
-by actual values that make sense in your environment.
+by actual values that make sense in your case.
 
 ## Architecture
 
@@ -65,7 +65,7 @@ If you are interested in setting up the app on your own machines, the
 ## Initial Setup
 
 If you are still interested in setting up the app on your own machines,
-refer to the [step-by-step walkthrough](./docu/initial-setup.md).
+refer to the [hints and scripts](./docu/initial-setup.md) on how to initially set this up.
 
 ## Deployment
 
