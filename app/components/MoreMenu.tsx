@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 
 import DarkModeToggle from '~/components/DarkModeToggle'
 import { LanguageSwitcher } from '~/components/LanguageSwitcher'
+import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn } from '~/types/dataTypes'
 
@@ -28,6 +29,7 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
   hasSignOutButton = false,
 }: MoreMenuProps) => {
   const { t } = useTranslation()
+  const [labelManagementButtonClicked, setLabelManagementButtonClicked] = useState(false)
 
   const [menuOpen, setMenuOpen] = useState<boolean>(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -46,6 +48,10 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
       document.removeEventListener('touchstart', handleClickOutside)
     }
   }, [])
+
+  const handleLabelManagementClick = () => {
+    setLabelManagementButtonClicked(true)
+  }
 
   return (
     <div className="flex gap-4 mt-2">
@@ -70,9 +76,13 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
               {hasLabelManagementMenu && (
                 /* Label management button */
                 <div className="pl-6 pr-4 py-2 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-900">
-                  <Link className="" to="/labelManagement">
-                    {t['label-management']}
-                  </Link>
+                  {labelManagementButtonClicked ? (
+                    <Spinner size={24} />
+                  ) : (
+                    <Link className="" to="/labelManagement" onClick={() => handleLabelManagementClick()}>
+                      {t['label-management']}
+                    </Link>
+                  )}
                 </div>
               )}
 

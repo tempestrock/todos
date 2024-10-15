@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 
-import HomeButton from './HomeButton'
+import HomeButton from '~/components/HomeButton'
 import MoreMenu from '~/components/MoreMenu'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn, Task } from '~/types/dataTypes'

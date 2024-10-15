@@ -12,7 +12,7 @@ import {
 import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
-import Spinner from './Spinner'
+import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, Task, BoardColumn } from '~/types/dataTypes'
 import { getNiceDateTime } from '~/utils/dateAndTime'
