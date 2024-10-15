@@ -8,7 +8,8 @@ import { requireAuth } from '~/utils/auth/session.server'
 import { loadLabel, updateLabel } from '~/utils/database/labelOperations'
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await requireAuth(request)
+  const authResult = await requireAuth(request)
+
   const { labelId } = params
   if (!labelId) {
     throw new Response('Label ID is required', { status: 400 })
@@ -17,7 +18,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (!label) {
     throw new Response('Label not found', { status: 404 })
   }
-  return json({ label })
+  return json({ label }, { headers: authResult.headers })
 }
 
 export default function EditLabel() {

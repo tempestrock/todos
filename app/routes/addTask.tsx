@@ -21,12 +21,12 @@ type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  await requireAuth(request)
+  const authResult = await requireAuth(request)
 
   // Load all labels
   const labels = await loadAllLabels()
 
-  return json<LoaderData>({ labels })
+  return json<LoaderData>({ labels }, { headers: authResult.headers })
 }
 
 export default function AddTaskView() {

@@ -20,7 +20,8 @@ export type LoaderData = {
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
-  const userId = await requireAuth(request)
+  const authResult = await requireAuth(request)
+  const userId = authResult.username
 
   try {
     const user = await loadUser(userId)
@@ -29,10 +30,13 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
     const todoLists = await loadListMetadata(user.taskListIds)
     todoLists.sort((a, b) => a.position - b.position)
 
-    return json<LoaderData>({ success: true, todoLists, user, labels: [] })
+    return json<LoaderData>({ success: true, todoLists, user, labels: [] }, { headers: authResult.headers })
   } catch (error) {
     log('[_index.loader] Error loading tasks:', error)
-    return json<LoaderData>({ success: false, todoLists: [], user: undefined, labels: [] })
+    return json<LoaderData>(
+      { success: false, todoLists: [], user: undefined, labels: [] },
+      { headers: authResult.headers }
+    )
   }
 }
 

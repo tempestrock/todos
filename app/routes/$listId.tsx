@@ -24,7 +24,7 @@ type LoaderData = {
 }
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  await requireAuth(request, params.listId)
+  const authResult = await requireAuth(request, params.listId)
 
   if (!params.listId) throw new Error('[$listId.loader] No list ID provided')
 
@@ -47,7 +47,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   // Load labels from the database.
   const labels = await loadLabels(labelIds)
 
-  return json<LoaderData>({ taskList, labels })
+  return json<LoaderData>({ taskList, labels }, { headers: authResult.headers })
 }
 
 export default function ListView() {

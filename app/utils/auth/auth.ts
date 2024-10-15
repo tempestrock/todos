@@ -2,6 +2,7 @@ import {
   CognitoIdentityProviderClient,
   InitiateAuthCommand,
   InitiateAuthCommandInput,
+  InitiateAuthCommandOutput,
   RespondToAuthChallengeCommand,
   RespondToAuthChallengeCommandInput,
 } from '@aws-sdk/client-cognito-identity-provider'
@@ -37,4 +38,24 @@ export const completeNewPassword = async (username: string, newPassword: string,
   const command = new RespondToAuthChallengeCommand(params)
   const response = await cognitoClient.send(command)
   return response // Contains tokens
+}
+
+/**
+ * Refreshes the user's tokens using the refresh token.
+ *
+ * @param {string} refreshToken - The refresh token from the session.
+ * @return {Promise<InitiateAuthCommandOutput>} The response containing new tokens.
+ */
+export const refreshTokens = async (refreshToken: string): Promise<InitiateAuthCommandOutput> => {
+  const params: InitiateAuthCommandInput = {
+    AuthFlow: 'REFRESH_TOKEN_AUTH',
+    ClientId: process.env.COGNITO_CLIENT_ID!,
+    AuthParameters: {
+      REFRESH_TOKEN: refreshToken,
+    },
+  }
+
+  const command = new InitiateAuthCommand(params)
+  const response = await cognitoClient.send(command)
+  return response // Contains new tokens
 }
