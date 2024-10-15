@@ -51,7 +51,7 @@ export default function LabelManagement() {
           <HomeButton />
 
           {/* 'More' Menu */}
-          <MoreMenu hasAddButton={false} />
+          <MoreMenu hasAddButton={false} hasLabelManagementMenu={false} />
         </div>
       </div>
 

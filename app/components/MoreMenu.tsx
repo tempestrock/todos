@@ -14,6 +14,7 @@ import { BoardColumn } from '~/types/dataTypes'
 
 type MoreMenuProps = {
   hasAddButton?: boolean
+  hasLabelManagementMenu?: boolean
   listId?: string // only defined when hasAddButton is true
   currentBoardColumn?: BoardColumn // only defined when hasAddButton is true
   hasSignOutButton?: boolean
@@ -21,6 +22,7 @@ type MoreMenuProps = {
 
 const MoreMenu: React.FC<MoreMenuProps> = ({
   hasAddButton = false,
+  hasLabelManagementMenu = true,
   listId = undefined,
   currentBoardColumn = undefined,
   hasSignOutButton = false,
@@ -65,12 +67,14 @@ const MoreMenu: React.FC<MoreMenuProps> = ({
                 </Link>
               )}
 
-              {/* Label management button */}
-              <div className="pl-6 pr-4 py-2 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-900">
-                <Link className="" to="/labelManagement">
-                  {t['label-management']}
-                </Link>
-              </div>
+              {hasLabelManagementMenu && (
+                /* Label management button */
+                <div className="pl-6 pr-4 py-2 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-900">
+                  <Link className="" to="/labelManagement">
+                    {t['label-management']}
+                  </Link>
+                </div>
+              )}
 
               {/* Language switcher */}
               <div className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900">
