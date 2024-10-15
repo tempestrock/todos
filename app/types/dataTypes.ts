@@ -34,7 +34,7 @@ export type Task = {
   labelIds: string[]
 }
 
-// Enum to represent board columns.
+// Enum to represent board columns. CUSTOMIZE_ME
 export enum BoardColumn {
   BACKLOG = 'backlog',
   IN_PROGRESS = 'in progress',

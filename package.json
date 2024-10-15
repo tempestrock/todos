@@ -12,8 +12,6 @@
     "lint:fix": "eslint --fix .",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
-    "outdated:check": "./scripts/check-outdated.sh",
-    "outdated:fix": "./scripts/fix-outdated.sh",
     "typecheck": "tsc",
     "prepare": "husky"
   },

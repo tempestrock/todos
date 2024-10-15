@@ -9,6 +9,7 @@ A small web-based application to manage todo lists.
   - [Technical basis](#technical-basis)
 - [Architecture](#architecture)
 - [Initial Setup](#initial-setup)
+- [Deployment](#deployment)
 - [Development and Code Customization](#development-and-code-customization)
 
 ## What This Is
@@ -53,6 +54,9 @@ The initial installation is not fully automated but I hope that this description
 Some things need to be admninistered manually, e.g. the assignment of users to
 todo lists or the creation of new todo lists.
 
+In the code, you will find some `CUSTOMIZE_ME` comments. These should be replaced
+by actual values that make sense in your environment.
+
 ## Architecture
 
 If you are interested in setting up the app on your own machines, the
@@ -62,6 +66,10 @@ If you are interested in setting up the app on your own machines, the
 
 If you are still interested in setting up the app on your own machines,
 refer to the [step-by-step walkthrough](./docu/initial-setup.md).
+
+## Deployment
+
+`<tbd>, not part of the initial setup.`
 
 ## Development and Code Customization
 

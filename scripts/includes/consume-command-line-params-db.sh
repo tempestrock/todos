@@ -1,5 +1,5 @@
 #
-# Handling of command line arguments and printing usage information for the 'db-create-tables' script.
+# Handling of command line arguments and printing usage information for the 'create-db-tables' script.
 #
 
 #
