@@ -8,7 +8,8 @@ A small web-based application to manage todo lists.
   - [Features](#features)
   - [Technical basis](#technical-basis)
 - [Architecture](#architecture)
-- [Initial Setup](#initial-setup)
+- [Initial Setup of the Local Dev Environment](#initial-setup-of-the-local-dev-environment)
+- [Initial Setup of the Prod Environment(s)](#initial-setup-of-the-prod-environments)
 - [Deployment](#deployment)
 - [Development and Code Customization](#development-and-code-customization)
 
@@ -62,10 +63,17 @@ by actual values that make sense in your case.
 If you are interested in setting up the app on your own machines, the
 [architecture](./docu/architecure.md) is a good place to start.
 
-## Initial Setup
+## Initial Setup of the Local Dev Environment
 
 If you are still interested in setting up the app on your own machines,
-refer to the [hints and scripts](./docu/initial-setup.md) on how to initially set this up.
+refer to the [hints and scripts](./docu/initial-setup-local-dev-env.md) on how to initially set
+your local dev environment up.
+
+## Initial Setup of the Prod Environment(s)
+
+Once your local dev environment is up and running,
+you can take the next step and
+[set up your production environment](./docu/initial-setup-prod-env.md).
 
 ## Deployment
 

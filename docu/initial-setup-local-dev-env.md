@@ -1,14 +1,16 @@
-# Initial Setup <!-- omit in toc -->
+# Initial Setup of Local Dev Environment <!-- omit in toc -->
 
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
 - [Getting the Local Dev Env Up and Running](#getting-the-local-dev-env-up-and-running)
-  - [AWS Account](#aws-account)
+  - [Have AWS Account Ready](#have-aws-account-ready)
   - [Clone This Repo](#clone-this-repo)
-  - [User Pool](#user-pool)
-  - [Database](#database)
-  - [Starting the App](#starting-the-app)
+  - [.env File](#env-file)
+  - [Create User Pool And Intial User](#create-user-pool-and-intial-user)
+  - [Create Database Tables](#create-database-tables)
+  - [Fill Tables With Initial Data](#fill-tables-with-initial-data)
+  - [Start the App](#start-the-app)
 - [Production Machine](#production-machine)
 
 ## Prerequisites
@@ -33,7 +35,7 @@ For the local development environment, we basically need an AWS account
 where we create a user pool (AWS Cognito) and a few database tables
 (AWS DynamoDB).
 
-### AWS Account
+### Have AWS Account Ready
 
 If you don't already have one,
 [create an AWS account](https://aws.amazon.com/getting-started/onboarding-to-aws/).
@@ -63,7 +65,23 @@ cd todos
 
 to get the source code onto your machine.
 
-### User Pool
+### .env File
+
+Create a `.env` file in the root of the repo.
+Add the first two lines:
+
+```
+AWS_REGION=<your AWS region>
+SESSION_SECRET=<some string>
+```
+
+The region string is something like `us-east-1`, `eu-central-1`,
+`ap-southeast-1` etc. The `SESSION_SECRET` is an arbitrary secret string
+that is used to encrypt session data.
+
+Don't use `""` or `''` around the values in your `.env` file!
+
+### Create User Pool And Intial User
 
 Create a user pool in AWS Cognito. You can do this either manually (not
 recommended) or by using the script I prepared.
@@ -81,11 +99,22 @@ Again, the AWS credentials must be set as environment variables in order for the
 script (or to be precise: for the AWS CLI commands in it) to have access
 to your AWS account.
 
-The script also creates an initial user `alex` with a temporary password
+Add two more lines to the `.env` file:
+
+```.env
+COGNITO_USER_POOL_ID=<user pool ID>
+COGNITO_CLIENT_ID=<app client ID>
+```
+
+The user pool ID has the format `<your region>_<some string>`, e.g. `eu-central-1_GxLSY1Q47`.  
+The app client ID is a string of approx. 26 alphanumeric characters, e.g.
+`6lq1m5b1kriompiq9d72a55p9f`.
+
+The script also creates an initial user `riley` with a temporary password
 `N0tVeryS4fePW!`. You can use this user to test the app. The password will
 need to be changed during the first login, and the app is able to handle that.
 
-### Database
+### Create Database Tables
 
 Create the necessary DynamoDB tables. You can do this by running
 [the script I prepared](../scripts/create-db-tables.sh):
@@ -95,10 +124,24 @@ Create the necessary DynamoDB tables. You can do this by running
 ```
 
 As stated in the [architecture docu](./architecure.md), I distinguish between
-`dev`, `uat`, and `prod`. And this call creates the tables for the `dev`
+`dev`, `uat`, and `prod`. This call creates the tables for the `dev`
 environment.
 
-### Starting the App
+### Fill Tables With Initial Data
+
+In order for you to have an easy start, there is some initial data that you can
+add to your tables. Otherwise, it will be hard to guess the correct table structure
+and your initial user will not be able to see anything.
+
+Thus, it is a good idea to run the according script:
+
+```bash
+./scripts/import-initial-data.sh
+```
+
+You guessed it: the AWS credentials must be set as environment variables.
+
+### Start the App
 
 Now that the basic installations are done, you can start the app.
 
@@ -117,6 +160,8 @@ in the terminal that has the AWS credentials set as environment variables.
 
 You can now open a browser and navigate to http://localhost:5173. If everything
 works, you should see the app running which forwards you to the login page.
+
+Login with `riley` and `N0tVeryS4fePW!`. Give `riley` a new password.
 
 Congrats! The first mile stone is done! 🎉
 

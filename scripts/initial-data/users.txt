@@ -1,0 +1,29 @@
+{
+  "Users-dev": [
+    {
+      "PutRequest": {
+        "Item": {
+          "id": {
+            "S": "riley"
+          },
+          "displayName": {
+            "S": "Riley"
+          },
+          "taskListIds": {
+            "L": [
+              {
+                "S": "todos"
+              },
+              {
+                "S": "lets-try"
+              },
+              {
+                "S": "fun"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

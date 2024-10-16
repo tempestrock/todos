@@ -1,0 +1,58 @@
+{
+  "TaskListMetadata-dev": [
+    {
+      "PutRequest": {
+        "Item": {
+          "displayName": {
+            "S": "Real Todos"
+          },
+          "id": {
+            "S": "todos"
+          },
+          "position": {
+            "N": "0"
+          },
+          "color": {
+            "S": "#2E5CEE"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "displayName": {
+            "S": "Fun and recreation"
+          },
+          "id": {
+            "S": "fun"
+          },
+          "position": {
+            "N": "2"
+          },
+          "color": {
+            "S": "purple"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "displayName": {
+            "S": "Let's try"
+          },
+          "id": {
+            "S": "lets-try"
+          },
+          "position": {
+            "N": "1"
+          },
+          "color": {
+            "S": "green"
+          }
+        }
+      }
+    }
+  ]
+}

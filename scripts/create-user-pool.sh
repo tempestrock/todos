@@ -12,7 +12,7 @@
 # in the .env file of the Todos app.
 #
 
-INITIAL_USERNAME="alex"
+INITIAL_USERNAME="riley"
 INITIAL_PASSWORD="N0tVeryS4fePW!"
 
 main() {
@@ -91,13 +91,6 @@ create_initial_user() {
     --username "${INITIAL_USERNAME}" \
     --temporary-password "${INITIAL_PASSWORD}" \
     --message-action SUPPRESS
-
-  # Set the password for the user (marking it as permanent)
-  aws cognito-idp admin-set-user-password \
-    --user-pool-id "${USER_POOL_ID}" \
-    --username "${INITIAL_USERNAME}" \
-    --password "${INITIAL_PASSWORD}" \
-    --permanent
 }
 
 # -------------- calling the main function --------------------------------------------------------

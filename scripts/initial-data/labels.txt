@@ -1,0 +1,70 @@
+{
+  "Labels-dev": [
+    {
+      "PutRequest": {
+        "Item": {
+          "id": {
+            "S": "17275674024"
+          },
+          "displayName": {
+            "M": {
+              "de": {
+                "S": "Einkaufen"
+              },
+              "en": {
+                "S": "Shopping"
+              }
+            }
+          },
+          "color": {
+            "S": "green"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": {
+            "S": "17274703530"
+          },
+          "displayName": {
+            "M": {
+              "de": {
+                "S": "Heim"
+              },
+              "en": {
+                "S": "Home"
+              }
+            }
+          },
+          "color": {
+            "S": "#2222EE"
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "id": {
+            "S": "17275675909"
+          },
+          "displayName": {
+            "M": {
+              "de": {
+                "S": "Buch"
+              },
+              "en": {
+                "S": "Book"
+              }
+            }
+          },
+          "color": {
+            "S": "purple"
+          }
+        }
+      }
+    }
+  ]
+}
