@@ -3,175 +3,196 @@
 ## Table of Contents <!-- omit in toc -->
 
 - [Prerequisites](#prerequisites)
-- [Getting the Local Dev Env Up and Running](#getting-the-local-dev-env-up-and-running)
-  - [Have AWS Account Ready](#have-aws-account-ready)
-  - [Clone This Repo](#clone-this-repo)
-  - [.env File](#env-file)
-  - [Create User Pool And Intial User](#create-user-pool-and-intial-user)
+- [Setting Up a Machine](#setting-up-a-machine)
+  - [Access From the Internet](#access-from-the-internet)
+  - [Access From the Local Developer Machine](#access-from-the-local-developer-machine)
+  - [Tools on the Production Machine](#tools-on-the-production-machine)
+  - [Create Docker Network](#create-docker-network)
+  - [Directories and Files](#directories-and-files)
+    - [`docker-compose.yaml`](#docker-composeyaml)
+    - [`run-app.sh`](#run-appsh)
+    - [`.env`](#env)
+- [Database](#database)
   - [Create Database Tables](#create-database-tables)
   - [Fill Tables With Initial Data](#fill-tables-with-initial-data)
-  - [Start the App](#start-the-app)
-- [Production Machine](#production-machine)
+- [Deploy the App](#deploy-the-app)
 
 ## Prerequisites
 
-You should have (or be willing to get) a basic understanding of
+You should have [set up the local development](./initial-setup-local-dev-env.md) environment by now.
 
-- AWS accounts and users
-- Docker
-- Typescript, Nodejs, React, Vite, and pnpm
+## Setting Up a Machine
 
-Also, `bash` is used to run a few scripts. So we are talking Linux here. 😉  
-If you are on a Mac, you're already fine.  
-For Windows users, I recommend using
-[WSL2](https://learn.microsoft.com/en-us/windows/wsl/install),
-e.g. with an Ubuntu 24.04 image. You get it in the Microsoft Store. Altenatively,
-you can use the AWS CLI in PowerShell. But then the bash scripts
-won't work. A middle ground could be using [GitBash](https://gitforwindows.org/).
+The first thing is to have a machine to host the app.
 
-## Getting the Local Dev Env Up and Running
-
-For the local development environment, we basically need an AWS account
-where we create a user pool (AWS Cognito) and a few database tables
-(AWS DynamoDB).
-
-### Have AWS Account Ready
-
-If you don't already have one,
-[create an AWS account](https://aws.amazon.com/getting-started/onboarding-to-aws/).
-
-Once that's done, the next step is to get the necessary credentials onto your
-local development machine. You can do this either by creating a dedicated user
-with the appropriate permissions or by using the
-[AWS access portal](https://docs.aws.amazon.com/signin/latest/userguide/iam-id-center-sign-in-tutorial.html)
-to copy the credentials of your user directly into your terminal.
-
-In either case, you should end up with the environment variables `AWS_REGION`,
-`AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` set on your system. If your
-`AWS_ACCESS_KEY_ID` starts with `ASIA`, you're using session-based authentication,
-which also requires setting the `AWS_SESSION_TOKEN`.
-
-AWS is a vast platform, so feel free to dive into the details with the extensive
-documentation available online.
-
-### Clone This Repo
-
-On your local machine, call
-
-```bash
-git clone https://github.com/tempestrock/todos.git
-cd todos
-```
-
-to get the source code onto your machine.
-
-### .env File
-
-Create a `.env` file in the root of the repo.
-Add the first two lines:
-
-```
-AWS_REGION=<your AWS region>
-SESSION_SECRET=<some string>
-```
-
-The region string is something like `us-east-1`, `eu-central-1`,
-`ap-southeast-1` etc. The `SESSION_SECRET` is an arbitrary secret string
-that is used to encrypt session data.
-
-Don't use `""` or `''` around the values in your `.env` file!
-
-### Create User Pool And Intial User
-
-Create a user pool in AWS Cognito. You can do this either manually (not
-recommended) or by using the script I prepared.
-
-Run
-
-```bash
-./scripts/create-user-pool.sh <user-pool-name>
-```
-
-where `<user-pool-name>` is the name you want to give your user pool. Something
-along the lines of `todos` will do for example.
-
-Again, the AWS credentials must be set as environment variables in order for the
-script (or to be precise: for the AWS CLI commands in it) to have access
-to your AWS account.
-
-Add two more lines to the `.env` file:
-
-```.env
-COGNITO_USER_POOL_ID=<user pool ID>
-COGNITO_CLIENT_ID=<app client ID>
-```
-
-The user pool ID has the format `<your region>_<some string>`, e.g. `eu-central-1_GxLSY1Q47`.  
-The app client ID is a string of approx. 26 alphanumeric characters, e.g.
-`6lq1m5b1kriompiq9d72a55p9f`.
-
-The script also creates an initial user `riley` with a temporary password
-`N0tVeryS4fePW!`. You can use this user to test the app. The password will
-need to be changed during the first login, and the app is able to handle that.
-
-### Create Database Tables
-
-Create the necessary DynamoDB tables. You can do this by running
-[the script I prepared](../scripts/create-db-tables.sh):
-
-```bash
-./scripts/create-db-tables.sh --env-name dev
-```
-
-As stated in the [architecture docu](./architecure.md), I distinguish between
-`dev`, `uat`, and `prod`. This call creates the tables for the `dev`
+I run the application twice on that machine: once in a `uat` environment (which
+stands for 'user acceptance testing' and is essentially where I test the
+deployment and the app before setting it live), and once in the actual `prod`
 environment.
 
-### Fill Tables With Initial Data
+### Access From the Internet
 
-In order for you to have an easy start, there is some initial data that you can
-add to your tables. Otherwise, it will be hard to guess the correct table structure
-and your initial user will not be able to see anything.
+That machine must be reachable from the internet from the users' perspective.
 
-Thus, it is a good idea to run the according script:
+It should have a stable domain name, and the domain should be secured by HTTPS,
+i.e., a certificate signed by a trusted CA. This should be available for both
+the `uat` and the `prod` environment.
 
-```bash
-./scripts/import-initial-data.sh
-```
+I will not go into all the possible details on how to do that. Personally,
+I use an on-premises machine with
+[Nginx Proxy Manager](https://nginxproxymanager.com/).
 
-You guessed it: the AWS credentials must be set as environment variables.
+### Access From the Local Developer Machine
 
-### Start the App
+From the deployment perspective, you need to have access to that machine
+via `ssh` from your local developer machine. (A more elegant way would definitely
+be to use GitHub actions instead of a script for the deployment, but I skipped
+that for the moment.)
 
-Now that the basic installations are done, you can start the app.
+### Tools on the Production Machine
 
-For that, you need `pnpm` installed on your local machine. If you don't have
-it, yet, you can install it with `npm install -g pnpm`. However, I recommend
-installing [volta](https://docs.volta.sh/guide/getting-started) first and then
-using `volta install pnpm` instead.
+My production machine runs Ubuntu and has `docker` and `docker-compose`
+installed.
 
-Once `pnpm` is installed, run
+### Create Docker Network
 
-```bash
-pnpm dev
-```
-
-in the terminal that has the AWS credentials set as environment variables.
-
-You can now open a browser and navigate to http://localhost:5173. If everything
-works, you should see the app running which forwards you to the login page.
-
-Login with `riley` and `N0tVeryS4fePW!`. Give `riley` a new password.
-
-Congrats! The first mile stone is done! 🎉
-
-## Production Machine
-
-In my case, the production machine is an on-premises machine which
-hosts the app for the UAT as well as the prod environment.
+Run
 
 ```bash
 docker network create todos_network
 ```
 
-`<tbd>`
+once on that machine.
+
+### Directories and Files
+
+On the production machine, I have a specific user for the application.
+In the user's home directory, there is a directory called `todos` which in turn
+has the directories `uat` and `prod`.
+
+Each of the two directories has the following three files:
+
+- `docker-compose.yaml`
+- `run-app.sh`
+- `.env`
+
+The contents are as follows (shown here for the `uat` environment; replace
+`uat` with `prod` for the production environment):
+
+#### `docker-compose.yaml`
+
+```yaml
+services:
+  todos:
+    image: todos-uat:0.1.0
+    container_name: todos-uat
+    restart: unless-stopped
+    ports:
+      - '8080:8081' # e.g. '8081:8081' for prod
+    env_file:
+      - .env
+    networks:
+      - todos_network
+
+networks:
+  todos_network:
+    external: true
+```
+
+As you see, in `uat` the incoming requests are mapped from port 8080 to port 8081.
+This also means that you should have some kind of reverse proxy or load balancer
+in front of the app. (In my case, the Nginx Proxy Manager is doing that for me.)
+
+#### `run-app.sh`
+
+```bash
+#! /usr/bin/env bash
+
+cd $(dirname "${0}")
+
+docker-compose down
+docker-compose up -d
+```
+
+Make sure to call `chmod +x run-app.sh` once before trying to run it.
+
+#### `.env`
+
+```
+ENV_NAME=uat
+AWS_REGION=<your AWS region>
+AWS_ACCESS_KEY_ID=<access key ID>
+AWS_SECRET_ACCESS_KEY=<secret access key>
+SESSION_SECRET=<some string>
+COGNITO_USER_POOL_ID=<user pool ID>
+COGNITO_CLIENT_ID=<app client ID>
+```
+
+See the description of the `.env` file
+[here](./initial-setup-local-dev-env#env-file) and following
+for more details of the contents.
+
+The values of `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+are again coming from a user or a role you defined in your AWS account.
+That user or role needs to have write access to your Dynamo DB tables.
+
+That's it for the machine setup.
+
+## Database
+
+### Create Database Tables
+
+Similar to the creation of the tables for the local development environment,
+you need to create the database tables for `uat` and `prod`.
+
+On your developer machine, run
+
+```bash
+./scripts/create-db-tables.sh --env-name uat
+./scripts/create-db-tables.sh --env-name prod
+```
+
+To keep things easy, I use the same AWS Cognito user pool for all
+environments. But feel free to change that if you want.
+
+### Fill Tables With Initial Data
+
+If you like, you can again fill the database tables with initial data using
+the script I prepared. For that, you need to replace the occurrences of the
+string '`-dev`' in the `.txt` files in
+[the subfolder `initial-data`](../scripts/initial-data/)
+with `-uat` or `-prod` as appropriate and then run the script:
+
+```bash
+./scripts/import-initial-data.sh
+```
+
+(E.g. `labels-dev` needs to become `labels-uat`, etc.)
+
+## Deploy the App
+
+There is a script called [`deploy.sh`](../scripts/deploy.sh) that you can run to
+deploy the app.
+
+Open the script in your editor, find the two lines marked with `CUSTOMIZE_ME`,
+and replace the values for the production machine and the corresponding user with
+the values of your system.
+
+Run the script as follows:
+
+```bash
+./scripts/deploy.sh --env-name uat
+```
+
+If everything is set up correctly, you should see the script perform the following
+steps:
+
+1. Create a container image on your local machine.
+2. Transfer the image to your production machine.
+3. Start a container from the transferred image on your production
+   machine (`uat` in this case).
+
+You should now be able to access the app under your `uat` domain.
+
+Run the script with `--env-name prod` again and see your result under your
+`prod` domain.

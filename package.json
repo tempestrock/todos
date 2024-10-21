@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
+    "start": "remix-serve ./build/server/index.js",
     "dev": "remix vite:dev",
     "lint:check": "eslint --max-warnings 0 .",
     "lint:fix": "eslint --fix .",

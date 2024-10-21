@@ -11,7 +11,6 @@
   - [Create Database Tables](#create-database-tables)
   - [Fill Tables With Initial Data](#fill-tables-with-initial-data)
   - [Start the App](#start-the-app)
-- [Production Machine](#production-machine)
 
 ## Prerequisites
 
@@ -164,14 +163,3 @@ works, you should see the app running which forwards you to the login page.
 Login with `riley` and `N0tVeryS4fePW!`. Give `riley` a new password.
 
 Congrats! The first mile stone is done! 🎉
-
-## Production Machine
-
-In my case, the production machine is an on-premises machine which
-hosts the app for the UAT as well as the prod environment.
-
-```bash
-docker network create todos_network
-```
-
-`<tbd>`
