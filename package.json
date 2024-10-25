@@ -1,7 +1,17 @@
 {
   "name": "todos",
-  "private": true,
-  "sideEffects": false,
+  "version": "1.0.0",
+  "description": "A nice little app to manage your tasks built with Remix",
+  "author": {
+    "name": "Peter",
+    "url": "https://github.com/tempestrock"
+  },
+  "license": "MIT",
+  "keywords": [
+    "task manager",
+    "to-do list",
+    "productivity"
+  ],
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
