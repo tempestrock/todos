@@ -35,11 +35,14 @@ for code reviews and the like. Instead, I spent some time writing this documenta
 - Tasks have a title and a detailed text. The detailed text can be written in
   basic [Markdown](https://www.markdownguide.org/cheat-sheet/) in order to give it
   a nicer look and feel. Also links can be added in the text this way.
-- Localization: Currently, English and German are supported. Other languages should be easily addable by you.
+- Localization: Currently, English and German are supported. Other languages should be easily addable.
 - Labels:
   - Labels (e.g. something like `Bug`, `Size: S`, `Size: L`, `Learn`, `at home`, `in the garden`, etc.)
-    can be created, edited, and deleted. They are part of the localization.
-  - Tasks can be assigned labels and filtered according to their labels.
+    can be created, edited, and deleted.
+  - Labels can be localized, i.e., they switch their names when the language
+    is changed.
+  - Tasks can be assigned labels and - the actual main purpose of the existence
+    of labels - filtered according to their labels.
 - Users can be assigned todo lists. Different users can have different sets of lists.
 - Light and dark mode.
 
@@ -48,15 +51,16 @@ for code reviews and the like. Instead, I spent some time writing this documenta
 - Remix application using Vite, TypeScript, Tailwind CSS, and pnpm.
 - AWS Cognito for user management.
 - AWS DynamoDB for data storage.
-- Possibility to develop locally (`dev`), test on a separate machine (`uat`), and run in "production" (`prod`).
+- Possibility to develop locally (`dev`), test in a separate environment
+  (`uat`), and run in "production" (`prod`).
 
 The initial installation is not fully automated but I hope that this description tells you everything you need.
 
 Some things need to be admninistered manually, e.g. the assignment of users to
 todo lists or the creation of new todo lists.
 
-In the code, you will find some `CUSTOMIZE_ME` comments. These should be replaced
-by actual values that make sense in your case.
+In the code, you will find some `CUSTOMIZE_ME` comments. These are places
+where you can use values that make sense for your use case.
 
 ## Architecture
 
@@ -72,8 +76,8 @@ your local dev environment up.
 ## Initial Setup of the Prod Environment(s)
 
 Once your local dev environment is up and running,
-you can take the next step and
-[set up your production environment](./docu/initial-setup-prod-env.md).
+you can take the next step and set up your
+[production machine with the two environments `uat` and `prod`](./docu/initial-setup-prod-env.md).
 
 ## Deployment
 

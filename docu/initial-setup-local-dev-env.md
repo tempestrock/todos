@@ -50,9 +50,6 @@ In either case, you should end up with the environment variables `AWS_REGION`,
 `AWS_ACCESS_KEY_ID` starts with `ASIA`, you're using session-based authentication,
 which also requires setting the `AWS_SESSION_TOKEN`.
 
-AWS is a vast platform, so feel free to dive into the details with the extensive
-documentation available online.
-
 ### Clone This Repo
 
 On your local machine, call
@@ -76,7 +73,8 @@ SESSION_SECRET=<some string>
 
 The region string is something like `us-east-1`, `eu-central-1`,
 `ap-southeast-1` etc. The `SESSION_SECRET` is an arbitrary secret string
-that is used to encrypt session data.
+that you can invent. It is used to
+encrypt session data.
 
 Don't use `""` or `''` around the values in your `.env` file!
 
@@ -98,7 +96,8 @@ Again, the AWS credentials must be set as environment variables in order for the
 script (or to be precise: for the AWS CLI commands in it) to have access
 to your AWS account.
 
-Add two more lines to the `.env` file:
+Add two more lines to the `.env` file with the values the script
+printed out:
 
 ```.env
 COGNITO_USER_POOL_ID=<user pool ID>
@@ -162,4 +161,6 @@ works, you should see the app running which forwards you to the login page.
 
 Login with `riley` and `N0tVeryS4fePW!`. Give `riley` a new password.
 
-Congrats! The first mile stone is done! 🎉
+Congrats! The first mile stone is done! 🎉  
+The next step is to
+[set up the production machine and its environments](./initial-setup-prod-env.md).

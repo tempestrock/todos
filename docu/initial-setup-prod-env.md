@@ -1,4 +1,4 @@
-# Initial Setup of Local Dev Environment <!-- omit in toc -->
+# Initial Setup of UAT and Prod Environment <!-- omit in toc -->
 
 ## Table of Contents <!-- omit in toc -->
 
@@ -34,13 +34,22 @@ environment.
 
 That machine must be reachable from the internet from the users' perspective.
 
-It should have a stable domain name, and the domain should be secured by HTTPS,
-i.e., a certificate signed by a trusted CA. This should be available for both
+It should have a domain name, and the domain should be secured by HTTPS,
+i.e., with a certificate signed by a trusted CA. This should be available for both
 the `uat` and the `prod` environment.
 
 I will not go into all the possible details on how to do that. Personally,
 I use an on-premises machine with
-[Nginx Proxy Manager](https://nginxproxymanager.com/).
+[Nginx Proxy Manager](https://nginxproxymanager.com/) which forwards the
+requests to `uat` and `prod`, respectively. My domain name is provided by
+[MyFritz!](https://en.avm.de/index.php?id=26293) (because my router is
+a FritzBox).
+
+An alternative would be to set up an AWS EC2 instance with the domain
+being managed by AWS Route 53 and a certificate provided by AWS ACM. The
+reverse proxy could be an Nginx on that EC2 instance or
+a separate AWS Application Load Balancer. But note that this would be
+a more costly way to do it.
 
 ### Access From the Local Developer Machine
 
@@ -100,8 +109,7 @@ networks:
 ```
 
 As you see, in `uat` the incoming requests are mapped from port 8080 to port 8081.
-This also means that you should have some kind of reverse proxy or load balancer
-in front of the app. (In my case, the Nginx Proxy Manager is doing that for me.)
+This is where the reverse proxy or load balancer needs to do the mapping.
 
 #### `run-app.sh`
 
@@ -138,6 +146,10 @@ That user or role needs to have write access to your Dynamo DB tables.
 
 That's it for the machine setup.
 
+Again, you can do this in a completely different way. Maybe, you
+just want to use the [Dockerfile](../Dockerfile) I implemented and build and
+deploy the image yourself.
+
 ## Database
 
 ### Create Database Tables
@@ -172,7 +184,7 @@ with `-uat` or `-prod` as appropriate and then run the script:
 ## Deploy the App
 
 There is a script called [`deploy.sh`](../scripts/deploy.sh) that you can run to
-deploy the app.
+deploy the app if you followed the steps regarding the machine setup above.
 
 Open the script in your editor, find the two lines marked with `CUSTOMIZE_ME`,
 and replace the values for the production machine and the corresponding user with
@@ -192,7 +204,12 @@ steps:
 3. Start a container from the transferred image on your production
    machine (`uat` in this case).
 
-You should now be able to access the app under your `uat` domain.
+You should now be able to access the app under your `uat` domain. 😎
 
 Run the script with `--env-name prod` again and see your result under your
-`prod` domain.
+`prod` domain. 🎉
+
+Hope this all worked for you! I realized that it was way more to describe than
+I originally thought. Please feel free to share your thoughts with me.
+I am really curious to see if there is someone who used my stuff on their
+own.
