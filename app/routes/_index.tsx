@@ -5,7 +5,7 @@ import { useState } from 'react'
 import MoreMenu from '~/components/MoreMenu'
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
-import { Label, TaskList, User } from '~/types/dataTypes'
+import { TaskList, User } from '~/types/dataTypes'
 import { authAction } from '~/utils/auth/authAction'
 import { requireAuth } from '~/utils/auth/requireAuth'
 import { loadListMetadata } from '~/utils/database/taskListOperations'
@@ -15,8 +15,8 @@ import { log } from '~/utils/log'
 export type LoaderData = {
   user?: User
   todoLists: TaskList[]
-  labels: Label[]
   success: boolean
+  errorMsg?: string
 }
 
 export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) => {
@@ -25,23 +25,33 @@ export const loader: LoaderFunction = async ({ request }: LoaderFunctionArgs) =>
 
   try {
     const user = await loadUser(userId)
-    if (!user) throw new Error('[_index.loader] Failed to load user')
+    if (!user) {
+      // The user in Cognito is not defined in the 'Users' table.
+      return json<LoaderData>(
+        {
+          success: false,
+          errorMsg: `User '${userId}' is authenticated, but cannot be found in the database. Please add them to the 'Users' table.`,
+          todoLists: [],
+        },
+        { headers: authResult.headers }
+      )
+    }
 
     const todoLists = await loadListMetadata(user.taskListIds)
     todoLists.sort((a, b) => a.position - b.position)
 
-    return json<LoaderData>({ success: true, todoLists, user, labels: [] }, { headers: authResult.headers })
-  } catch (error) {
+    return json<LoaderData>({ success: true, todoLists, user }, { headers: authResult.headers })
+  } catch (error: any) {
     log('[_index.loader] Error loading tasks:', error)
     return json<LoaderData>(
-      { success: false, todoLists: [], user: undefined, labels: [] },
+      { success: false, errorMsg: error.toString(), todoLists: [] },
       { headers: authResult.headers }
     )
   }
 }
 
 export default function HomeView() {
-  const { todoLists, user, success } = useLoaderData<LoaderData>()
+  const { todoLists, user, success, errorMsg } = useLoaderData<LoaderData>()
   const { t } = useTranslation()
   const [loadingListId, setLoadingListId] = useState<string | null>(null)
 
@@ -86,7 +96,13 @@ export default function HomeView() {
         </div>
       </div>
     )
-  else return <div className="text-5xl text-red-600 flex justify-center items-center h-screen">Failed to load 😵</div>
+  else
+    return (
+      <div className="h-screen flex flex-col items-center justify-center">
+        <div className="flex text-5xl text-red-600 mb-4">Failed to load 😵</div>
+        <div className="mx-4 text-base text-gray-900">{errorMsg}</div>
+      </div>
+    )
 }
 
 export const action = authAction

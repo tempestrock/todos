@@ -13,7 +13,6 @@ import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
-import { log } from '~/utils/log'
 import { printObject } from '~/utils/printObject'
 
 type LoaderData = {
@@ -121,11 +120,8 @@ export default function AddTaskView() {
 }
 
 export const action: ActionFunction = async ({ request }) => {
-  log(`[addTask.action] starting`)
-
   const formData = await request.formData()
   const intent = formData.get('intent') as string
-  log(`[addTask.action] intent: ${intent}`)
 
   const listId = formData.get('listId') as string
   if (!listId) throw new Error(`[addTask.action] listId not found.`)

@@ -39,7 +39,12 @@ showing the leftmost board column "Backlog".
 Clicking or tapping on one of the tasks opens the details of that task. Also
 the tools bar is then available for editing, moving, and deleting the task.
 
-Moving can be done up and down in the same board column or between board columns.
+Moving can be done up and down in the same board column or between board columns.  
+Tasks are supposed to start in the 'backlog' column, move to the 'in progress'
+column, and finally end in the 'done' column.
+
+It is technically easy to add more columns. Only the size question needs
+to be answered then.
 
 <img src="images/backlog-02.png" alt="Task Management, Backlog" width="350"/>
 
@@ -60,11 +65,11 @@ texts in the app, all labels created by the user, and the board column names.
 
 Editing a task lets you modify title, details, and labels.
 
-<img src="images/edit-task-01.png" alt="Home Screen" width="350"/>
+<img src="images/edit-task-01.png" alt="Task Editing" width="350"/>
 
 ---
 
 Labels can also be created while editing tasks for a faster task creation
 without a lot of clicking.
 
-<img src="images/edit-task-02.png" alt="Home Screen" width="350"/>
+<img src="images/edit-task-02.png" alt="Task Editing with Label Creation" width="350"/>

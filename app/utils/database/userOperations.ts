@@ -11,7 +11,7 @@ import { log } from '~/utils/log'
  * @param {string} userId - The ID of the user to load.
  * @return {Promise<User>} The user's data.
  */
-export const loadUser = async (userId: string): Promise<User> => {
+export const loadUser = async (userId: string): Promise<User | undefined> => {
   try {
     const getParams = {
       TableName: getTableName(TABLE_NAME_USERS),
@@ -24,7 +24,8 @@ export const loadUser = async (userId: string): Promise<User> => {
     const response = await dbClient().send(command)
 
     if (!response.Item) {
-      throw new Error(`[loadUser] User with id ${userId} not found`)
+      log(`[loadUser] User with id ${userId} not found.`)
+      return undefined
     }
 
     return response.Item as User

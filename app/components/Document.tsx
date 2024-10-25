@@ -1,4 +1,4 @@
-import { Links, Meta, Scripts, ScrollRestoration, LiveReload } from '@remix-run/react'
+import { Links, Meta, Scripts, ScrollRestoration } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 
 import { TranslationProvider } from '~/contexts/TranslationContext'
@@ -48,7 +48,6 @@ export default function Document({ children }: { children: React.ReactNode }): J
           {children}
           <ScrollRestoration />
           <Scripts />
-          {process.env.NODE_ENV === 'development' && <LiveReload />}
         </body>
       </html>
     </TranslationProvider>

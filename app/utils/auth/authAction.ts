@@ -1,5 +1,6 @@
 import { ActionFunction, ActionFunctionArgs, json, redirect } from '@remix-run/node'
 
+import { printObject } from '../printObject'
 import { signIn, completeNewPassword } from '~/utils/auth/auth'
 import { getSession, commitSession, destroySession } from '~/utils/auth/sessionStorage'
 import { log } from '~/utils/log'
@@ -90,12 +91,19 @@ export const authAction: ActionFunction = async ({ request }: ActionFunctionArgs
         return json<ActionData>({ success: false, error: 'Invalid action' })
     }
   } catch (error: any) {
-    if (error.name === 'NotAuthorizedException') {
-      log(`[authAction] Failed login attempt with user '${username}' and password '${password}'.`)
-      return json<ActionData>({ success: false, error: 'Incorrect username or password.' })
-    } else {
-      log('[authAction] An unexpected error occurred:', error)
-      return json<ActionData>({ success: false, error: 'An unexpected error occurred.' })
+    switch (error.name) {
+      case 'NotAuthorizedException':
+        log(`[authAction] Failed login attempt with existing user '${username}' and wrong password '${password}'.`)
+        return json<ActionData>({ success: false, error: 'Incorrect username or password.' })
+
+      case 'UserNotFoundException':
+        log(`[authAction] Failed login attempt with unknown user '${username}' and password '${password}'.`)
+        return json<ActionData>({ success: false, error: 'Incorrect username or password.' })
+
+      default:
+        printObject(error, '[authAction] exception')
+        log('[authAction] An unexpected error occurred:', error)
+        return json<ActionData>({ success: false, error: `An unexpected error occurred: ${error.name}` })
     }
   }
 }
