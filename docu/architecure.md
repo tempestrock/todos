@@ -3,7 +3,7 @@
 The following diagram shows the setup of the app environments
 and how the components are connected to each other.
 
-<img src="images/todos-architecture.png" alt="Architecture" width="800"/>
+<img src="images/architecture.png" alt="Architecture" width="800"/>
 
 ## Dev
 
