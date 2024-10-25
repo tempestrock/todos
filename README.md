@@ -10,8 +10,7 @@ A small web-based application to manage todo lists.
 - [Architecture](#architecture)
 - [Initial Setup of the Local Dev Environment](#initial-setup-of-the-local-dev-environment)
 - [Initial Setup of the Prod Environment(s)](#initial-setup-of-the-prod-environments)
-- [Deployment](#deployment)
-- [Development and Code Customization](#development-and-code-customization)
+- [Maintaining Users and Task Lists](#maintaining-users-and-task-lists)
 
 ## What This Is
 
@@ -79,11 +78,9 @@ Once your local dev environment is up and running,
 you can take the next step and set up your
 [production machine with the two environments `uat` and `prod`](./docu/initial-setup-prod-env.md).
 
-## Deployment
+## Maintaining Users and Task Lists
 
-`<tbd>, not part of the initial setup.`
-
-## Development and Code Customization
-
-The source code is prepared to be tweaked in some areas. Find more information about
-it [here](./docu/code-customization.md).
+The administration of users and task lists needs to be made directly
+on the database.
+There are plans to add some admin UI for that. But for now,
+you can find more information [here](./docu/maintaining-data.md).
