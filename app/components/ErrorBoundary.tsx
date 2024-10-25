@@ -11,7 +11,7 @@ import { printObject } from '~/utils/printObject'
  * The error is also logged on the server side.
  */
 export default function ErrorBoundary() {
-  const error = useRouteError()
+  const error = useRouteError() as Error
   const location = useLocation()
 
   let title = 'Oops!'
@@ -35,9 +35,16 @@ export default function ErrorBoundary() {
       }
     }
   } else {
-    // Unexpected errors (e.g. exceptions)
-    statusText = 'You hit an unexpected edge. Sorry for that!'
-    printObject(error, '[ErrorBoundary]')
+    // Unexpected errors (e.g. exceptions).
+    if (error.stack && error.stack.includes('Resolved credential object is not valid')) {
+      // Very likely AWS credentials are missing or not valid (anymore).
+      statusText = 'The AWS credentials you use when starting the service are not valid. Please double check.'
+      printObject(error, '[ErrorBoundary]')
+    } else {
+      // Last resort.
+      statusText = 'You hit an unexpected edge. Sorry for that!'
+      printObject(error, '[ErrorBoundary]')
+    }
   }
 
   return (
