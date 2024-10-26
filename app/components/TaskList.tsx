@@ -1,9 +1,11 @@
 import { Link } from '@remix-run/react'
 import {
   ArrowDownFromLine,
+  ArrowBigDownDash,
   ArrowLeftFromLine,
   ArrowRightFromLine,
   ArrowUpFromLine,
+  ArrowBigUpDash,
   ChevronDown,
   ChevronUp,
   FilePenLine,
@@ -29,9 +31,9 @@ type TaskListProps = {
   listId: string
   currentBoardColumn: BoardColumn
   handleEdit: (taskId: string) => void
-  handleMove: (taskId: string, direction: 'prev' | 'next') => void
+  handleMoveToColumn: (taskId: string, direction: 'prev' | 'next') => void
   handleDelete: (taskId: string) => void
-  handleReorder: (taskId: string, direction: 'up' | 'down') => void
+  handleMoveVertically: (taskId: string, direction: 'up' | 'down') => void
   loadingTaskId: string | null
   currentBoardColumnIndex: number
   boardColumns: BoardColumn[]
@@ -44,9 +46,9 @@ export default function TaskList({
   listId,
   currentBoardColumn,
   handleEdit,
-  handleMove,
+  handleMoveToColumn,
   handleDelete,
-  handleReorder,
+  handleMoveVertically,
   loadingTaskId,
   currentBoardColumnIndex,
   boardColumns,
@@ -141,7 +143,7 @@ export default function TaskList({
                   </Link>
 
                   <button
-                    onClick={() => handleMove(task.id, 'prev')}
+                    onClick={() => handleMoveToColumn(task.id, 'prev')}
                     className={`text-green-500 hover:text-green-700 ${
                       currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
@@ -151,7 +153,7 @@ export default function TaskList({
                   </button>
 
                   <button
-                    onClick={() => handleMove(task.id, 'next')}
+                    onClick={() => handleMoveToColumn(task.id, 'next')}
                     className={`text-green-500 hover:text-green-700 ${
                       currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
@@ -163,7 +165,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleReorder(task.id, 'up')
+                      handleMoveVertically(task.id, 'up')
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={index === 0}
@@ -174,7 +176,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleReorder(task.id, 'down')
+                      handleMoveVertically(task.id, 'down')
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${
                       index === tasks.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
@@ -182,6 +184,30 @@ export default function TaskList({
                     disabled={index === tasks.length - 1}
                   >
                     <ArrowDownFromLine size={20} />
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleMoveVertically(task.id, 'up')
+                    }}
+                    className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={index === 0}
+                  >
+                    <ArrowBigUpDash size={20} />
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleMoveVertically(task.id, 'down')
+                    }}
+                    className={`text-cyan-500 hover:text-cyan-700 ${
+                      index === tasks.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={index === tasks.length - 1}
+                  >
+                    <ArrowBigDownDash size={20} />
                   </button>
                 </div>
 

@@ -35,7 +35,7 @@ export const useTaskActions = ({ listId, tasks, currentBoardColumn, boardColumns
    * @param {string} taskId - The ID of the task to be moved.
    * @param {'prev' | 'next'} direction - The direction in which to move the task.
    */
-  const handleMove = (taskId: string, direction: 'prev' | 'next') => {
+  const handleMoveToColumn = (taskId: string, direction: 'prev' | 'next') => {
     setLoadingTaskId(taskId)
     const currentIndex = boardColumns.indexOf(currentBoardColumn)
     const targetColumn = direction === 'prev' ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
@@ -45,12 +45,12 @@ export const useTaskActions = ({ listId, tasks, currentBoardColumn, boardColumns
   }
 
   /**
-   * Handles a vertical reordering of tasks, i.e., in the same board column.
+   * Handles a vertical move of tasks, i.e., in the same board column.
    *
-   * @param {string} taskId - The ID of the task being reordered
-   * @param {'up' | 'down'} direction - The direction of the reorder action
+   * @param {string} taskId - The ID of the task being moved
+   * @param {'up' | 'down'} direction - The direction of the vertical move action
    */
-  const handleReorder = (taskId: string, direction: 'up' | 'down') => {
+  const handleMoveVertically = (taskId: string, direction: 'up' | 'down') => {
     setLoadingTaskId(taskId)
 
     // Find tasks in the current column.
@@ -79,7 +79,7 @@ export const useTaskActions = ({ listId, tasks, currentBoardColumn, boardColumns
 
     submit(
       {
-        intent: 'reorder',
+        intent: 'moveVertically',
         listId,
         taskId: currentTask.id,
         targetTaskId: targetTask.id,
@@ -91,8 +91,8 @@ export const useTaskActions = ({ listId, tasks, currentBoardColumn, boardColumns
   return {
     handleEdit,
     handleDelete,
-    handleMove,
-    handleReorder,
+    handleMoveToColumn,
+    handleMoveVertically,
     loadingTaskId,
     setLoadingTaskId,
   }

@@ -88,17 +88,18 @@ export default function ListView() {
   useEffect(() => {
     if (navigation.state === 'idle') {
       // Reset spinner once the navigation completes. This is necessary for
-      // the spinner of the reordering and movement of tasks to work correctly.
+      // the spinner of the movement of tasks to work correctly.
       setLoadingTaskId(null)
     }
   }, [navigation.state])
 
-  const { handleEdit, handleDelete, handleMove, handleReorder, loadingTaskId, setLoadingTaskId } = useTaskActions({
-    listId,
-    tasks,
-    currentBoardColumn,
-    boardColumns,
-  })
+  const { handleEdit, handleDelete, handleMoveToColumn, handleMoveVertically, loadingTaskId, setLoadingTaskId } =
+    useTaskActions({
+      listId,
+      tasks,
+      currentBoardColumn,
+      boardColumns,
+    })
 
   /**
    * Updates the board column based on the provided index and navigates to the corresponding URL.
@@ -166,9 +167,9 @@ export default function ListView() {
             listId={listId}
             currentBoardColumn={currentBoardColumn}
             handleEdit={handleEdit}
-            handleMove={handleMove}
+            handleMoveToColumn={handleMoveToColumn}
             handleDelete={handleDelete}
-            handleReorder={handleReorder}
+            handleMoveVertically={handleMoveVertically}
             loadingTaskId={loadingTaskId}
             currentBoardColumnIndex={currentBoardColumnIndex}
             boardColumns={boardColumns}
@@ -230,12 +231,12 @@ export const action = async ({ request }: { request: Request }) => {
         return json({ success: true, message: 'Task moved successfully' })
       }
 
-      case 'reorder': {
+      case 'moveVertically': {
         const targetTaskId = formData.get('targetTaskId') as string
 
         await swapTasks(taskId, targetTaskId)
 
-        return json({ success: true, message: 'Task reordered successfully' })
+        return json({ success: true, message: 'Task moved successfully' })
       }
 
       default:
