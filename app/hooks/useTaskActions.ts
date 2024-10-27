@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn } from '~/types/dataTypes'
-import { MoveTarget } from '~/types/directions'
+import { HorizontalMoveTarget, VerticalMoveTarget } from '~/types/moveTargets'
 
 type UseTaskActionsProps = {
   listId: string
@@ -33,24 +33,25 @@ export const useTaskActions = ({ listId, currentBoardColumn, boardColumns }: Use
    * Handles a horizontal move of a task to a new board column based on the given taskId and direction.
    *
    * @param {string} taskId - The ID of the task to be moved.
-   * @param {'prev' | 'next'} direction - The direction in which to move the task.
+   * @param {HorizontalMoveTarget} direction - The direction in which to move the task.
    */
-  const handleMoveToColumn = (taskId: string, direction: 'prev' | 'next') => {
+  const handleHorizontalMove = (taskId: string, direction: HorizontalMoveTarget) => {
     setLoadingTaskId(taskId)
     const currentIndex = boardColumns.indexOf(currentBoardColumn)
-    const targetColumn = direction === 'prev' ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
+    const targetColumn =
+      direction === HorizontalMoveTarget.oneLeft ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
 
     // Call the action to move the task to the new board column.
-    submit({ intent: 'moveToColumn', listId, taskId, targetColumn }, { method: 'post' })
+    submit({ intent: 'moveHorizontally', listId, taskId, targetColumn }, { method: 'post' })
   }
 
   /**
    * Handles a vertical move of tasks, i.e., in the same board column.
    *
    * @param {string} taskId - The ID of the task being moved
-   * @param {MoveTarget} moveTarget - The target of the vertical move action
+   * @param {VerticalMoveTarget} moveTarget - The target of the vertical move action
    */
-  const handleMoveVertically = (taskId: string, moveTarget: MoveTarget) => {
+  const handleVerticalMove = (taskId: string, moveTarget: VerticalMoveTarget) => {
     setLoadingTaskId(taskId)
 
     submit(
@@ -67,8 +68,8 @@ export const useTaskActions = ({ listId, currentBoardColumn, boardColumns }: Use
   return {
     handleEdit,
     handleDelete,
-    handleMoveToColumn,
-    handleMoveVertically,
+    handleHorizontalMove,
+    handleVerticalMove,
     loadingTaskId,
     setLoadingTaskId,
   }

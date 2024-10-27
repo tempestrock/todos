@@ -7,17 +7,16 @@ import TaskListHeader from '~/components/TaskListHeader'
 import TaskListLabelFilter from '~/components/TaskListLabelFilter'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { useTaskActions } from '~/hooks/useTaskActions'
-import { Label, TaskList as TaskListType, BoardColumn, Task, TaskListUndefined } from '~/types/dataTypes'
-import { MoveTarget } from '~/types/directions'
+import { Label, TaskList as TaskListType, BoardColumn, TaskListUndefined } from '~/types/dataTypes'
+import { VerticalMoveTarget } from '~/types/moveTargets'
 import { requireAuth } from '~/utils/auth/requireAuth'
 import { loadLabels } from '~/utils/database/labelOperations'
-import { deleteTask, loadTask, loadTaskList, updateBoardColumn } from '~/utils/database/taskOperations'
-import { getNow } from '~/utils/dateAndTime'
+import { deleteTask, loadTask, loadTaskList } from '~/utils/database/taskOperations'
 import { LANG_DEFAULT } from '~/utils/language'
-import { moveTaskToTarget } from '~/utils/list/moveTaskToTarget'
-import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
-import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { log } from '~/utils/log'
+import { moveUpTasksBelowPosition } from '~/utils/tasklist/movePartsOfLists'
+import { moveTaskHorizontally } from '~/utils/tasklist/moveTaskHorizontally'
+import { moveTaskVertically } from '~/utils/tasklist/moveTaskVertically'
 
 type LoaderData = {
   taskList: TaskListType
@@ -94,7 +93,7 @@ export default function ListView() {
     }
   }, [navigation.state])
 
-  const { handleEdit, handleDelete, handleMoveToColumn, handleMoveVertically, loadingTaskId, setLoadingTaskId } =
+  const { handleEdit, handleDelete, handleHorizontalMove, handleVerticalMove, loadingTaskId, setLoadingTaskId } =
     useTaskActions({
       listId,
       currentBoardColumn,
@@ -167,8 +166,8 @@ export default function ListView() {
             listId={listId}
             currentBoardColumn={currentBoardColumn}
             handleEdit={handleEdit}
-            handleMoveToColumn={handleMoveToColumn}
-            handleMoveVertically={handleMoveVertically}
+            handleHorizontalMove={handleHorizontalMove}
+            handleVerticalMove={handleVerticalMove}
             handleDelete={handleDelete}
             loadingTaskId={loadingTaskId}
             currentBoardColumnIndex={currentBoardColumnIndex}
@@ -205,39 +204,15 @@ export const action = async ({ request }: { request: Request }) => {
         return json({ success: true, message: 'Task deleted successfully' })
       }
 
-      case 'moveToColumn': {
+      case 'moveHorizontally': {
         const targetColumn = formData.get('targetColumn') as BoardColumn
-        const taskToUpdate = await loadTask(taskId)
-        if (!taskToUpdate) throw new Error(`Could not find task '${taskId}' to update.`)
-
-        const boardColumnSoFar = taskToUpdate.boardColumn
-        const positionSoFar = taskToUpdate.position
-
-        // Update the task with the new column
-        const updatedTask: Task = {
-          ...taskToUpdate,
-          position: 0, // Put the new task at the top of the list in the new board column.
-          boardColumn: targetColumn,
-          updatedAt: getNow(),
-        }
-
-        // Push all tasks in the target column down one position as the moved task is now at the top.
-        await pushTasksDown(listId, targetColumn)
-
-        // Save the updated task.
-        await updateBoardColumn(updatedTask)
-
-        // Move all tasks below the moved task up one position.
-        await moveUpTasksBelowPosition(listId, boardColumnSoFar, positionSoFar)
-
+        await moveTaskHorizontally(listId, taskId, targetColumn)
         return json({ success: true, message: 'Task moved successfully' })
       }
 
       case 'moveVertically': {
-        const moveTarget = formData.get('moveTarget') as MoveTarget
-
-        await moveTaskToTarget(taskId, moveTarget, listId)
-
+        const moveTarget = formData.get('moveTarget') as VerticalMoveTarget
+        await moveTaskVertically(taskId, moveTarget, listId)
         return json({ success: true, message: `Task moved successfully: ${moveTarget}` })
       }
 

@@ -12,8 +12,7 @@ import { saveTask } from '~/utils/database/taskOperations'
 import { getNow } from '~/utils/dateAndTime'
 import { getUid } from '~/utils/getUid'
 import { LANG_DEFAULT } from '~/utils/language'
-import { pushTasksDown } from '~/utils/list/pushTasksDown'
-import { printObject } from '~/utils/printObject'
+import { moveAllTasksDownOnePosition } from '~/utils/tasklist/movePartsOfLists'
 
 type LoaderData = {
   labels: Label[]
@@ -64,7 +63,7 @@ export default function AddTaskView() {
             <button
               type="submit"
               name="intent"
-              value="saveTask"
+              value="addTask"
               className="text-sm bg-blue-500 hover:bg-blue-700 text-gray-100 px-4 rounded"
               disabled={navigation.state === 'submitting'}
             >
@@ -134,8 +133,6 @@ export const action: ActionFunction = async ({ request }) => {
       // Handle new label creation
       const labelNames = formData.get('labelNames') as string | null
       const labelColor = formData.get('labelColor') as string | null
-      printObject(labelNames, '[addTask.action] labelNames')
-      printObject(labelColor, '[addTask.action] labelColor')
 
       if (labelNames && labelColor) {
         const newLabelId = getUid()
@@ -145,8 +142,6 @@ export const action: ActionFunction = async ({ request }) => {
           color: labelColor,
         }
 
-        printObject(newLabel, '[addTask.action] newLabel')
-
         // Save the new label to the database
         await saveLabel(newLabel)
       }
@@ -154,11 +149,12 @@ export const action: ActionFunction = async ({ request }) => {
       return redirect(`/addTask?listId=${listId}&boardColumn=${boardColumn}`)
     }
 
-    case 'saveTask': {
-      const taskId = getUid()
+    case 'addTask': {
       const taskTitle = formData.get('taskTitle') as string
       const taskDetails = formData.get('taskDetails') as string
       const boardColumn = formData.get('boardColumn') as BoardColumn
+
+      const taskId = getUid()
       const nowStr = getNow()
 
       // Get labelIds from formData
@@ -178,7 +174,7 @@ export const action: ActionFunction = async ({ request }) => {
       }
 
       // Push all tasks in the list down one position by incrementing their `position` values.
-      await pushTasksDown(listId, boardColumn)
+      await moveAllTasksDownOnePosition(listId, boardColumn)
 
       // Save the new task.
       await saveTask(taskToAdd)

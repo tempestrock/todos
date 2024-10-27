@@ -1,9 +1,12 @@
-import { loadTask, loadTaskList, saveTask } from '../database/taskOperations'
-import { log } from '../log'
 import { BoardColumn, Task } from '~/types/dataTypes'
-import { MoveTarget } from '~/types/directions'
+import { VerticalMoveTarget } from '~/types/moveTargets'
+import { loadTask, loadTaskList, saveTask } from '~/utils/database/taskOperations'
 
-export const moveTaskToTarget = async (taskId: string, moveTarget: MoveTarget, listId: string): Promise<void> => {
+export const moveTaskVertically = async (
+  taskId: string,
+  moveTarget: VerticalMoveTarget,
+  listId: string
+): Promise<void> => {
   // Get the task to move from the database.
   const taskToMove = await loadTask(taskId)
   if (!taskToMove) throw new Error('[moveTaskToPosition] Failed to load task')
@@ -14,12 +17,9 @@ export const moveTaskToTarget = async (taskId: string, moveTarget: MoveTarget, l
   const currentPosition = taskToMove.position
   const targetPosition = getPositionFromMoveTarget(currentPosition, moveTarget, tasks.length)
 
-  log(`Moving task from position ${currentPosition} to position ${targetPosition}.`)
-
   // Move all tasks between the current position and the target position.
   if (currentPosition > targetPosition) {
     // The task is moving up the list, so the other tasks move down.
-
     for (let index = targetPosition; index < currentPosition; index++) {
       tasks[index].position = index + 1
     }
@@ -27,12 +27,12 @@ export const moveTaskToTarget = async (taskId: string, moveTarget: MoveTarget, l
     // Move the task to move to the target position.
     tasks[currentPosition].position = targetPosition
 
+    // Save all modified tasks.
     for (let index = targetPosition; index <= currentPosition; index++) {
       await saveTask(tasks[index])
     }
   } else {
     // The task is moving down the list, so the other tasks move up.
-
     for (let index = currentPosition + 1; index <= targetPosition; index++) {
       tasks[index].position = index - 1
     }
@@ -40,6 +40,7 @@ export const moveTaskToTarget = async (taskId: string, moveTarget: MoveTarget, l
     // Move the task to move to the target position.
     tasks[currentPosition].position = targetPosition
 
+    // Save all modified tasks.
     for (let index = currentPosition; index <= targetPosition; index++) {
       await saveTask(tasks[index])
     }
@@ -63,22 +64,26 @@ const getTasksOfListAndColumn = async (listId: string, boardColumn: BoardColumn)
  * of the task, the target, and the number of tasks in the list.
  *
  * @param {number} currentPosition - The current position of the task.
- * @param {MoveTarget} moveTarget - The target of the move action.
+ * @param {VerticalMoveTarget} moveTarget - The target of the move action.
  * @param {number} numTasks - The number of tasks in the list.
  * @return {number} The target position of the task.
  */
-const getPositionFromMoveTarget = (currentPosition: number, moveTarget: MoveTarget, numTasks: number): number => {
+const getPositionFromMoveTarget = (
+  currentPosition: number,
+  moveTarget: VerticalMoveTarget,
+  numTasks: number
+): number => {
   switch (moveTarget) {
-    case MoveTarget.top:
+    case VerticalMoveTarget.top:
       return 0
 
-    case MoveTarget.bottom:
+    case VerticalMoveTarget.bottom:
       return numTasks - 1
 
-    case MoveTarget.oneUp:
+    case VerticalMoveTarget.oneUp:
       return currentPosition - 1
 
-    case MoveTarget.oneDown:
+    case VerticalMoveTarget.oneDown:
       return currentPosition + 1
 
     default:

@@ -17,7 +17,7 @@ import ReactMarkdown from 'react-markdown'
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, Task, BoardColumn } from '~/types/dataTypes'
-import { MoveTarget } from '~/types/directions'
+import { HorizontalMoveTarget, VerticalMoveTarget } from '~/types/moveTargets'
 import { getNiceDateTime } from '~/utils/dateAndTime'
 import { LANG_DEFAULT } from '~/utils/language'
 
@@ -32,8 +32,8 @@ type TaskListProps = {
   listId: string
   currentBoardColumn: BoardColumn
   handleEdit: (taskId: string) => void
-  handleMoveToColumn: (taskId: string, direction: 'prev' | 'next') => void
-  handleMoveVertically: (taskId: string, moveTarget: MoveTarget) => void
+  handleHorizontalMove: (taskId: string, direction: HorizontalMoveTarget) => void
+  handleVerticalMove: (taskId: string, moveTarget: VerticalMoveTarget) => void
   handleDelete: (taskId: string) => void
   loadingTaskId: string | null
   currentBoardColumnIndex: number
@@ -47,8 +47,8 @@ export default function TaskList({
   listId,
   currentBoardColumn,
   handleEdit,
-  handleMoveToColumn,
-  handleMoveVertically,
+  handleHorizontalMove,
+  handleVerticalMove,
   handleDelete,
   loadingTaskId,
   currentBoardColumnIndex,
@@ -144,7 +144,7 @@ export default function TaskList({
                   </Link>
 
                   <button
-                    onClick={() => handleMoveToColumn(task.id, 'prev')}
+                    onClick={() => handleHorizontalMove(task.id, HorizontalMoveTarget.oneLeft)}
                     className={`text-green-500 hover:text-green-700 ${
                       currentBoardColumnIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
@@ -154,7 +154,7 @@ export default function TaskList({
                   </button>
 
                   <button
-                    onClick={() => handleMoveToColumn(task.id, 'next')}
+                    onClick={() => handleHorizontalMove(task.id, HorizontalMoveTarget.oneRight)}
                     className={`text-green-500 hover:text-green-700 ${
                       currentBoardColumnIndex === boardColumns.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
@@ -166,7 +166,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveVertically(task.id, MoveTarget.oneUp)
+                      handleVerticalMove(task.id, VerticalMoveTarget.oneUp)
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={index === 0}
@@ -177,7 +177,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveVertically(task.id, MoveTarget.oneDown)
+                      handleVerticalMove(task.id, VerticalMoveTarget.oneDown)
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${
                       index === tasks.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
@@ -190,7 +190,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveVertically(task.id, MoveTarget.top)
+                      handleVerticalMove(task.id, VerticalMoveTarget.top)
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={index === 0}
@@ -201,7 +201,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveVertically(task.id, MoveTarget.bottom)
+                      handleVerticalMove(task.id, VerticalMoveTarget.bottom)
                     }}
                     className={`text-cyan-500 hover:text-cyan-700 ${
                       index === tasks.length - 1 ? 'opacity-50 cursor-not-allowed' : ''

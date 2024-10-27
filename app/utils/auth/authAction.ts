@@ -1,9 +1,9 @@
 import { ActionFunction, ActionFunctionArgs, json, redirect } from '@remix-run/node'
 
-import { printObject } from '../printObject'
 import { signIn, completeNewPassword } from '~/utils/auth/auth'
 import { getSession, commitSession, destroySession } from '~/utils/auth/sessionStorage'
 import { log } from '~/utils/log'
+import { printObject } from '~/utils/printObject'
 
 export type ActionData = {
   success: boolean
