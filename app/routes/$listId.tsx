@@ -8,16 +8,15 @@ import TaskListLabelFilter from '~/components/TaskListLabelFilter'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { useTaskActions } from '~/hooks/useTaskActions'
 import { Label, TaskList as TaskListType, BoardColumn, Task, TaskListUndefined } from '~/types/dataTypes'
-import { TopOrBottom } from '~/types/directions'
+import { MoveTarget } from '~/types/directions'
 import { requireAuth } from '~/utils/auth/requireAuth'
 import { loadLabels } from '~/utils/database/labelOperations'
 import { deleteTask, loadTask, loadTaskList, updateBoardColumn } from '~/utils/database/taskOperations'
 import { getNow } from '~/utils/dateAndTime'
 import { LANG_DEFAULT } from '~/utils/language'
-import { moveTaskToPlace } from '~/utils/list/moveTaskToPlace'
+import { moveTaskToTarget } from '~/utils/list/moveTaskToTarget'
 import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
-import { swapTasks } from '~/utils/list/swapTasks'
 import { log } from '~/utils/log'
 
 type LoaderData = {
@@ -95,20 +94,12 @@ export default function ListView() {
     }
   }, [navigation.state])
 
-  const {
-    handleEdit,
-    handleDelete,
-    handleMoveToColumn,
-    handleMoveVertically,
-    handleMoveToTopOrBottom,
-    loadingTaskId,
-    setLoadingTaskId,
-  } = useTaskActions({
-    listId,
-    tasks,
-    currentBoardColumn,
-    boardColumns,
-  })
+  const { handleEdit, handleDelete, handleMoveToColumn, handleMoveVertically, loadingTaskId, setLoadingTaskId } =
+    useTaskActions({
+      listId,
+      currentBoardColumn,
+      boardColumns,
+    })
 
   /**
    * Updates the board column based on the provided index and navigates to the corresponding URL.
@@ -177,9 +168,8 @@ export default function ListView() {
             currentBoardColumn={currentBoardColumn}
             handleEdit={handleEdit}
             handleMoveToColumn={handleMoveToColumn}
-            handleDelete={handleDelete}
             handleMoveVertically={handleMoveVertically}
-            handleMoveToTopOrBottom={handleMoveToTopOrBottom}
+            handleDelete={handleDelete}
             loadingTaskId={loadingTaskId}
             currentBoardColumnIndex={currentBoardColumnIndex}
             boardColumns={boardColumns}
@@ -244,19 +234,11 @@ export const action = async ({ request }: { request: Request }) => {
       }
 
       case 'moveVertically': {
-        const targetTaskId = formData.get('targetTaskId') as string
+        const moveTarget = formData.get('moveTarget') as MoveTarget
 
-        await swapTasks(taskId, targetTaskId)
+        await moveTaskToTarget(taskId, moveTarget, listId)
 
-        return json({ success: true, message: 'Task moved successfully' })
-      }
-
-      case 'moveToTopOrBottom': {
-        const targetPlace = formData.get('targetPlace') as TopOrBottom
-
-        await moveTaskToPlace(taskId, targetPlace, listId)
-
-        return json({ success: true, message: `Task moved successfully to ${targetPlace}` })
+        return json({ success: true, message: `Task moved successfully: ${moveTarget}` })
       }
 
       default:

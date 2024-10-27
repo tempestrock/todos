@@ -1,2 +1,7 @@
 export type VerticalDirection = 'up' | 'down'
-export type TopOrBottom = 'top' | 'bottom'
+export enum MoveTarget {
+  top = 'top',
+  bottom = 'bottom',
+  oneUp = 'oneup',
+  oneDown = 'onedown',
+}

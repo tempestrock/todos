@@ -17,7 +17,7 @@ import ReactMarkdown from 'react-markdown'
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, Task, BoardColumn } from '~/types/dataTypes'
-import { TopOrBottom, VerticalDirection } from '~/types/directions'
+import { MoveTarget } from '~/types/directions'
 import { getNiceDateTime } from '~/utils/dateAndTime'
 import { LANG_DEFAULT } from '~/utils/language'
 
@@ -33,9 +33,8 @@ type TaskListProps = {
   currentBoardColumn: BoardColumn
   handleEdit: (taskId: string) => void
   handleMoveToColumn: (taskId: string, direction: 'prev' | 'next') => void
+  handleMoveVertically: (taskId: string, moveTarget: MoveTarget) => void
   handleDelete: (taskId: string) => void
-  handleMoveVertically: (taskId: string, direction: VerticalDirection) => void
-  handleMoveToTopOrBottom: (taskId: string, direction: TopOrBottom) => void
   loadingTaskId: string | null
   currentBoardColumnIndex: number
   boardColumns: BoardColumn[]
@@ -49,9 +48,8 @@ export default function TaskList({
   currentBoardColumn,
   handleEdit,
   handleMoveToColumn,
-  handleDelete,
   handleMoveVertically,
-  handleMoveToTopOrBottom,
+  handleDelete,
   loadingTaskId,
   currentBoardColumnIndex,
   boardColumns,
@@ -168,7 +166,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveVertically(task.id, 'up')
+                      handleMoveVertically(task.id, MoveTarget.oneUp)
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={index === 0}
@@ -179,7 +177,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveVertically(task.id, 'down')
+                      handleMoveVertically(task.id, MoveTarget.oneDown)
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${
                       index === tasks.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
@@ -192,7 +190,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveToTopOrBottom(task.id, 'top')
+                      handleMoveVertically(task.id, MoveTarget.top)
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={index === 0}
@@ -203,7 +201,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveToTopOrBottom(task.id, 'bottom')
+                      handleMoveVertically(task.id, MoveTarget.bottom)
                     }}
                     className={`text-cyan-500 hover:text-cyan-700 ${
                       index === tasks.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
