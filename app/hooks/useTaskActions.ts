@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import { useTranslation } from '~/contexts/TranslationContext'
 import { BoardColumn, Task } from '~/types/dataTypes'
+import { TopOrBottom, VerticalDirection } from '~/types/directions'
 
 type UseTaskActionsProps = {
   listId: string
@@ -40,17 +41,17 @@ export const useTaskActions = ({ listId, tasks, currentBoardColumn, boardColumns
     const currentIndex = boardColumns.indexOf(currentBoardColumn)
     const targetColumn = direction === 'prev' ? boardColumns[currentIndex - 1] : boardColumns[currentIndex + 1]
 
-    // Call the action to save the new board column.
-    submit({ intent: 'move', listId, taskId, targetColumn }, { method: 'post' })
+    // Call the action to move the task to the new board column.
+    submit({ intent: 'moveToColumn', listId, taskId, targetColumn }, { method: 'post' })
   }
 
   /**
    * Handles a vertical move of tasks, i.e., in the same board column.
    *
    * @param {string} taskId - The ID of the task being moved
-   * @param {'up' | 'down'} direction - The direction of the vertical move action
+   * @param {VerticalDirection} direction - The direction of the vertical move action
    */
-  const handleMoveVertically = (taskId: string, direction: 'up' | 'down') => {
+  const handleMoveVertically = (taskId: string, direction: VerticalDirection) => {
     setLoadingTaskId(taskId)
 
     // Find tasks in the current column.
@@ -88,11 +89,39 @@ export const useTaskActions = ({ listId, tasks, currentBoardColumn, boardColumns
     )
   }
 
+  const handleMoveToTopOrBottom = (taskId: string, targetPlace: TopOrBottom) => {
+    setLoadingTaskId(taskId)
+
+    // // Find tasks in the current column.
+    // const tasksInCurrentColumn = tasks.filter((task) => task.boardColumn === currentBoardColumn)
+
+    // const currentTaskIndex = tasksInCurrentColumn.findIndex((task) => task.id === taskId)
+    // if (currentTaskIndex === -1) {
+    //   setLoadingTaskId(null)
+    //   return
+    // }
+
+    // // const targetTaskIndex = targetPlace === 'top' ? 0 : tasksInCurrentColumn.length - 1
+
+    // const currentTask = tasksInCurrentColumn[currentTaskIndex]
+
+    submit(
+      {
+        intent: 'moveToTopOrBottom',
+        listId,
+        taskId,
+        targetPlace,
+      },
+      { method: 'post' }
+    )
+  }
+
   return {
     handleEdit,
     handleDelete,
     handleMoveToColumn,
     handleMoveVertically,
+    handleMoveToTopOrBottom,
     loadingTaskId,
     setLoadingTaskId,
   }

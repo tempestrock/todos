@@ -8,11 +8,13 @@ import TaskListLabelFilter from '~/components/TaskListLabelFilter'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { useTaskActions } from '~/hooks/useTaskActions'
 import { Label, TaskList as TaskListType, BoardColumn, Task, TaskListUndefined } from '~/types/dataTypes'
+import { TopOrBottom } from '~/types/directions'
 import { requireAuth } from '~/utils/auth/requireAuth'
 import { loadLabels } from '~/utils/database/labelOperations'
 import { deleteTask, loadTask, loadTaskList, updateBoardColumn } from '~/utils/database/taskOperations'
 import { getNow } from '~/utils/dateAndTime'
 import { LANG_DEFAULT } from '~/utils/language'
+import { moveTaskToPlace } from '~/utils/list/moveTaskToPlace'
 import { moveUpTasksBelowPosition } from '~/utils/list/moveUpTasksBelowPosition'
 import { pushTasksDown } from '~/utils/list/pushTasksDown'
 import { swapTasks } from '~/utils/list/swapTasks'
@@ -93,13 +95,20 @@ export default function ListView() {
     }
   }, [navigation.state])
 
-  const { handleEdit, handleDelete, handleMoveToColumn, handleMoveVertically, loadingTaskId, setLoadingTaskId } =
-    useTaskActions({
-      listId,
-      tasks,
-      currentBoardColumn,
-      boardColumns,
-    })
+  const {
+    handleEdit,
+    handleDelete,
+    handleMoveToColumn,
+    handleMoveVertically,
+    handleMoveToTopOrBottom,
+    loadingTaskId,
+    setLoadingTaskId,
+  } = useTaskActions({
+    listId,
+    tasks,
+    currentBoardColumn,
+    boardColumns,
+  })
 
   /**
    * Updates the board column based on the provided index and navigates to the corresponding URL.
@@ -170,6 +179,7 @@ export default function ListView() {
             handleMoveToColumn={handleMoveToColumn}
             handleDelete={handleDelete}
             handleMoveVertically={handleMoveVertically}
+            handleMoveToTopOrBottom={handleMoveToTopOrBottom}
             loadingTaskId={loadingTaskId}
             currentBoardColumnIndex={currentBoardColumnIndex}
             boardColumns={boardColumns}
@@ -184,6 +194,8 @@ export default function ListView() {
 
 export const action = async ({ request }: { request: Request }) => {
   const formData = await request.formData()
+
+  // Get data that is needed for in every action.
   const intent = formData.get('intent') as string
   const listId = formData.get('listId') as string
   const taskId = formData.get('taskId') as string
@@ -203,7 +215,7 @@ export const action = async ({ request }: { request: Request }) => {
         return json({ success: true, message: 'Task deleted successfully' })
       }
 
-      case 'move': {
+      case 'moveToColumn': {
         const targetColumn = formData.get('targetColumn') as BoardColumn
         const taskToUpdate = await loadTask(taskId)
         if (!taskToUpdate) throw new Error(`Could not find task '${taskId}' to update.`)
@@ -239,8 +251,17 @@ export const action = async ({ request }: { request: Request }) => {
         return json({ success: true, message: 'Task moved successfully' })
       }
 
+      case 'moveToTopOrBottom': {
+        const targetPlace = formData.get('targetPlace') as TopOrBottom
+
+        await moveTaskToPlace(taskId, targetPlace, listId)
+
+        return json({ success: true, message: `Task moved successfully to ${targetPlace}` })
+      }
+
       default:
-        return json({ error: 'Invalid action' }, { status: 400 })
+        log(`[$listId.action] Unknown action '${intent}'`)
+        return json({ error: 'Unknown action' }, { status: 400 })
     }
   } catch (error) {
     log('[$listId.action]', error)

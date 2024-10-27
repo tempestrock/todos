@@ -7,7 +7,7 @@ import { loadTask, saveTask } from '~/utils/database/taskOperations'
  * @param {string} taskId2 - The ID of the second task to swap.
  * @return {Promise<void>} A promise that resolves when the swap is complete.
  */
-export async function swapTasks(taskId1: string, taskId2: string): Promise<void> {
+export const swapTasks = async (taskId1: string, taskId2: string): Promise<void> => {
   // Fetch the two tasks we're swapping.
   const task1 = await loadTask(taskId1)
   const task2 = await loadTask(taskId2)

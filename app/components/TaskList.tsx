@@ -17,6 +17,7 @@ import ReactMarkdown from 'react-markdown'
 import Spinner from '~/components/Spinner'
 import { useTranslation } from '~/contexts/TranslationContext'
 import { Label, Task, BoardColumn } from '~/types/dataTypes'
+import { TopOrBottom, VerticalDirection } from '~/types/directions'
 import { getNiceDateTime } from '~/utils/dateAndTime'
 import { LANG_DEFAULT } from '~/utils/language'
 
@@ -33,7 +34,8 @@ type TaskListProps = {
   handleEdit: (taskId: string) => void
   handleMoveToColumn: (taskId: string, direction: 'prev' | 'next') => void
   handleDelete: (taskId: string) => void
-  handleMoveVertically: (taskId: string, direction: 'up' | 'down') => void
+  handleMoveVertically: (taskId: string, direction: VerticalDirection) => void
+  handleMoveToTopOrBottom: (taskId: string, direction: TopOrBottom) => void
   loadingTaskId: string | null
   currentBoardColumnIndex: number
   boardColumns: BoardColumn[]
@@ -49,6 +51,7 @@ export default function TaskList({
   handleMoveToColumn,
   handleDelete,
   handleMoveVertically,
+  handleMoveToTopOrBottom,
   loadingTaskId,
   currentBoardColumnIndex,
   boardColumns,
@@ -189,7 +192,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveVertically(task.id, 'up')
+                      handleMoveToTopOrBottom(task.id, 'top')
                     }}
                     className={`text-teal-500 hover:text-teal-700 ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     disabled={index === 0}
@@ -200,7 +203,7 @@ export default function TaskList({
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleMoveVertically(task.id, 'down')
+                      handleMoveToTopOrBottom(task.id, 'bottom')
                     }}
                     className={`text-cyan-500 hover:text-cyan-700 ${
                       index === tasks.length - 1 ? 'opacity-50 cursor-not-allowed' : ''
