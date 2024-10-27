@@ -36,7 +36,11 @@ export default function ErrorBoundary() {
     }
   } else {
     // Unexpected errors (e.g. exceptions).
-    if (error.stack && error.stack.includes('Resolved credential object is not valid')) {
+    if (
+      error.stack &&
+      (error.stack.includes('Resolved credential object is not valid') ||
+        error.stack.includes('The security token included in the request is expired'))
+    ) {
       // Very likely AWS credentials are missing or not valid (anymore).
       statusText = 'The AWS credentials you use when starting the service are not valid. Please double check.'
       printObject(error, '[ErrorBoundary]')
