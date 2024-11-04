@@ -155,7 +155,7 @@ export default function ListView() {
       />
 
       {/* Task List */}
-      <div className={`${labelFilterVisible ? 'pt-4' : 'pt-20'} px-4`}>
+      <div className={`${labelFilterVisible ? 'pt-4' : 'pt-20'} px-4 mb-4`}>
         {tasksInCurrentColumn.length === 0 ? (
           <div className="text-center text-gray-600 dark:text-gray-400">{t['no-tasks']}</div>
         ) : (
