@@ -11,8 +11,9 @@ import styles from '~/styles/tailwind.css?url'
  * @return An array of link tags.
  */
 export const links: LinksFunction = () => [
-  { rel: 'icon', href: '/favicon.ico' },
-  { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+  { rel: 'manifest', href: '/manifest.json' },
+  { rel: 'icon', href: '/favicon.png' },
+  { rel: 'apple-touch-icon', href: '/icon-192x192.png' },
   { rel: 'stylesheet', href: styles },
 ]
 
